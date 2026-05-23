@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>      
 <html lang="pl">      
 <head>      
   <meta charset="UTF-8" />      
@@ -186,139 +186,148 @@
       font-size: 14px;      
     }      
       
+    /* ZMIANY WYMIARÓW I SKALOWANIA ZGODNIE Z PRAWDZIWYM ROZKŁADEM ZTM */
     .paper {      
-      width: 1120px;      
-      min-height: 720px;      
+      width: 1050px;      
+      height: 740px;      
       background: #fff;      
       border: 1px solid #c7c7c7;      
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);      
-      padding: 8px;      
+      padding: 12px;      
       margin: 0 auto;      
+      box-sizing: border-box;
     }      
       
     .timetable {      
-      border: 2px solid var(--line);      
-      min-height: auto;      
+      border: 3px solid var(--line);      
+      height: 100%;      
       display: grid;      
-      grid-template-columns: 760px 1fr;      
+      grid-template-columns: 710px 1fr;      
       font-family: var(--font-ticket);      
       color: #111;      
       background: #fff;      
     }      
       
     .left-side {      
-      border-right: 2px solid var(--line);      
+      border-right: 3px solid var(--line);      
       display: grid;      
-      grid-template-rows: 145px auto 92px;      
+      grid-template-rows: 135px 1fr 82px;      
     }      
       
     .header {      
       display: grid;      
-      grid-template-columns: 240px 1fr;      
-      border-bottom: 2px solid var(--line);      
+      grid-template-columns: 210px 1fr;      
+      border-bottom: 3px solid var(--line);      
     }      
       
     .line-box {      
       display: flex;      
       align-items: center;      
       justify-content: center;      
-      border-right: 2px solid var(--line);      
+      border-right: 3px solid var(--line);      
+      background: #fff;
     }      
       
     .line-number {      
       font-family: Arial, Helvetica, sans-serif;      
-      font-size: 94px;      
+      font-size: 104px;      
       font-weight: 900;      
       line-height: 1;      
-      letter-spacing: -6px;      
+      letter-spacing: -5px;      
     }      
       
     .route-box {      
-      padding: 18px 18px 10px;      
-      font-size: 15px;      
+      padding: 16px 20px;      
+      font-size: 14px;      
       text-transform: uppercase;      
     }      
       
     .route-box .label {      
       font-size: 13px;      
-      letter-spacing: 1px;      
+      letter-spacing: 0.5px;      
+      font-weight: bold;
     }      
       
     .route-main {      
-      margin-top: 8px;      
-      font-size: 16px;      
-      font-weight: 700;      
+      margin-top: 6px;      
+      font-size: 18px;      
+      font-weight: 900;      
+      font-family: Arial, Helvetica, sans-serif;
     }      
       
     .route-date {      
-      margin-top: 18px;      
-      font-size: 13px;      
+      margin-top: 14px;      
+      font-size: 12px;      
       text-transform: none;      
     }      
       
     .hours-area {      
       display: grid;      
-      grid-template-columns: 240px 240px 1fr;      
+      grid-template-columns: 235px 235px 1fr;      
     }      
       
     .hours-col {      
-      border-right: 2px solid var(--line);      
-      min-height: 440px;      
-      min-width: 240px;
+      border-right: 3px solid var(--line);      
+      height: 100%;      
     }      
       
     .hours-title {      
-      min-height: 50px;      
-      padding: 7px 6px;      
-      border-bottom: 2px solid var(--line);      
+      height: 52px;      
+      padding: 6px 4px;      
+      border-bottom: 3px solid var(--line);      
       text-align: center;      
-      font-size: 13px;      
+      font-size: 12px;      
       text-transform: uppercase;      
-      line-height: 1.25;      
+      line-height: 1.3;      
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }      
       
     .hour-table {      
-      padding: 6px 8px;      
-      font-size: 15px;      
+      padding: 8px 10px;      
+      font-size: 14px;      
       overflow: hidden;
     }      
       
     .hour-row {      
       display: grid;      
-      grid-template-columns: 34px 1fr;      
-      min-height: 18px;      
-      padding: 0;
-      border-bottom: 1px solid #e5e5e5;      
+      grid-template-columns: 40px 1fr;      
+      min-height: 21px;      
+      border-bottom: 1px solid #d1d5db;      
+      align-items: center;
     }      
       
     .hour {      
-      font-weight: 700;      
-      font-size: 14px;
+      font-weight: 900;      
+      font-size: 15px;
+      font-family: Arial, Helvetica, sans-serif;
     }      
       
     .minutes {      
-      word-spacing: 2px;      
-      letter-spacing: 0.2px;
-      line-height: 1.15;
-      font-size: 14px;
+      word-spacing: 5px;      
+      letter-spacing: 0.5px;
+      font-weight: bold;
+      font-size: 15px;
     }      
       
     .no-service {      
       display: flex;      
       align-items: center;      
       justify-content: center;      
-      min-height: 310px;      
+      height: 100%;      
       padding: 20px;      
-      font-size: 17px;      
-      font-weight: 700;      
+      font-size: 16px;      
+      font-weight: 900;      
       text-align: center;      
       letter-spacing: 1px;      
     }      
       
     .notes-area {      
-      padding: 18px 16px;      
+      padding: 14px 12px;      
       font-size: 12px;      
-      line-height: 1.35;      
+      line-height: 1.4;      
       overflow: hidden;
     }      
       
@@ -327,102 +336,109 @@
     }      
       
     .footer-note {      
-      border-top: 2px solid var(--line);      
-      padding: 14px 18px;      
-      font-size: 14px;      
-      line-height: 1.45;      
+      border-top: 3px solid var(--line);      
+      padding: 12px 16px;      
+      font-size: 12px;      
+      line-height: 1.4;      
       text-transform: uppercase;      
+      font-weight: bold;
     }      
       
     .right-side {      
       display: grid;      
-      grid-template-rows: 54px 1fr;      
+      grid-template-rows: 52px 1fr;      
       position: relative;      
-      min-width: 320px;
+      overflow: hidden;
     }      
       
     .right-top {      
-      padding: 8px 10px;      
-      border-bottom: 2px solid var(--line);      
+      padding: 6px 10px;      
+      border-bottom: 3px solid var(--line);      
       font-size: 11px;      
-      line-height: 1.25;      
+      line-height: 1.3;      
+      display: flex;
+      align-items: center;
     }      
       
     .stops-panel {      
-      padding: 8px 10px 12px;      
+      padding: 10px 10px 35px;      
       position: relative;      
+      height: 100%;
+      overflow: hidden;
     }      
       
     .tariff {      
       text-align: center;      
-      font-size: 12px;      
-      line-height: 1.25;      
+      font-size: 11px;      
+      line-height: 1.3;      
       margin-bottom: 8px;      
       text-transform: uppercase;      
-      font-weight: 700;      
+      font-weight: 900;      
+      letter-spacing: -0.3px;
     }      
       
     .direction {      
       text-align: center;      
-      font-size: 13px;      
+      font-size: 12px;      
       line-height: 1.3;      
-      margin-bottom: 8px;      
+      margin-bottom: 12px;      
       text-transform: uppercase;      
     }      
       
     .direction strong {      
-      font-size: 15px;      
+      font-size: 14px;      
+      font-family: Arial, Helvetica, sans-serif;
     }      
       
     .stops {      
       position: relative;      
-      padding-left: 34px;      
-      margin-top: 10px;      
+      padding-left: 26px;      
+      margin-top: 6px;      
     }      
       
     .stops::before {      
       content: "";      
       position: absolute;      
-      left: 15px;      
-      top: 8px;      
-      bottom: 8px;      
+      left: 11px;      
+      top: 6px;      
+      bottom: 6px;      
       border-left: 2px solid #111;      
     }      
       
     .stop {      
       position: relative;      
-      min-height: 21px;      
+      min-height: 20px;      
       display: grid;      
       grid-template-columns: 1fr auto;      
-      column-gap: 8px;      
+      column-gap: 6px;      
       align-items: start;      
-      font-size: 12px;      
-      line-height: 1;      
-      color: #3f3f46;      
+      font-size: 11px;      
+      line-height: 1.2;      
+      color: #27272a;      
     }      
       
     .stop::before {      
       content: "";      
       position: absolute;      
-      left: -24px;      
+      left: -18px;      
       top: 4px;      
-      width: 7px;      
-      height: 7px;      
+      width: 6px;      
+      height: 6px;      
       background: #111;      
       border-radius: 50%;      
     }      
       
     .stop.current {      
-      color: #111;      
+      color: #000;      
       font-weight: 900;      
-      font-size: 13px;      
+      font-size: 12px;      
     }      
       
     .stop.current::before {      
-      width: 13px;      
-      height: 13px;      
-      left: -27px;      
-      top: 2px;      
+      width: 12px;      
+      height: 12px;      
+      left: -21px;      
+      top: 1px;      
       background: #111;      
     }      
       
@@ -432,7 +448,7 @@
       
     .stop-sub {      
       display: block;      
-      margin-top: 2px;      
+      margin-top: 1px;      
       text-transform: none;      
       font-style: italic;      
       font-weight: 400;      
@@ -441,19 +457,21 @@
       
     .zone {      
       font-size: 11px;      
-      color: #52525b;      
-      padding-left: 4px;      
+      color: #111;      
+      font-weight: 900;
+      padding-left: 2px;      
     }      
       
     .vertical-meta {      
       position: absolute;      
-      left: -8px;      
-      bottom: 12px;      
+      left: 6px;      
+      bottom: 115px;      
       transform: rotate(-90deg);      
       transform-origin: left bottom;      
       font-size: 10px;      
       color: #111;      
       white-space: nowrap;      
+      font-weight: bold;
     }      
       
     .badge {      
@@ -514,7 +532,7 @@
       
       .paper {      
         width: 100%;      
-        min-height: auto;      
+        height: 100vh;      
         margin: 0;      
         border: 0;      
         box-shadow: none;      
@@ -522,30 +540,14 @@
       }      
       
       .timetable {      
-        min-height: 98vh;      
+        height: 100%;      
       }      
       
       @page {      
         size: A4 landscape;      
-        margin: 7mm;      
+        margin: 5mm;      
       }      
     }      
-
-    /* DODATKOWE ŚCISKANIE DLA BARDZO DŁUGICH ROZKŁADÓW */
-    @media screen and (min-height:1000px){
-      .hour,
-      .minutes{
-        font-size:13px;
-      }
-
-      .hour-row{
-        min-height:16px;
-      }
-
-      .stop{
-        min-height:18px;
-      }
-    }
   </style>      
 </head>      
 <body>      
@@ -690,6 +692,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         <div class="buttons">      
           <button class="btn-primary" onclick="renderTimetable()">Odśwież podgląd</button>      
           <button class="btn-light" onclick="window.print()">Drukuj / PDF</button>      
+          <button class="btn-light" onclick="downloadHTML()">Pobierz arkusz HTML</button>      
           <button class="btn-danger" onclick="resetExample()">Przywróć przykład</button>      
         </div>      
       </section>      
@@ -916,6 +919,18 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       localStorage.removeItem("zm-timetable-generator");      
       location.reload();      
     }      
+    
+    /* FUNKCJA POBIERANIA CZYSTEGO ARKUSZA ROZKŁADU */
+    function downloadHTML() {
+      const element = $("paper").innerHTML;
+      const styles = document.getElementsByTagName("style")[0].innerHTML;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rozkład ${$("lineNumber").value}</title><style>${styles} body { background: #fff; padding: 20px; display: flex; justify-content: center; }</style></head><body><div class="paper">${element}</div></body></html>`;
+      const blob = new Blob([fullHtml], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `rozklad-${$("lineNumber").value || "ZM"}.html`;
+      a.click();
+    }
       
     fields.forEach((field) => {      
       const element = $(field);      
