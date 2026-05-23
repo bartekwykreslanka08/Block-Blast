@@ -186,7 +186,6 @@
       font-size: 14px;      
     }      
       
-    /* ZMIANY WYMIARÓW I SKALOWANIA ZGODNIE Z PRAWDZIWYM ROZKŁADEM ZTM */
     .paper {      
       width: 1050px;      
       height: 740px;      
@@ -195,7 +194,7 @@
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);      
       padding: 12px;      
       margin: 0 auto;      
-      box-sizing: border-box;
+      box-sizing: border-box;      
     }      
       
     .timetable {      
@@ -211,7 +210,7 @@
     .left-side {      
       border-right: 3px solid var(--line);      
       display: grid;      
-      grid-template-rows: 135px 1fr 82px;      
+      grid-template-rows: 135px minmax(0, 1fr) 82px; /* NAPRAWIONE: minmax zapobiega rozciąganiu ramy przez długie godziny */      
     }      
       
     .header {      
@@ -225,7 +224,7 @@
       align-items: center;      
       justify-content: center;      
       border-right: 3px solid var(--line);      
-      background: #fff;
+      background: #fff;      
     }      
       
     .line-number {      
@@ -245,14 +244,14 @@
     .route-box .label {      
       font-size: 13px;      
       letter-spacing: 0.5px;      
-      font-weight: bold;
+      font-weight: bold;      
     }      
       
     .route-main {      
       margin-top: 6px;      
       font-size: 18px;      
       font-weight: 900;      
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;      
     }      
       
     .route-date {      
@@ -263,7 +262,7 @@
       
     .hours-area {      
       display: grid;      
-      grid-template-columns: 235px 235px 1fr;      
+      grid-template-columns: 245px 245px 1fr; /* ZMIANA: Poszerzone kolumny, by minuty mieściły się w jednej linii */      
     }      
       
     .hours-col {      
@@ -279,37 +278,38 @@
       font-size: 12px;      
       text-transform: uppercase;      
       line-height: 1.3;      
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-weight: bold;      
+      display: flex;      
+      align-items: center;      
+      justify-content: center;      
     }      
       
     .hour-table {      
-      padding: 8px 10px;      
+      padding: 5px 8px; /* ZMIANA: Bardziej zwarte upakowanie pionowe */      
       font-size: 14px;      
-      overflow: hidden;
+      overflow: hidden;      
     }      
       
     .hour-row {      
       display: grid;      
-      grid-template-columns: 40px 1fr;      
-      min-height: 21px;      
+      grid-template-columns: 35px 1fr; /* ZMIANA: Więcej szerokości oddane dla minut */      
+      min-height: 19px;      
       border-bottom: 1px solid #d1d5db;      
-      align-items: center;
+      align-items: center;      
     }      
       
     .hour {      
       font-weight: 900;      
-      font-size: 15px;
-      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;      
+      font-family: Arial, Helvetica, sans-serif;      
     }      
       
     .minutes {      
-      word-spacing: 5px;      
-      letter-spacing: 0.5px;
-      font-weight: bold;
-      font-size: 15px;
+      word-spacing: 3px; /* ZMIANA: Kompaktowe odstępy zgodne z ZTM */      
+      letter-spacing: 0px;      
+      font-weight: bold;      
+      font-size: 14px;      
+      font-family: Arial, Helvetica, sans-serif; /* ZMIANA: Czytelny i wąski font systemowy zamiast szerokiego Monospace */      
     }      
       
     .no-service {      
@@ -328,7 +328,7 @@
       padding: 14px 12px;      
       font-size: 12px;      
       line-height: 1.4;      
-      overflow: hidden;
+      overflow: hidden;      
     }      
       
     .notes-area strong {      
@@ -341,14 +341,14 @@
       font-size: 12px;      
       line-height: 1.4;      
       text-transform: uppercase;      
-      font-weight: bold;
+      font-weight: bold;      
     }      
       
     .right-side {      
       display: grid;      
       grid-template-rows: 52px 1fr;      
       position: relative;      
-      overflow: hidden;
+      overflow: hidden;      
     }      
       
     .right-top {      
@@ -356,15 +356,15 @@
       border-bottom: 3px solid var(--line);      
       font-size: 11px;      
       line-height: 1.3;      
-      display: flex;
-      align-items: center;
+      display: flex;      
+      align-items: center;      
     }      
       
     .stops-panel {      
       padding: 10px 10px 35px;      
       position: relative;      
-      height: 100%;
-      overflow: hidden;
+      height: 100%;      
+      overflow: hidden;      
     }      
       
     .tariff {      
@@ -374,7 +374,7 @@
       margin-bottom: 8px;      
       text-transform: uppercase;      
       font-weight: 900;      
-      letter-spacing: -0.3px;
+      letter-spacing: -0.3px;      
     }      
       
     .direction {      
@@ -387,7 +387,7 @@
       
     .direction strong {      
       font-size: 14px;      
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;      
     }      
       
     .stops {      
@@ -458,7 +458,7 @@
     .zone {      
       font-size: 11px;      
       color: #111;      
-      font-weight: 900;
+      font-weight: 900;      
       padding-left: 2px;      
     }      
       
@@ -471,7 +471,7 @@
       font-size: 10px;      
       color: #111;      
       white-space: nowrap;      
-      font-weight: bold;
+      font-weight: bold;      
     }      
       
     .badge {      
@@ -920,17 +920,16 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       location.reload();      
     }      
     
-    /* FUNKCJA POBIERANIA CZYSTEGO ARKUSZA ROZKŁADU */
-    function downloadHTML() {
-      const element = $("paper").innerHTML;
-      const styles = document.getElementsByTagName("style")[0].innerHTML;
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rozkład ${$("lineNumber").value}</title><style>${styles} body { background: #fff; padding: 20px; display: flex; justify-content: center; }</style></head><body><div class="paper">${element}</div></body></html>`;
-      const blob = new Blob([fullHtml], { type: "text/html" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `rozklad-${$("lineNumber").value || "ZM"}.html`;
-      a.click();
-    }
+    function downloadHTML() {      
+      const element = $("paper").innerHTML;      
+      const styles = document.getElementsByTagName("style")[0].innerHTML;      
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rozkład ${$("lineNumber").value}</title><style>${styles} body { background: #fff; padding: 20px; display: flex; justify-content: center; }</style></head><body><div class="paper">${element}</div></body></html>`;      
+      const blob = new Blob([fullHtml], { type: "text/html" });      
+      const a = document.createElement("a");      
+      a.href = URL.createObjectURL(blob);      
+      a.download = `rozklad-${$("lineNumber").value || "ZM"}.html`;      
+      a.click();      
+    }      
       
     fields.forEach((field) => {      
       const element = $(field);      
@@ -945,3 +944,4 @@ PKP GRODZISK MAZOWIECKI |</textarea>
   </script>      
 </body>      
 </html>
+html>
