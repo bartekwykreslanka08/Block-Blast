@@ -3,72 +3,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generator rozkładu ZM - WTP Warszawa</title>
+
+  <title>Generator warszawskiego rozkładu przystankowego</title>
 
   <style>
     :root {
-      --bg: #f3f4f6;
-      --panel: #ffffff;
-      --ink: #111827;
-      --muted: #6b7280;
+      --app-bg: #eef0f3;
+      --sidebar-bg: #101827;
+      --sidebar-card: rgba(255, 255, 255, 0.065);
+      --sidebar-border: rgba(255, 255, 255, 0.12);
+      --sidebar-text: #ffffff;
+      --sidebar-muted: #b8c2d6;
+
+      --paper-bg: #ffffff;
+      --ink: #111111;
+      --muted: #555555;
       --line: #111111;
-      --soft-line: #d1d5db;
-      --accent: #111827;
-      --accent-soft: #eef2ff;
-      --danger: #b91c1c;
-      --success: #047857;
+      --thin: #9ca3af;
+      --grid: #d7d7d7;
+
+      --wtp-red: #d71920;
+      --wtp-blue: #164194;
+      --ztm-yellow: #ffd400;
+      --route-bg: #f4f4f4;
+
       --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --font-ticket: "Courier New", Courier, monospace;
+      --font-board: "Arial Narrow", Arial, Helvetica, sans-serif;
+      --font-mono: "Courier New", Courier, monospace;
+
+      --border-main: 2px;
+      --border-thin: 1px;
+      --preview-scale: 0.82;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--ink);
+      min-height: 100%;
+      background: var(--app-bg);
+      color: #111827;
       font-family: var(--font-ui);
     }
 
-    .app {
+    body {
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .app-shell {
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 460px minmax(0, 1fr);
       min-height: 100vh;
     }
 
-    .editor {
-      background: #111827;
-      color: #fff;
+    .sidebar {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.22), transparent 34%),
+        linear-gradient(180deg, #111827, #020617);
+      color: var(--sidebar-text);
       padding: 24px;
       overflow-y: auto;
       max-height: 100vh;
+      border-right: 1px solid #0f172a;
     }
 
-    .editor h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-      line-height: 1.2;
+    .brand {
+      margin-bottom: 22px;
     }
 
-    .editor .subtitle {
-      margin: 0 0 24px;
-      color: #cbd5e1;
+    .brand-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #dbeafe;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.15);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 9px 0 0;
+      color: var(--sidebar-muted);
       font-size: 14px;
+      line-height: 1.45;
     }
 
-    .section {
-      margin-bottom: 24px;
-      padding: 18px;
-      background: rgba(255, 255, 255, 0.06);
+    .tabs {
+      position: sticky;
+      top: -24px;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 0 -24px 18px;
+      padding: 14px 24px;
+      background: rgba(2, 6, 23, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tab {
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #dbeafe;
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
     }
 
-    .section h2 {
-      margin: 0 0 14px;
+    .tab.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #60a5fa;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .editor-section {
+      margin-bottom: 18px;
+      padding: 17px;
+      border: 1px solid var(--sidebar-border);
+      border-radius: 18px;
+      background: var(--sidebar-card);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .editor-section h2 {
+      margin: 0 0 13px;
       font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .editor-section h3 {
+      margin: 18px 0 10px;
+      color: #e5e7eb;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
     }
 
     label {
@@ -76,37 +186,50 @@
       margin: 12px 0 6px;
       color: #e5e7eb;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 750;
     }
 
     input,
     textarea,
     select {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #374151;
-      border-radius: 10px;
-      background: #030712;
-      color: #fff;
-      font-family: var(--font-ui);
-      font-size: 14px;
+      border: 1px solid #334155;
+      border-radius: 11px;
+      background: rgba(2, 6, 23, 0.86);
+      color: #ffffff;
       outline: none;
+      padding: 10px 12px;
+      font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     textarea {
-      min-height: 88px;
+      min-height: 94px;
       resize: vertical;
       line-height: 1.45;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
       border-color: #93c5fd;
-      box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.16);
+      box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.18);
     }
 
-    .hint {
+    input[type="checkbox"] {
+      width: auto;
+      accent-color: #2563eb;
+    }
+
+    input[type="color"] {
+      height: 42px;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .field-hint {
       margin-top: 6px;
       color: #9ca3af;
       font-size: 12px;
@@ -119,790 +242,1150 @@
       gap: 12px;
     }
 
-    .buttons {
-      display: flex;
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 18px;
     }
 
-    button {
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 12px;
+      color: #e5e7eb;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .check-row input {
+      margin-top: 3px;
+      flex: 0 0 auto;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
       border: 0;
       border-radius: 999px;
-      padding: 11px 16px;
-      font-weight: 700;
-      font-size: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 850;
       cursor: pointer;
-      transition: 0.15s ease;
+      transition: transform 0.12s ease, filter 0.12s ease, background 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
     }
 
     .btn-primary {
       background: #2563eb;
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: #1d4ed8;
+      color: #ffffff;
     }
 
     .btn-light {
-      background: #f9fafb;
-      color: #111827;
+      background: #f8fafc;
+      color: #0f172a;
     }
 
-    .btn-light:hover {
-      background: #e5e7eb;
+    .btn-warn {
+      background: #f59e0b;
+      color: #111827;
     }
 
     .btn-danger {
       background: #991b1b;
-      color: #fff;
+      color: #ffffff;
     }
 
-    .btn-danger:hover {
-      background: #7f1d1d;
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.09);
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.13);
     }
 
-    .preview-wrap {
+    .small-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .preview {
+      min-width: 0;
       padding: 28px;
       overflow: auto;
     }
 
-    .topbar {
+    .preview-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
       margin-bottom: 22px;
     }
 
-    .topbar h2 {
+    .preview-top h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 22px;
+      letter-spacing: -0.02em;
     }
 
-    .topbar p {
-      margin: 4px 0 0;
-      color: var(--muted);
+    .preview-top p {
+      margin: 5px 0 0;
+      color: #64748b;
       font-size: 14px;
     }
 
-    .paper {
-      width: 1000px;
-      min-height: 720px;
-      background: #fff;
-      border: 1px solid #c7c7c7;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-      padding: 8px;
-      margin: 0 auto;
-    }
-
-    .timetable {
-      border: 2px solid var(--line);
-      min-height: 700px;
-      display: grid;
-      grid-template-columns: 700px 1fr;
-      font-family: var(--font-ticket);
-      color: #111;
-      background: #fff;
-    }
-
-    .left-side {
-      border-right: 2px solid var(--line);
-      display: grid;
-      grid-template-rows: 145px 1fr 92px;
-    }
-
-    .header {
-      display: grid;
-      grid-template-columns: 205px 1fr;
-      border-bottom: 2px solid var(--line);
-    }
-
-    .line-box {
+    .preview-actions {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      border-right: 2px solid var(--line);
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
-    .line-number {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 94px;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -6px;
-    }
-
-    .route-box {
-      padding: 18px 18px 10px;
-      font-size: 15px;
-      text-transform: uppercase;
-    }
-
-    .route-box .label {
-      font-size: 13px;
-      letter-spacing: 1px;
-    }
-
-    .route-main {
-      margin-top: 8px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .route-date {
-      margin-top: 18px;
-      font-size: 13px;
-      text-transform: none;
-    }
-
-    .hours-area {
-      display: grid;
-      grid-template-columns: 205px 205px 1fr;
-    }
-
-    .hours-col {
-      border-right: 2px solid var(--line);
-      min-height: 440px;
-    }
-
-    .hours-title {
-      min-height: 54px;
-      padding: 9px 8px;
-      border-bottom: 2px solid var(--line);
-      text-align: center;
-      font-size: 13px;
-      text-transform: uppercase;
-      line-height: 1.25;
-    }
-
-    .hour-table {
-      padding: 8px 10px;
-      font-size: 15px;
-    }
-
-    .hour-row {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      min-height: 20px;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .hour {
-      font-weight: 700;
-    }
-
-    .minutes {
-      word-spacing: 6px;
-    }
-
-    .no-service {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 310px;
-      padding: 20px;
-      font-size: 17px;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: 1px;
-    }
-
-    .notes-area {
-      padding: 18px 16px;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .notes-area strong {
-      font-weight: 900;
-    }
-
-    .footer-note {
-      border-top: 2px solid var(--line);
-      padding: 14px 18px;
-      font-size: 14px;
-      line-height: 1.45;
-      text-transform: uppercase;
-    }
-
-    .right-side {
-      display: grid;
-      grid-template-rows: 54px 1fr;
-      position: relative;
-    }
-
-    .right-top {
-      padding: 8px 10px;
-      border-bottom: 2px solid var(--line);
-      font-size: 11px;
-      line-height: 1.25;
-    }
-
-    .stops-panel {
-      padding: 8px 10px 12px;
-      position: relative;
-    }
-
-    .tariff {
-      text-align: center;
-      font-size: 12px;
-      line-height: 1.25;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-
-    .direction {
-      text-align: center;
-      font-size: 13px;
-      line-height: 1.3;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    .direction strong {
-      font-size: 15px;
-    }
-
-    .stops {
-      position: relative;
-      padding-left: 34px;
-      margin-top: 10px;
-    }
-
-    .stops::before {
-      content: "";
-      position: absolute;
-      left: 15px;
-      top: 8px;
-      bottom: 8px;
-      border-left: 2px solid #111;
-    }
-
-    .stop {
-      position: relative;
-      min-height: 25px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      column-gap: 8px;
-      align-items: start;
-      font-size: 12px;
-      line-height: 1.1;
-      color: #3f3f46;
-    }
-
-    .stop::before {
-      content: "";
-      position: absolute;
-      left: -24px;
-      top: 4px;
-      width: 7px;
-      height: 7px;
-      background: #111;
-      border-radius: 50%;
-    }
-
-    .stop.current {
-      color: #111;
-      font-weight: 900;
-      font-size: 13px;
-    }
-
-    .stop.current::before {
-      width: 13px;
-      height: 13px;
-      left: -27px;
-      top: 2px;
-      background: #111;
-    }
-
-    .stop-name {
-      text-transform: uppercase;
-    }
-
-    .stop-sub {
-      display: block;
-      margin-top: 2px;
-      text-transform: none;
-      font-style: italic;
-      font-weight: 400;
-      color: #52525b;
-    }
-
-    .zone {
-      font-size: 11px;
-      color: #52525b;
-      padding-left: 4px;
-    }
-
-    .vertical-meta {
-      position: absolute;
-      left: -8px;
-      bottom: 12px;
-      transform: rotate(-90deg);
-      transform-origin: left bottom;
-      font-size: 10px;
-      color: #111;
-      white-space: nowrap;
-    }
-
-    .badge {
+    .status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
+      gap: 8px;
+      padding: 8px 11px;
       border-radius: 999px;
       background: #ecfdf5;
       color: #065f46;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #10b981;
+    }
+
+    .paper-frame {
+      width: 1120px;
+      min-height: 792px;
+      margin: 0 auto;
+      padding: 10px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.16);
+      transform: scale(var(--preview-scale));
+      transform-origin: top center;
+    }
+
+    .board {
+      position: relative;
+      min-height: 772px;
+      display: grid;
+      grid-template-columns: 760px 1fr;
+      background: var(--paper-bg);
+      color: var(--ink);
+      border: var(--border-main) solid var(--line);
+      font-family: var(--font-board);
+      overflow: hidden;
+    }
+
+    .board.compact {
+      min-height: 690px;
+    }
+
+    .left-board {
+      display: grid;
+      grid-template-rows: 155px 1fr 118px;
+      border-right: var(--border-main) solid var(--line);
+      min-width: 0;
+    }
+
+    .head {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      border-bottom: var(--border-main) solid var(--line);
+      min-height: 155px;
+    }
+
+    .line-tile {
+      position: relative;
+      display: grid;
+      place-items: center;
+      border-right: var(--border-main) solid var(--line);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .line-tile::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 12px;
+      background: var(--route-color, #111111);
+    }
+
+    .line-code {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 950;
+      font-size: 96px;
+      line-height: 0.9;
+      letter-spacing: -0.075em;
+      transform: translateX(-4px);
+    }
+
+    .line-code.bus-night {
+      color: #ffffff;
+      text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000;
+    }
+
+    .line-type-ribbon {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 3px 7px;
+      border: 1px solid #111;
+      background: #ffffff;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .route-head {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 14px 16px 10px;
+      min-width: 0;
+    }
+
+    .operator-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      font-size: 11px;
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .operator-mark {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .mark-block {
+      display: inline-grid;
+      place-items: center;
+      width: 40px;
+      height: 22px;
+      border: 2px solid #111;
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      background: #ffffff;
+    }
+
+    .route-title {
+      align-self: center;
+      margin-top: 10px;
+    }
+
+    .route-direction-label {
+      font-size: 13px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .route-main {
+      margin-top: 5px;
+      font-size: 29px;
+      line-height: 1.08;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .route-via {
+      margin-top: 6px;
+      color: #333333;
+      font-size: 14px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .validity-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding-top: 7px;
+      border-top: var(--border-thin) solid #111;
       font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .validity-row strong {
+      font-weight: 950;
+    }
+
+    .time-area {
+      display: grid;
+      grid-template-columns: 235px 235px 1fr;
+      min-height: 482px;
+    }
+
+    .time-col {
+      border-right: var(--border-main) solid var(--line);
+      min-width: 0;
+    }
+
+    .time-col-title {
+      display: grid;
+      place-items: center;
+      min-height: 58px;
+      padding: 8px;
+      border-bottom: var(--border-main) solid var(--line);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.18;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .time-grid {
+      padding: 7px 8px 8px;
+      min-height: 398px;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 31px 1fr;
+      min-height: 22px;
+      border-bottom: 1px solid var(--grid);
+      align-items: baseline;
+      page-break-inside: avoid;
+    }
+
+    .time-row:last-child {
+      border-bottom: 0;
+    }
+
+    .hour-cell {
+      font-size: 15px;
+      font-weight: 950;
+      line-height: 1.15;
+    }
+
+    .minute-cell {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px 9px;
+      align-items: baseline;
+      min-width: 0;
+      font-size: 15px;
+      line-height: 1.15;
+      word-break: normal;
+    }
+
+    .minute {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1px;
+      white-space: nowrap;
       font-weight: 700;
     }
 
-    .small-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+    .minute .symbol {
+      position: relative;
+      top: -0.25em;
+      font-size: 0.65em;
+      font-weight: 950;
+      margin-left: 1px;
     }
 
-    .small-actions button {
-      padding: 8px 11px;
+    .minute.low-floor::after {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-left: 2px;
+      border-radius: 50%;
+      background: #111;
+      transform: translateY(-1px);
+    }
+
+    .minute.extra {
+      color: #991b1b;
+      font-weight: 950;
+    }
+
+    .no-service-box {
+      display: grid;
+      place-items: center;
+      min-height: 340px;
+      padding: 24px;
+      text-align: center;
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 950;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .middle-info {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-width: 0;
+    }
+
+    .middle-title {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      border-bottom: var(--border-main) solid var(--line);
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 950;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .message-box {
+      padding: 14px 14px 10px;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .message-box h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .message-box p {
+      margin: 0 0 8px;
+    }
+
+    .legend-box {
+      margin: 8px 12px 12px;
+      padding: 9px 10px;
+      border: 1px solid #111;
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .legend-box-title {
+      margin-bottom: 5px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 6px;
+      margin-top: 3px;
+    }
+
+    .legend-symbol {
+      font-weight: 950;
+    }
+
+    .bottom {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      border-top: var(--border-main) solid var(--line);
+    }
+
+    .notice {
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .notice strong {
+      font-weight: 950;
+    }
+
+    .micro-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 14px;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid #111;
+      font-size: 10px;
+      line-height: 1.2;
+      color: #222222;
+    }
+
+    .right-board {
+      display: grid;
+      grid-template-rows: 58px auto 1fr auto;
+      min-width: 0;
+      position: relative;
+      background: #ffffff;
+    }
+
+    .route-meta {
+      padding: 8px 10px;
+      border-bottom: var(--border-main) solid var(--line);
+      font-size: 11px;
+      line-height: 1.22;
+      text-transform: lowercase;
+    }
+
+    .tariff-box {
+      padding: 7px 9px;
+      border-bottom: var(--border-thin) solid #111;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .right-direction {
+      padding: 8px 10px 7px;
+      text-align: center;
       font-size: 12px;
+      line-height: 1.18;
+      text-transform: uppercase;
+      border-bottom: var(--border-thin) solid #111;
     }
 
-    @media (max-width: 1100px) {
-      .app {
+    .right-direction strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 16px;
+      line-height: 1.05;
+      font-weight: 950;
+    }
+
+    .stops-wrap {
+      position: relative;
+      padding: 8px 10px 12px 43px;
+      overflow: hidden;
+    }
+
+    .stops-line {
+      position: absolute;
+      top: 16px;
+      bottom: 18px;
+      left: 26px;
+      width: 2px;
+      background: #111;
+    }
+
+    .stop-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      min-height: 24px;
+      align-items: start;
+      font-size: 11.2px;
+      line-height: 1.05;
+      color: #3f3f46;
+    }
+
+    .stop-row::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 3px;
+      width: 7px;
+      height: 7px;
+      background: #111;
+      border-radius: 999px;
+      z-index: 2;
+    }
+
+    .stop-row.major {
+      min-height: 27px;
+      color: #111111;
+      font-weight: 900;
+    }
+
+    .stop-row.transfer .stop-name::after {
+      content: "  Ⓜ";
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+    }
+
+    .stop-row.rail .stop-name::after {
+      content: "  PKP";
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .stop-row.request .stop-name::after {
+      content: "  n/ż";
+      font-style: italic;
+      font-weight: 900;
+      text-transform: none;
+    }
+
+    .stop-row.zone-boundary {
+      border-top: 1px dashed #111;
+      padding-top: 3px;
+      margin-top: 2px;
+    }
+
+    .stop-row.current {
+      min-height: 30px;
+      color: #000000;
+      font-weight: 950;
+      font-size: 12.3px;
+    }
+
+    .stop-row.current::before {
+      left: -26px;
+      top: 1px;
+      width: 15px;
+      height: 15px;
+      border: 2px solid #111;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 4px #111;
+    }
+
+    .stop-name {
+      display: block;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+
+    .stop-note {
+      display: block;
+      margin-top: 2px;
+      color: #52525b;
+      font-size: 10.5px;
+      font-style: italic;
+      font-weight: 400;
+      text-transform: none;
+    }
+
+    .stop-zone {
+      color: #52525b;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding-left: 3px;
+      white-space: nowrap;
+    }
+
+    .right-footer {
+      border-top: var(--border-thin) solid #111;
+      padding: 7px 9px;
+      font-size: 10px;
+      line-height: 1.25;
+      color: #222222;
+    }
+
+    .vertical-id {
+      position: absolute;
+      left: 9px;
+      bottom: 8px;
+      transform: rotate(-90deg);
+      transform-origin: left bottom;
+      font-size: 9.8px;
+      color: #111111;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .watermark {
+      position: absolute;
+      right: 12px;
+      bottom: 7px;
+      color: rgba(0, 0, 0, 0.08);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 52px;
+      font-weight: 950;
+      pointer-events: none;
+      display: none;
+    }
+
+    .show-watermark .watermark {
+      display: block;
+    }
+
+    .theme-classic {
+      --paper-bg: #ffffff;
+      --ink: #111111;
+      --line: #111111;
+      --route-color: #111111;
+    }
+
+    .theme-red {
+      --route-color: var(--wtp-red);
+    }
+
+    .theme-blue {
+      --route-color: var(--wtp-blue);
+    }
+
+    .theme-yellow {
+      --route-color: var(--ztm-yellow);
+    }
+
+    .theme-night {
+      --paper-bg: #fafafa;
+      --ink: #111111;
+      --line: #111111;
+      --route-color: #111111;
+    }
+
+    .theme-night .line-tile {
+      background: #111111;
+    }
+
+    .theme-night .line-code {
+      color: #ffffff;
+      letter-spacing: -0.05em;
+    }
+
+    .theme-night .line-type-ribbon {
+      background: #111111;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .theme-tram {
+      --route-color: #d71920;
+    }
+
+    .theme-tram .line-tile {
+      background: #fff5f5;
+    }
+
+    .theme-metro {
+      --route-color: #164194;
+    }
+
+    .theme-metro .line-tile {
+      background: #eff6ff;
+    }
+
+    .export-area {
+      margin-top: 14px;
+      padding: 12px;
+      background: rgba(2, 6, 23, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+    }
+
+    .export-area textarea {
+      min-height: 130px;
+    }
+
+    @media (max-width: 1200px) {
+      .app-shell {
         grid-template-columns: 1fr;
       }
 
-      .editor {
+      .sidebar {
         max-height: none;
       }
 
-      .preview-wrap {
+      .tabs {
+        top: -1px;
+      }
+
+      .preview {
         padding: 18px;
       }
     }
 
     @media print {
+      html,
       body {
-        background: #fff;
+        background: #ffffff;
       }
 
-      .editor,
-      .topbar {
+      .sidebar,
+      .preview-top {
         display: none !important;
       }
 
-      .app {
+      .app-shell {
         display: block;
       }
 
-      .preview-wrap {
+      .preview {
         padding: 0;
+        overflow: visible;
       }
 
-      .paper {
+      .paper-frame {
         width: 100%;
         min-height: auto;
+        padding: 0;
         margin: 0;
         border: 0;
         box-shadow: none;
-        padding: 0;
+        transform: none !important;
       }
 
-      .timetable {
+      .board {
         min-height: 98vh;
       }
 
       @page {
         size: A4 landscape;
-        margin: 7mm;
+        margin: 6mm;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="app">
-    <aside class="editor">
-      <h1>Generator rozkładu ZM</h1>
-      <p class="subtitle">Profesjonalny szablon rozkładu zastępczej komunikacji autobusowej.</p>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-kicker">
+          <span class="brand-dot"></span>
+          Generator rozkładów
+        </div>
 
-      <section class="section">
-        <h2>Dane linii</h2>
+        <h1>Warszawski rozkład przystankowy</h1>
 
-        <div class="grid-2">
-          <div>
-            <label for="lineNumber">Numer linii</label>
-            <input id="lineNumber" value="ZM" />
+        <p>
+          Rozbudowany szablon do przygotowania rozkładu w stylu miejskiej tabliczki przystankowej:
+          godziny, przystanki, warianty, strefy, legenda, druk i eksport danych.
+        </p>
+      </div>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="basic">Dane</button>
+        <button class="tab" data-tab="times">Godziny</button>
+        <button class="tab" data-tab="route">Trasa</button>
+      </nav>
+
+      <section class="panel active" id="panel-basic">
+        <div class="editor-section">
+          <h2>Linia i nagłówek</h2>
+
+          <div class="grid-2">
+            <div>
+              <label for="lineNumber">Numer linii</label>
+              <input id="lineNumber" value="ZM" />
+            </div>
+
+            <div>
+              <label for="lineType">Typ linii</label>
+              <select id="lineType">
+                <option value="replacement" selected>Zastępcza</option>
+                <option value="regular">Autobus dzienny</option>
+                <option value="night">Nocna</option>
+                <option value="tram">Tramwaj</option>
+                <option value="metro">Metro</option>
+                <option value="suburban">Podmiejska</option>
+                <option value="special">Specjalna</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label for="validFrom">Obowiązuje od</label>
-            <input id="validFrom" value="2018-09-03" />
+          <label for="lineRibbon">Etykieta w polu numeru</label>
+          <input id="lineRibbon" value="LINIA ZASTĘPCZA" />
+
+          <label for="destination">Kierunek końcowy</label>
+          <input id="destination" value="PKP GRODZISK MAZOWIECKI" />
+
+          <label for="via">Przez / ważniejsze ulice i punkty</label>
+          <textarea id="via">przez MILANÓWEK - KRÓLEWSKA - 3 MAJA - DĘBOWA</textarea>
+
+          <div class="grid-2">
+            <div>
+              <label for="validFrom">Ważny od</label>
+              <input id="validFrom" value="2018-09-03" />
+            </div>
+
+            <div>
+              <label for="validTo">Ważny do</label>
+              <input id="validTo" value="do odwołania" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="operatorName">Organizator / operator</label>
+              <input id="operatorName" value="Warszawski Transport Publiczny" />
+            </div>
+
+            <div>
+              <label for="timetableVersion">Wersja rozkładu</label>
+              <input id="timetableVersion" value="wersja: robocza 1.0" />
+            </div>
+          </div>
+
+          <label for="topRightText">Tekst techniczny w prawym górnym rogu</label>
+          <textarea id="topRightText">czasy przejazdu, trasa, przystanki
+schemat orientacyjny przebiegu linii</textarea>
+        </div>
+
+        <div class="editor-section">
+          <h2>Komunikaty</h2>
+
+          <label for="middleTitle">Tytuł sekcji informacyjnej</label>
+          <input id="middleTitle" value="Informacje o kursowaniu" />
+
+          <label for="mainNotice">Komunikat główny</label>
+          <textarea id="mainNotice">Wszystkie kursy realizowane są pojazdami niskopodłogowymi.
+Na trasie mogą występować czasowe zmiany wynikające z organizacji ruchu.</textarea>
+
+          <label for="bottomNotice">Komunikat dolny</label>
+          <textarea id="bottomNotice">Na linii ZM obowiązuje wyłącznie taryfa Kolei Mazowieckich. Rozkład podano według czasu urzędowego.</textarea>
+
+          <label for="rightFooter">Stopka w panelu trasy</label>
+          <textarea id="rightFooter">Czasy przejazdu mają charakter orientacyjny. Zachowaj ostrożność przy wsiadaniu i wysiadaniu.</textarea>
+
+          <label for="stopId">Identyfikator boczny</label>
+          <input id="stopId" value="Przystanek: 4086 DĘBOWA 02 - MILANÓWEK" />
+        </div>
+
+        <div class="editor-section">
+          <h2>Wygląd i format</h2>
+
+          <div class="grid-2">
+            <div>
+              <label for="theme">Motyw linii</label>
+              <select id="theme">
+                <option value="classic">Klasyczny czarny</option>
+                <option value="red">Czerwony akcent</option>
+                <option value="blue">Niebieski akcent</option>
+                <option value="yellow">Żółty akcent</option>
+                <option value="night">Linia nocna</option>
+                <option value="tram">Tramwajowy</option>
+                <option value="metro">Metropolitalny</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="previewScale">Skala podglądu</label>
+              <select id="previewScale">
+                <option value="1">100%</option>
+                <option value="0.9">90%</option>
+                <option value="0.82" selected>82%</option>
+                <option value="0.72">72%</option>
+                <option value="0.62">62%</option>
+                <option value="0.52">52%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="borderWeight">Grubość ramek</label>
+              <select id="borderWeight">
+                <option value="1">Cienka</option>
+                <option value="2" selected>Standardowa</option>
+                <option value="3">Gruba</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="density">Gęstość układu</label>
+              <select id="density">
+                <option value="normal" selected>Normalna</option>
+                <option value="compact">Kompaktowa</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="routeColor">Kolor paska linii</label>
+              <input id="routeColor" type="color" value="#111111" />
+            </div>
+
+            <div>
+              <label for="paperSize">Format druku</label>
+              <select id="paperSize">
+                <option value="a4-landscape" selected>A4 poziomo</option>
+                <option value="a4-portrait">A4 pionowo</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="check-row">
+            <input id="showWatermark" type="checkbox" />
+            <span>Pokaż delikatny znak roboczy w tle.</span>
+          </label>
+
+          <label class="check-row">
+            <input id="showLowFloorLegend" type="checkbox" checked />
+            <span>Pokaż legendę oznaczeń minut i kursów.</span>
+          </label>
+
+          <div class="button-row">
+            <button class="btn btn-primary" onclick="renderAll()">Odśwież</button>
+            <button class="btn btn-light" onclick="window.print()">Drukuj / PDF</button>
+            <button class="btn btn-ghost" onclick="downloadHtml()">Pobierz HTML</button>
+            <button class="btn btn-danger" onclick="resetData()">Reset</button>
           </div>
         </div>
 
-        <label for="routeTitle">Relacja</label>
-        <input id="routeTitle" value="GRODZISK MAZ. przez MILANÓWEK" />
+        <div class="editor-section">
+          <h2>Eksport / import danych</h2>
 
-        <label for="variant">Opis wariantu / nagłówek</label>
-        <input id="variant" value="LINIA ZASTĘPCZA" />
+          <p class="field-hint">
+            Możesz skopiować konfigurację rozkładu jako JSON i później ją wkleić, żeby odtworzyć projekt.
+          </p>
 
-        <label for="rightHeader">Opis techniczny</label>
-        <input id="rightHeader" value="czasy, trasa, przystanki" />
+          <div class="button-row">
+            <button class="btn btn-light small-btn" onclick="exportJson()">Eksportuj JSON</button>
+            <button class="btn btn-primary small-btn" onclick="importJson()">Importuj JSON</button>
+            <button class="btn btn-ghost small-btn" onclick="copyJson()">Kopiuj JSON</button>
+          </div>
+
+          <div class="export-area">
+            <textarea id="jsonBox" placeholder="Tutaj pojawi się eksport JSON albo wklej tu dane do importu."></textarea>
+          </div>
+        </div>
       </section>
 
-      <section class="section">
-        <h2>Godziny odjazdów</h2>
+      <section class="panel" id="panel-times">
+        <div class="editor-section">
+          <h2>Kolumny godzin</h2>
 
-        <label for="weekdayTitle">Kolumna 1 - nazwa</label>
-        <input id="weekdayTitle" value="DZIEŃ POWSZEDNI&#10;Godz. Minuty" />
+          <label for="weekdayTitle">Tytuł kolumny 1</label>
+          <textarea id="weekdayTitle">DZIEŃ POWSZEDNI
+Godz. Minuty</textarea>
 
-        <label for="weekdayHours">Kolumna 1 - godziny i minuty</label>
-        <textarea id="weekdayHours">5 | 29 51
+          <label for="weekdayHours">Godziny - dzień powszedni</label>
+          <textarea id="weekdayHours" style="min-height: 230px;">5 | 29 51
 6 | 16 32 51
 7 | 06 26 36 51
 8 | 06 23 36
 9 | 01 21
+10 | 01a 41
+11 | 21
+12 | 01 41
+13 | 21
+14 | 01 41
 15 | 01 21 36 46
 16 | 06 21 36 51
 17 | 06 21 31 46
 18 | 01 16 31 46
 19 | 01 21
-20 | 01 31</textarea>
-        <p class="hint">Format: godzina | minuty, np. 7 | 06 26 36 51.</p>
+20 | 01 31
+21 | 01 41
+22 | 21
+23 | 01</textarea>
 
-        <label for="holidayTitle">Kolumna 2 - nazwa</label>
-        <input id="holidayTitle" value="ŚWIĘTO I SOBOTA&#10;Godz. Minuty" />
+          <p class="field-hint">
+            Format: godzina | minuty. Oznaczenia dopisuj przy minucie, np. 05a, 12b, 31+. Minuty z plusem będą wyróżnione.
+          </p>
 
-        <label for="holidayHours">Kolumna 2 - godziny i minuty</label>
-        <textarea id="holidayHours">NIE KURSUJE</textarea>
-      </section>
+          <label for="saturdayTitle">Tytuł kolumny 2</label>
+          <textarea id="saturdayTitle">SOBOTA
+Godz. Minuty</textarea>
 
-      <section class="section">
-        <h2>Trasa i przystanki</h2>
+          <label for="saturdayHours">Godziny - sobota</label>
+          <textarea id="saturdayHours" style="min-height: 180px;">6 | 04 44
+7 | 24
+8 | 04 44
+9 | 24
+10 | 04 44
+11 | 24
+12 | 04 44
+13 | 24
+14 | 04 44
+15 | 24
+16 | 04 44
+17 | 24
+18 | 04 44
+19 | 24
+20 | 04
+21 | 04
+22 | 04</textarea>
 
-        <label for="tariff">Taryfa</label>
-        <input id="tariff" value="===== TYLKO TARYFA KM =====&#10;GRODZISK MAZOWIECKI" />
+          <label for="holidayTitle">Tytuł dodatkowy / święto</label>
+          <textarea id="holidayTitle">ŚWIĘTO
+Godz. Minuty</textarea>
 
-        <label for="direction">Kierunek</label>
-        <input id="direction" value="GD MAZ&#10;PKP GRODZISK MAZOWIECKI" />
+          <label for="holidayHours">Godziny dodatkowe</label>
+          <textarea id="holidayHours" style="min-height: 140px;">NIE KURSUJE</textarea>
+        </div>
 
-        <label for="stopsInput">Lista przystanków</label>
-        <textarea id="stopsInput" style="min-height: 220px;">PKP GRODZISK MAZOWIECKI | 2
-ZONDKA | 
-Nadarzyńska | 
-Kościuszki | 
-Sienkiewicza | 
-15 STYCZNIA | 2
-Królewska | 
-3 MAJA | 2
-Chrzanowska | 
-MILANÓWEK | 
-Ludna | 
-Słowackiego | 
-WOJSKA POLSKIEGO | 2
-Wojska Polskiego | 
-Mickiewicza | 
-Kościuszki | 
-MICKIEWICZA | 2
-Kościelna | 
-Dębowa | 
-DĘBOWA | 
-GRODZISK MAZOWIECKI | 
-3 Maja | 
-40-LECIA | 2
-Partnizaka | 
-3 Maja | 
-PKP GRODZISK MAZOWIECKI |</textarea>
-        <p class="hint">Format: nazwa przystanku | strefa. Aktualny przystanek ustawisz niżej.</p>
+        <div class="editor-section">
+          <h2>Opcje godzin</h2>
 
-        <label for="currentStop">Aktualny przystanek</label>
-        <input id="currentStop" value="DĘBOWA" />
-      </section>
+          <div class="grid-2">
+            <div>
+              <label for="visibleTimeColumns">Widoczne kolumny</label>
+              <select id="visibleTimeColumns">
+                <option value="2">2 kolumny</option>
+                <option value="3" selected>3 kolumny</option>
+              </select>
+            </div>
 
-      <section class="section">
-        <h2>Komunikaty i dopiski</h2>
-
-        <label for="notes">Komunikat środkowy</label>
-        <textarea id="notes">WSZYSTKIE KURSY REALIZOWANE POJAZDAMI NISKOPODŁOGOWYMI</textarea>
-
-        <label for="footer">Komunikat dolny</label>
-        <textarea id="footer">NA LINII ZM OBOWIĄZUJE TYLKO TARYFA KOLEI MAZOWIECKICH</textarea>
-
-        <label for="meta">Opis boczny / numer przystanku</label>
-        <input id="meta" value="Przystanek: 4086 DĘBOWA 02 MILANÓWEK" />
-      </section>
-
-      <section class="section">
-        <h2>Wygląd</h2>
-
-        <div class="grid-2">
-          <div>
-            <label for="paperScale">Skala podglądu</label>
-            <select id="paperScale">
-              <option value="1">100%</option>
-              <option value="0.9">90%</option>
-              <option value="0.8" selected>80%</option>
-              <option value="0.7">70%</option>
-              <option value="0.6">60%</option>
-            </select>
+            <div>
+              <label for="minuteStyle">Styl minut</label>
+              <select id="minuteStyle">
+                <option value="plain">Zwykłe</option>
+                <option value="lowfloor" selected>Kropka niskopodłogowa</option>
+                <option value="symbols">Tylko oznaczenia</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label for="lineWeight">Grubość ramek</label>
-            <select id="lineWeight">
-              <option value="1">Cienkie</option>
-              <option value="2" selected>Standard</option>
-              <option value="3">Grube</option>
-            </select>
+          <label for="legendItems">Legenda oznaczeń</label>
+          <textarea id="legendItems">a | kurs tylko w dni nauki szkolnej
+b | kurs nie odbywa się w wakacje
++ | kurs realizowany przez inny wariant trasy
+● | kurs pojazdem niskopodłogowym
+n/ż | przystanek na żądanie</textarea>
+
+          <label for="specialInfo">Dodatkowe informacje o kursach</label>
+          <textarea id="specialInfo">Odjazdy mogą być przyspieszone lub opóźnione w zależności od warunków ruchu.
+W przypadku utrudnień obowiązują komunikaty organizatora przewozów.</textarea>
+
+          <div class="button-row">
+            <button class="btn btn-primary" onclick="renderAll()">Zastosuj godziny</button>
+            <button class="btn btn-light" onclick="fillFrequentPattern()">Wypełnij co 20 min</button>
+            <button class="btn btn-ghost" onclick="clearHoliday()">Święto: nie kursuje</button>
           </div>
         </div>
-
-        <div class="buttons">
-          <button class="btn-primary" onclick="renderTimetable()">Odśwież podgląd</button>
-          <button class="btn-light" onclick="window.print()">Drukuj / PDF</button>
-          <button class="btn-danger" onclick="resetExample()">Przywróć przykład</button>
-        </div>
       </section>
-    </aside>
 
-    <section class="preview-wrap">
-      <div class="topbar">
-        <div>
-          <h2>Podgląd rozkładu</h2>
-          <p>Edytuj dane po lewej stronie. Gotowy rozkład możesz wydrukować albo zapisać jako PDF.</p>
+      <section class="panel" id="panel-route">
+        <div class="editor-section">
+          <h2>Trasa i taryfa</h2>
+
+          <label for="tariffText">Taryfa / strefa</label>
+          <textarea id="tariffText">===== TYLKO TARYFA KM =====
+GRODZISK MAZOWIECKI
+STREFA 2</textarea>
+
+          <label for="routeBoxDirection">Kierunek w panelu trasy</label>
+          <textarea id="routeBoxDirection">KIERUNEK
+PKP GRODZISK MAZOWIECKI</textarea>
+
+          <label for="routeDescription">Opis przebiegu trasy</label>
+          <textarea id="routeDescription">Dębowa - Kościuszki - Królewska - 3 Maja - PKP Grodzisk Mazowiecki</textarea>
         </div>
 
-        <span class="badge">Tryb edycji aktywny</span>
-      </div>
+        <div class="editor-section">
+          <h2>Lista przystanków</h2>
 
-      <div class="paper" id="paper">
-        <article class="timetable" id="timetable">
-          <section class="left-side">
-            <header class="header">
-              <div class="line-box">
-                <div class="line-number" id="outLineNumber">ZM</div>
-              </div>
-
-              <div class="route-box">
-                <div class="label" id="outVariant">LINIA ZASTĘPCZA</div>
-                <div class="route-main">-&gt; <span id="outRouteTitle">GRODZISK MAZ. przez MILANÓWEK</span></div>
-                <div class="route-date">Rozkład ważny od <span id="outValidFrom">2018-09-03</span></div>
-              </div>
-            </header>
-
-            <section class="hours-area">
-              <div class="hours-col">
-                <div class="hours-title" id="outWeekdayTitle"></div>
-                <div class="hour-table" id="outWeekdayHours"></div>
-              </div>
-
-              <div class="hours-col">
-                <div class="hours-title" id="outHolidayTitle"></div>
-                <div class="hour-table" id="outHolidayHours"></div>
-              </div>
-
-              <div class="notes-area">
-                <strong id="outNotes"></strong>
-              </div>
-            </section>
-
-            <footer class="footer-note" id="outFooter"></footer>
-          </section>
-
-          <aside class="right-side">
-            <div class="right-top" id="outRightHeader"></div>
-
-            <div class="stops-panel">
-              <div class="tariff" id="outTariff"></div>
-              <div class="direction" id="outDirection"></div>
-              <div class="stops" id="outStops"></div>
-              <div class="vertical-meta" id="outMeta"></div>
-            </div>
-          </aside>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    const fields = [
-      "lineNumber",
-      "validFrom",
-      "routeTitle",
-      "variant",
-      "rightHeader",
-      "weekdayTitle",
-      "weekdayHours",
-      "holidayTitle",
-      "holidayHours",
-      "tariff",
-      "direction",
-      "stopsInput",
-      "currentStop",
-      "notes",
-      "footer",
-      "meta",
-      "paperScale",
-      "lineWeight"
-    ];
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function textWithBreaks(value) {
-      return escapeHtml(value).replaceAll("\n", "<br>");
-    }
-
-    function parseHours(value) {
-      const trimmed = value.trim();
-
-      if (!trimmed || trimmed.toUpperCase().includes("NIE KURSUJE")) {
-        return `<div class="no-service">NIE KURSUJE</div>`;
-      }
-
-      return trimmed
-        .split("\n")
-        .filter(Boolean)
-        .map((line) => {
-          const [hour, minutes = ""] = line.split("|").map((part) => part.trim());
-
-          return `
-            <div class="hour-row">
-              <div class="hour">${escapeHtml(hour)}</div>
-              <div class="minutes">${escapeHtml(minutes)}</div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    function parseStops(value, currentStop) {
-      const current = currentStop.trim().toUpperCase();
-
-      return value
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line) => {
-          const [nameRaw, zoneRaw = ""] = line.split("|");
-          const name = nameRaw.trim();
-          const zone = zoneRaw.trim();
-
-          const isCurrent = name.toUpperCase() === current;
-          const isMainStop = name === name.toUpperCase() && name.length > 3;
-
-          return `
-            <div class="stop ${isCurrent ? "current" : ""}">
-              <div>
-                <span class="stop-name">${escapeHtml(name)}</span>
-                ${isMainStop ? "" : ""}
-              </div>
-              <div class="zone">${escapeHtml(zone)}</div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    function renderTimetable() {
-      $("outLineNumber").textContent = $("lineNumber").value || "ZM";
-      $("outVariant").innerHTML = textWithBreaks($("variant").value);
-      $("outRouteTitle").textContent = $("routeTitle").value;
-      $("outValidFrom").textContent = $("validFrom").value;
-
-      $("outRightHeader").innerHTML = textWithBreaks($("rightHeader").value);
-
-      $("outWeekdayTitle").innerHTML = textWithBreaks($("weekdayTitle").value);
-      $("outWeekdayHours").innerHTML = parseHours($("weekdayHours").value);
-
-      $("outHolidayTitle").innerHTML = textWithBreaks($("holidayTitle").value);
-      $("outHolidayHours").innerHTML = parseHours($("holidayHours").value);
-
-      $("outTariff").innerHTML = textWithBreaks($("tariff").value);
-      $("outDirection").innerHTML = textWithBreaks($("direction").value);
-      $("outStops").innerHTML = parseStops($("stopsInput").value, $("currentStop").value);
-
-      $("outNotes").innerHTML = textWithBreaks($("notes").value);
-      $("outFooter").innerHTML = textWithBreaks($("footer").value);
-      $("outMeta").textContent = $("meta").value;
-
-      const scale = $("paperScale").value;
-      $("paper").style.transform = `scale(${scale})`;
-      $("paper").style.transformOrigin = "top center";
-      $("paper").style.marginBottom = `${(1 - scale) * -650}px`;
-
-      const lineWeight = $("lineWeight").value;
-      document.documentElement.style.setProperty("--line", "#111111");
-
-      document.querySelectorAll(".timetable, .header, .line-box, .hours-col, .hours-title, .footer-note, .left-side, .right-side, .right-top").forEach((element) => {
-        element.style.borderWidth = `${lineWeight}px`;
-      });
-
-      saveState();
-    }
-
-    function saveState() {
-      const data = {};
-
-      fields.forEach((field) => {
-        data[field] = $(field).value;
-      });
-
-      localStorage.setItem("zm-timetable-generator", JSON.stringify(data));
-    }
-
-    function loadState() {
-      const raw = localStorage.getItem("zm-timetable-generator");
-
-      if (!raw) {
-        renderTimetable();
-        return;
-      }
-
-      try {
-        const data = JSON.parse(raw);
-
-        fields.forEach((field) => {
-          if (data[field] !== undefined) {
-            $(field).value = data[field];
-          }
-        });
-      } catch (error) {
-        console.warn("Nie udało się wczytać zapisanych danych.", error);
-      }
-
-      renderTimetable();
-    }
-
-    function resetExample() {
-      localStorage.removeItem("zm-timetable-generator");
-      location.reload();
-    }
-
-    fields.forEach((field) => {
-      const element = $(field);
-
-      if (element) {
-        element.addEventListener("input", renderTimetable);
-        element.addEventListener("change", renderTimetable);
-      }
-    });
-
-    loadState();
-  </script>
-</body>
-</html>
+          <label for="stopsInput">Przystanki</label>
+          <textarea id="stopsInput" style="min-height: 330px;">PKP GRODZ
