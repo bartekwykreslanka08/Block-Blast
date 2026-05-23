@@ -3,7 +3,7 @@
 <head>      
   <meta charset="UTF-8" />      
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />      
-  <title>Generator rozkładu ZM - WTP Warszawa</title>        
+  <title>Generator rozkładu ZM & Klikacz</title>        
   <style>      
     :root {      
       --bg: #f3f4f6;      
@@ -29,7 +29,73 @@
       background: var(--bg);      
       color: var(--ink);      
       font-family: var(--font-ui);      
-    }      
+      overflow-x: hidden;
+    }
+
+    /* LOBBY I NAWIGACJA */
+    .lobby-container {
+      background: #111827;
+      color: #ffffff;
+      font-family: var(--font-ui);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease-in-out;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+    .lobby-container.closed {
+      min-height: 100vh;
+    }
+    .lobby-container.opened {
+      min-height: auto;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px 20px;
+    }
+    .lobby-title {
+      font-size: 52px;
+      font-weight: 900;
+      margin: 0 0 24px 0;
+      letter-spacing: -1.5px;
+      background: linear-gradient(45deg, #3b82f6, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+    .lobby-container.opened .lobby-title {
+      font-size: 28px;
+      margin: 0 0 12px 0;
+    }
+    .tabs-menu {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.06);
+      color: #e5e7eb;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+      border-color: #3b82f6;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
       
     .app {      
       display: grid;      
@@ -186,6 +252,7 @@
       font-size: 14px;      
     }      
       
+    /* ZTM ROZKŁAD - STYLE */
     .paper {      
       width: 1050px;      
       height: 740px;      
@@ -210,7 +277,7 @@
     .left-side {      
       border-right: 3px solid var(--line);      
       display: grid;      
-      grid-template-rows: 135px minmax(0, 1fr) 82px; /* NAPRAWIONE: minmax zapobiega rozciąganiu ramy przez długie godziny */      
+      grid-template-rows: 135px minmax(0, 1fr) 82px;      
     }      
       
     .header {      
@@ -262,7 +329,7 @@
       
     .hours-area {      
       display: grid;      
-      grid-template-columns: 245px 245px 1fr; /* ZMIANA: Poszerzone kolumny, by minuty mieściły się w jednej linii */      
+      grid-template-columns: 245px 245px 1fr;      
     }      
       
     .hours-col {      
@@ -285,14 +352,14 @@
     }      
       
     .hour-table {      
-      padding: 5px 8px; /* ZMIANA: Bardziej zwarte upakowanie pionowe */      
+      padding: 5px 8px;      
       font-size: 14px;      
       overflow: hidden;      
     }      
       
     .hour-row {      
       display: grid;      
-      grid-template-columns: 35px 1fr; /* ZMIANA: Więcej szerokości oddane dla minut */      
+      grid-template-columns: 35px 1fr;      
       min-height: 19px;      
       border-bottom: 1px solid #d1d5db;      
       align-items: center;      
@@ -305,11 +372,11 @@
     }      
       
     .minutes {      
-      word-spacing: 3px; /* ZMIANA: Kompaktowe odstępy zgodne z ZTM */      
+      word-spacing: 3px;      
       letter-spacing: 0px;      
       font-weight: bold;      
       font-size: 14px;      
-      font-family: Arial, Helvetica, sans-serif; /* ZMIANA: Czytelny i wąski font systemowy zamiast szerokiego Monospace */      
+      font-family: Arial, Helvetica, sans-serif;      
     }      
       
     .no-service {      
@@ -485,18 +552,78 @@
       font-size: 12px;      
       font-weight: 700;      
     }      
-      
-    .small-actions {      
-      display: flex;      
-      gap: 8px;      
-      flex-wrap: wrap;      
-      margin-top: 12px;      
-    }      
-      
-    .small-actions button {      
-      padding: 8px 11px;      
-      font-size: 12px;      
-    }      
+
+    /* KLIKACZ - STYLE */
+    .clicker-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      min-height: 100vh;
+      width: 100%;
+      color: white;
+      font-family: var(--font-ui);
+    }
+    .clicker-container {
+      background: #1e293b;
+      padding: 50px 70px;
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .clicker-container h2 {
+      margin-top: 0;
+      color: #cbd5e1;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .click-count {
+      font-size: 96px;
+      font-weight: 900;
+      margin: 30px 0;
+      line-height: 1;
+      background: linear-gradient(45deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 30px rgba(167, 139, 250, 0.2);
+    }
+    .click-button {
+      background: #3b82f6;
+      color: #fff;
+      font-size: 28px;
+      padding: 24px 60px;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      font-weight: 900;
+      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+      margin-bottom: 30px;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .click-button:active {
+      transform: scale(0.92);
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+    }
+    .click-button:hover {
+      background: #2563eb;
+    }
+    .reset-btn {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      width: 100%;
+      padding: 12px;
+    }
+    .reset-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border-color: #f87171;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -515,10 +642,12 @@
     @media print {      
       body {      
         background: #fff;      
-      }      
-      
+      }
+
+      .lobby-container,      
       .editor,      
-      .topbar {      
+      .topbar,
+      .clicker-section {      
         display: none !important;      
       }      
       
@@ -551,7 +680,15 @@
   </style>      
 </head>      
 <body>      
-  <main class="app">      
+  <div id="lobbyMenu" class="lobby-container closed">
+    <h1 class="lobby-title">Dziwna Strona</h1>
+    <div class="tabs-menu">
+      <button id="tabBtnCreator" class="tab-btn" onclick="toggleCreatorTab()">Kreator Rozkładów ZTM</button>
+      <button id="tabBtnClicker" class="tab-btn" onclick="toggleClickerTab()">Klikanie</button>
+    </div>
+  </div>
+
+  <main class="app" id="appContent" style="display: none;">      
     <aside class="editor">      
       <h1>Generator rozkładu ZM</h1>      
       <p class="subtitle">Profesjonalny szablon rozkładu zastępczej komunikacji autobusowej.</p>      
@@ -756,29 +893,27 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       </div>      
     </section>
   </main>      
+
+  <main class="clicker-section" id="clickerContent" style="display: none;">
+    <div class="clicker-container">
+      <h2>Licznik Kliknięć</h2>
+      <div class="click-count" id="clickCountDisplay">0</div>
+      <button class="click-button" onclick="incrementClick()">Kliknij mnie!</button>
+      <button class="btn-danger reset-btn" onclick="resetClicks()">Resetuj licznik</button>
+    </div>
+  </main>
   
   <script>      
     const $ = (id) => document.getElementById(id);      
       
+    // ===========================================
+    // ZTM CREATOR LOGIC (BEZ ZMIAN)
+    // ===========================================
     const fields = [      
-      "lineNumber",      
-      "validFrom",      
-      "routeTitle",      
-      "variant",      
-      "rightHeader",      
-      "weekdayTitle",      
-      "weekdayHours",      
-      "holidayTitle",      
-      "holidayHours",      
-      "tariff",      
-      "direction",      
-      "stopsInput",      
-      "currentStop",      
-      "notes",      
-      "footer",      
-      "meta",      
-      "paperScale",      
-      "lineWeight"      
+      "lineNumber", "validFrom", "routeTitle", "variant", "rightHeader",      
+      "weekdayTitle", "weekdayHours", "holidayTitle", "holidayHours",      
+      "tariff", "direction", "stopsInput", "currentStop", "notes",      
+      "footer", "meta", "paperScale", "lineWeight"      
     ];      
       
     function escapeHtml(value) {      
@@ -796,53 +931,34 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       
     function parseHours(value) {      
       const trimmed = value.trim();      
-      
       if (!trimmed || trimmed.toUpperCase().includes("NIE KURSUJE")) {      
         return `<div class="no-service">NIE KURSUJE</div>`;      
       }      
-      
-      return trimmed      
-        .split("\n")      
-        .filter(Boolean)      
-        .map((line) => {      
-          const [hour, minutes = ""] = line.split("|").map((part) => part.trim());      
-      
-          return `      
-            <div class="hour-row">      
-              <div class="hour">${escapeHtml(hour)}</div>      
-              <div class="minutes">${escapeHtml(minutes)}</div>      
-            </div>      
-          `;      
-        })      
-        .join("");      
+      return trimmed.split("\n").filter(Boolean).map((line) => {      
+        const [hour, minutes = ""] = line.split("|").map((part) => part.trim());      
+        return `      
+          <div class="hour-row">      
+            <div class="hour">${escapeHtml(hour)}</div>      
+            <div class="minutes">${escapeHtml(minutes)}</div>      
+          </div>      
+        `;      
+      }).join("");      
     }      
       
     function parseStops(value, currentStop) {      
       const current = currentStop.trim().toUpperCase();      
-      
-      return value      
-        .split("\n")      
-        .map((line) => line.trim())      
-        .filter(Boolean)      
-        .map((line) => {      
-          const [nameRaw, zoneRaw = ""] = line.split("|");      
-          const name = nameRaw.trim();      
-          const zone = zoneRaw.trim();      
-      
-          const isCurrent = name.toUpperCase() === current;      
-          const isMainStop = name === name.toUpperCase() && name.length > 3;      
-      
-          return `      
-            <div class="stop ${isCurrent ? "current" : ""}">      
-              <div>      
-                <span class="stop-name">${escapeHtml(name)}</span>      
-                ${isMainStop ? "" : ""}      
-              </div>      
-              <div class="zone">${escapeHtml(zone)}</div>      
-            </div>      
-          `;      
-        })      
-        .join("");      
+      return value.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => {      
+        const [nameRaw, zoneRaw = ""] = line.split("|");      
+        const name = nameRaw.trim();      
+        const zone = zoneRaw.trim();      
+        const isCurrent = name.toUpperCase() === current;      
+        return `      
+          <div class="stop ${isCurrent ? "current" : ""}">      
+            <div><span class="stop-name">${escapeHtml(name)}</span></div>      
+            <div class="zone">${escapeHtml(zone)}</div>      
+          </div>      
+        `;      
+      }).join("");      
     }      
       
     function renderTimetable() {      
@@ -850,19 +966,14 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       $("outVariant").innerHTML = textWithBreaks($("variant").value);      
       $("outRouteTitle").textContent = $("routeTitle").value;      
       $("outValidFrom").textContent = $("validFrom").value;      
-      
       $("outRightHeader").innerHTML = textWithBreaks($("rightHeader").value);      
-      
       $("outWeekdayTitle").innerHTML = textWithBreaks($("weekdayTitle").value);      
       $("outWeekdayHours").innerHTML = parseHours($("weekdayHours").value);      
-      
       $("outHolidayTitle").innerHTML = textWithBreaks($("holidayTitle").value);      
       $("outHolidayHours").innerHTML = parseHours($("holidayHours").value);      
-      
       $("outTariff").innerHTML = textWithBreaks($("tariff").value);      
       $("outDirection").innerHTML = textWithBreaks($("direction").value);      
       $("outStops").innerHTML = parseStops($("stopsInput").value, $("currentStop").value);      
-      
       $("outNotes").innerHTML = textWithBreaks($("notes").value);      
       $("outFooter").innerHTML = textWithBreaks($("footer").value);      
       $("outMeta").textContent = $("meta").value;      
@@ -874,44 +985,25 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       
       const lineWeight = $("lineWeight").value;      
       document.documentElement.style.setProperty("--line", "#111111");      
-      
       document.querySelectorAll(".timetable, .header, .line-box, .hours-col, .hours-title, .footer-note, .left-side, .right-side, .right-top").forEach((element) => {      
         element.style.borderWidth = `${lineWeight}px`;      
       });      
-      
       saveState();      
     }      
       
     function saveState() {      
       const data = {};      
-      
-      fields.forEach((field) => {      
-        data[field] = $(field).value;      
-      });      
-      
+      fields.forEach((field) => data[field] = $(field).value);      
       localStorage.setItem("zm-timetable-generator", JSON.stringify(data));      
     }      
       
     function loadState() {      
       const raw = localStorage.getItem("zm-timetable-generator");      
-      
-      if (!raw) {      
-        renderTimetable();      
-        return;      
-      }      
-      
+      if (!raw) { renderTimetable(); return; }      
       try {      
         const data = JSON.parse(raw);      
-      
-        fields.forEach((field) => {      
-          if (data[field] !== undefined) {      
-            $(field).value = data[field];      
-          }      
-        });      
-      } catch (error) {      
-        console.warn("Nie udało się wczytać zapisanych danych.", error);      
-      }      
-      
+        fields.forEach((field) => { if (data[field] !== undefined) $(field).value = data[field]; });      
+      } catch (error) { console.warn("Nie udało się wczytać.", error); }      
       renderTimetable();      
     }      
       
@@ -929,19 +1021,96 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       a.href = URL.createObjectURL(blob);      
       a.download = `rozklad-${$("lineNumber").value || "ZM"}.html`;      
       a.click();      
-    }      
-      
+    }
+
+    // Rejestracja zdarzeń dla kreatora ZTM
     fields.forEach((field) => {      
       const element = $(field);      
-      
       if (element) {      
         element.addEventListener("input", renderTimetable);      
         element.addEventListener("change", renderTimetable);      
       }      
     });      
+
+    // ===========================================
+    // LOGIKA LICZNIKA KLIKNIĘĆ
+    // ===========================================
+    let clicks = parseInt(localStorage.getItem('saved-clicks')) || 0;
+
+    function updateClickDisplay() {
+      $("clickCountDisplay").innerText = clicks;
+    }
+
+    function incrementClick() {
+      clicks++;
+      localStorage.setItem('saved-clicks', clicks);
+      updateClickDisplay();
+    }
+
+    function resetClicks() {
+      if(confirm("Na pewno chcesz zresetować swój wynik kliknięć do zera?")) {
+        clicks = 0;
+        localStorage.setItem('saved-clicks', clicks);
+        updateClickDisplay();
+      }
+    }
+
+    // ===========================================
+    // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
+    // ===========================================
+    function toggleCreatorTab() {
+      const lobby = $("lobbyMenu");
+      const appContent = $("appContent");
+      const clickerContent = $("clickerContent");
+      const btnCreator = $("tabBtnCreator");
+      const btnClicker = $("tabBtnClicker");
       
+      if (appContent.style.display === "none") {
+        appContent.style.display = "grid";
+        clickerContent.style.display = "none";
+        
+        lobby.classList.remove("closed");
+        lobby.classList.add("opened");
+        btnCreator.classList.add("active");
+        btnClicker.classList.remove("active");
+        
+        renderTimetable();
+      } else {
+        appContent.style.display = "none";
+        lobby.classList.remove("opened");
+        lobby.classList.add("closed");
+        btnCreator.classList.remove("active");
+      }
+    }      
+
+    function toggleClickerTab() {
+      const lobby = $("lobbyMenu");
+      const appContent = $("appContent");
+      const clickerContent = $("clickerContent");
+      const btnCreator = $("tabBtnCreator");
+      const btnClicker = $("tabBtnClicker");
+
+      if (clickerContent.style.display === "none") {
+        clickerContent.style.display = "flex";
+        appContent.style.display = "none";
+        
+        lobby.classList.remove("closed");
+        lobby.classList.add("opened");
+        btnClicker.classList.add("active");
+        btnCreator.classList.remove("active");
+        
+        updateClickDisplay(); 
+      } else {
+        clickerContent.style.display = "none";
+        lobby.classList.remove("opened");
+        lobby.classList.add("closed");
+        btnClicker.classList.remove("active");
+      }
+    }
+
+    // Inicjalizacja Danych
     loadState();      
+    updateClickDisplay();
   </script>      
 </body>      
 </html>
-html>
