@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator rozkładu ZM - WTP Warszawa</title>
+
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #111111;
+      --soft-line: #d1d5db;
+      --accent: #111827;
+      --accent-soft: #eef2ff;
+      --danger: #b91c1c;
+      --success: #047857;
+      --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-ticket: "Courier New", Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-ui);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      min-height: 100vh;
+    }
+
+    .editor {
+      background: #111827;
+      color: #fff;
+      padding: 24px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .editor h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .editor .subtitle {
+      margin: 0 0 24px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #374151;
+      border-radius: 10px;
+      background: #030712;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.16);
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-light {
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .btn-light:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-danger {
+      background: #991b1b;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #7f1d1d;
+    }
+
+    .preview-wrap {
+      padding: 28px;
+      overflow: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .paper {
+      width: 1000px;
+      min-height: 720px;
+      background: #fff;
+      border: 1px solid #c7c7c7;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      padding: 8px;
+      margin: 0 auto;
+    }
+
+    .timetable {
+      border: 2px solid var(--line);
+      min-height: 700px;
+      display: grid;
+      grid-template-columns: 700px 1fr;
+      font-family: var(--font-ticket);
+      color: #111;
+      background: #fff;
+    }
+
+    .left-side {
+      border-right: 2px solid var(--line);
+      display: grid;
+      grid-template-rows: 145px 1fr 92px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 205px 1fr;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .line-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px solid var(--line);
+    }
+
+    .line-number {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 94px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -6px;
+    }
+
+    .route-box {
+      padding: 18px 18px 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .route-box .label {
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .route-main {
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .route-date {
+      margin-top: 18px;
+      font-size: 13px;
+      text-transform: none;
+    }
+
+    .hours-area {
+      display: grid;
+      grid-template-columns: 205px 205px 1fr;
+    }
+
+    .hours-col {
+      border-right: 2px solid var(--line);
+      min-height: 440px;
+    }
+
+    .hours-title {
+      min-height: 54px;
+      padding: 9px 8px;
+      border-bottom: 2px solid var(--line);
+      text-align: center;
+      font-size: 13px;
+      text-transform: uppercase;
+      line-height: 1.25;
+    }
+
+    .hour-table {
+      padding: 8px 10px;
+      font-size: 15px;
+    }
+
+    .hour-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      min-height: 20px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .hour {
+      font-weight: 700;
+    }
+
+    .minutes {
+      word-spacing: 6px;
+    }
+
+    .no-service {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 310px;
+      padding: 20px;
+      font-size: 17px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .notes-area {
+      padding: 18px 16px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .notes-area strong {
+      font-weight: 900;
+    }
+
+    .footer-note {
+      border-top: 2px solid var(--line);
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.45;
+      text-transform: uppercase;
+    }
+
+    .right-side {
+      display: grid;
+      grid-template-rows: 54px 1fr;
+      position: relative;
+    }
+
+    .right-top {
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--line);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .stops-panel {
+      padding: 8px 10px 12px;
+      position: relative;
+    }
+
+    .tariff {
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .direction {
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .direction strong {
+      font-size: 15px;
+    }
+
+    .stops {
+      position: relative;
+      padding-left: 34px;
+      margin-top: 10px;
+    }
+
+    .stops::before {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 8px;
+      bottom: 8px;
+      border-left: 2px solid #111;
+    }
+
+    .stop {
+      position: relative;
+      min-height: 25px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 8px;
+      align-items: start;
+      font-size: 12px;
+      line-height: 1.1;
+      color: #3f3f46;
+    }
+
+    .stop::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 4px;
+      width: 7px;
+      height: 7px;
+      background: #111;
+      border-radius: 50%;
+    }
+
+    .stop.current {
+      color: #111;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .stop.current::before {
+      width: 13px;
+      height: 13px;
+      left: -27px;
+      top: 2px;
+      background: #111;
+    }
+
+    .stop-name {
+      text-transform: uppercase;
+    }
+
+    .stop-sub {
+      display: block;
+      margin-top: 2px;
+      text-transform: none;
+      font-style: italic;
+      font-weight: 400;
+      color: #52525b;
+    }
+
+    .zone {
+      font-size: 11px;
+      color: #52525b;
+      padding-left: 4px;
+    }
+
+    .vertical-meta {
+      position: absolute;
+      left: -8px;
+      bottom: 12px;
+      transform: rotate(-90deg);
+      transform-origin: left bottom;
+      font-size: 10px;
+      color: #111;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .small-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .small-actions button {
+      padding: 8px 11px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .editor {
+        max-height: none;
+      }
+
+      .preview-wrap {
+        padding: 18px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .editor,
+      .topbar {
+        display: none !important;
+      }
+
+      .app {
+        display: block;
+      }
+
+      .preview-wrap {
+        padding: 0;
+      }
+
+      .paper {
+        width: 100%;
+        min-height: auto;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .timetable {
+        min-height: 98vh;
+      }
+
+      @page {
+        size: A4 landscape;
+        margin: 7mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <aside class="editor">
+      <h1>Generator rozkładu ZM</h1>
+      <p class="subtitle">Profesjonalny szablon rozkładu zastępczej komunikacji autobusowej.</p>
+
+      <section class="section">
+        <h2>Dane linii</h2>
+
+        <div class="grid-2">
+          <div>
+            <label for="lineNumber">Numer linii</label>
+            <input id="lineNumber" value="ZM" />
+          </div>
+
+          <div>
+            <label for="validFrom">Obowiązuje od</label>
+            <input id="validFrom" value="2018-09-03" />
+          </div>
+        </div>
+
+        <label for="routeTitle">Relacja</label>
+        <input id="routeTitle" value="GRODZISK MAZ. przez MILANÓWEK" />
+
+        <label for="variant">Opis wariantu / nagłówek</label>
+        <input id="variant" value="LINIA ZASTĘPCZA" />
+
+        <label for="rightHeader">Opis techniczny</label>
+        <input id="rightHeader" value="czasy, trasa, przystanki" />
+      </section>
+
+      <section class="section">
+        <h2>Godziny odjazdów</h2>
+
+        <label for="weekdayTitle">Kolumna 1 - nazwa</label>
+        <input id="weekdayTitle" value="DZIEŃ POWSZEDNI&#10;Godz. Minuty" />
+
+        <label for="weekdayHours">Kolumna 1 - godziny i minuty</label>
+        <textarea id="weekdayHours">5 | 29 51
+6 | 16 32 51
+7 | 06 26 36 51
+8 | 06 23 36
+9 | 01 21
+15 | 01 21 36 46
+16 | 06 21 36 51
+17 | 06 21 31 46
+18 | 01 16 31 46
+19 | 01 21
+20 | 01 31</textarea>
+        <p class="hint">Format: godzina | minuty, np. 7 | 06 26 36 51.</p>
+
+        <label for="holidayTitle">Kolumna 2 - nazwa</label>
+        <input id="holidayTitle" value="ŚWIĘTO I SOBOTA&#10;Godz. Minuty" />
+
+        <label for="holidayHours">Kolumna 2 - godziny i minuty</label>
+        <textarea id="holidayHours">NIE KURSUJE</textarea>
+      </section>
+
+      <section class="section">
+        <h2>Trasa i przystanki</h2>
+
+        <label for="tariff">Taryfa</label>
+        <input id="tariff" value="===== TYLKO TARYFA KM =====&#10;GRODZISK MAZOWIECKI" />
+
+        <label for="direction">Kierunek</label>
+        <input id="direction" value="GD MAZ&#10;PKP GRODZISK MAZOWIECKI" />
+
+        <label for="stopsInput">Lista przystanków</label>
+        <textarea id="stopsInput" style="min-height: 220px;">PKP GRODZISK MAZOWIECKI | 2
+ZONDKA | 
+Nadarzyńska | 
+Kościuszki | 
+Sienkiewicza | 
+15 STYCZNIA | 2
+Królewska | 
+3 MAJA | 2
+Chrzanowska | 
+MILANÓWEK | 
+Ludna | 
+Słowackiego | 
+WOJSKA POLSKIEGO | 2
+Wojska Polskiego | 
+Mickiewicza | 
+Kościuszki | 
+MICKIEWICZA | 2
+Kościelna | 
+Dębowa | 
+DĘBOWA | 
+GRODZISK MAZOWIECKI | 
+3 Maja | 
+40-LECIA | 2
+Partnizaka | 
+3 Maja | 
+PKP GRODZISK MAZOWIECKI |</textarea>
+        <p class="hint">Format: nazwa przystanku | strefa. Aktualny przystanek ustawisz niżej.</p>
+
+        <label for="currentStop">Aktualny przystanek</label>
+        <input id="currentStop" value="DĘBOWA" />
+      </section>
+
+      <section class="section">
+        <h2>Komunikaty i dopiski</h2>
+
+        <label for="notes">Komunikat środkowy</label>
+        <textarea id="notes">WSZYSTKIE KURSY REALIZOWANE POJAZDAMI NISKOPODŁOGOWYMI</textarea>
+
+        <label for="footer">Komunikat dolny</label>
+        <textarea id="footer">NA LINII ZM OBOWIĄZUJE TYLKO TARYFA KOLEI MAZOWIECKICH</textarea>
+
+        <label for="meta">Opis boczny / numer przystanku</label>
+        <input id="meta" value="Przystanek: 4086 DĘBOWA 02 MILANÓWEK" />
+      </section>
+
+      <section class="section">
+        <h2>Wygląd</h2>
+
+        <div class="grid-2">
+          <div>
+            <label for="paperScale">Skala podglądu</label>
+            <select id="paperScale">
+              <option value="1">100%</option>
+              <option value="0.9">90%</option>
+              <option value="0.8" selected>80%</option>
+              <option value="0.7">70%</option>
+              <option value="0.6">60%</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="lineWeight">Grubość ramek</label>
+            <select id="lineWeight">
+              <option value="1">Cienkie</option>
+              <option value="2" selected>Standard</option>
+              <option value="3">Grube</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn-primary" onclick="renderTimetable()">Odśwież podgląd</button>
+          <button class="btn-light" onclick="window.print()">Drukuj / PDF</button>
+          <button class="btn-danger" onclick="resetExample()">Przywróć przykład</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="preview-wrap">
+      <div class="topbar">
+        <div>
+          <h2>Podgląd rozkładu</h2>
+          <p>Edytuj dane po lewej stronie. Gotowy rozkład możesz wydrukować albo zapisać jako PDF.</p>
+        </div>
+
+        <span class="badge">Tryb edycji aktywny</span>
+      </div>
+
+      <div class="paper" id="paper">
+        <article class="timetable" id="timetable">
+          <section class="left-side">
+            <header class="header">
+              <div class="line-box">
+                <div class="line-number" id="outLineNumber">ZM</div>
+              </div>
+
+              <div class="route-box">
+                <div class="label" id="outVariant">LINIA ZASTĘPCZA</div>
+                <div class="route-main">-&gt; <span id="outRouteTitle">GRODZISK MAZ. przez MILANÓWEK</span></div>
+                <div class="route-date">Rozkład ważny od <span id="outValidFrom">2018-09-03</span></div>
+              </div>
+            </header>
+
+            <section class="hours-area">
+              <div class="hours-col">
+                <div class="hours-title" id="outWeekdayTitle"></div>
+                <div class="hour-table" id="outWeekdayHours"></div>
+              </div>
+
+              <div class="hours-col">
+                <div class="hours-title" id="outHolidayTitle"></div>
+                <div class="hour-table" id="outHolidayHours"></div>
+              </div>
+
+              <div class="notes-area">
+                <strong id="outNotes"></strong>
+              </div>
+            </section>
+
+            <footer class="footer-note" id="outFooter"></footer>
+          </section>
+
+          <aside class="right-side">
+            <div class="right-top" id="outRightHeader"></div>
+
+            <div class="stops-panel">
+              <div class="tariff" id="outTariff"></div>
+              <div class="direction" id="outDirection"></div>
+              <div class="stops" id="outStops"></div>
+              <div class="vertical-meta" id="outMeta"></div>
+            </div>
+          </aside>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const fields = [
+      "lineNumber",
+      "validFrom",
+      "routeTitle",
+      "variant",
+      "rightHeader",
+      "weekdayTitle",
+      "weekdayHours",
+      "holidayTitle",
+      "holidayHours",
+      "tariff",
+      "direction",
+      "stopsInput",
+      "currentStop",
+      "notes",
+      "footer",
+      "meta",
+      "paperScale",
+      "lineWeight"
+    ];
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function textWithBreaks(value) {
+      return escapeHtml(value).replaceAll("\n", "<br>");
+    }
+
+    function parseHours(value) {
+      const trimmed = value.trim();
+
+      if (!trimmed || trimmed.toUpperCase().includes("NIE KURSUJE")) {
+        return `<div class="no-service">NIE KURSUJE</div>`;
+      }
+
+      return trimmed
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => {
+          const [hour, minutes = ""] = line.split("|").map((part) => part.trim());
+
+          return `
+            <div class="hour-row">
+              <div class="hour">${escapeHtml(hour)}</div>
+              <div class="minutes">${escapeHtml(minutes)}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function parseStops(value, currentStop) {
+      const current = currentStop.trim().toUpperCase();
+
+      return value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [nameRaw, zoneRaw = ""] = line.split("|");
+          const name = nameRaw.trim();
+          const zone = zoneRaw.trim();
+
+          const isCurrent = name.toUpperCase() === current;
+          const isMainStop = name === name.toUpperCase() && name.length > 3;
+
+          return `
+            <div class="stop ${isCurrent ? "current" : ""}">
+              <div>
+                <span class="stop-name">${escapeHtml(name)}</span>
+                ${isMainStop ? "" : ""}
+              </div>
+              <div class="zone">${escapeHtml(zone)}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderTimetable() {
+      $("outLineNumber").textContent = $("lineNumber").value || "ZM";
+      $("outVariant").innerHTML = textWithBreaks($("variant").value);
+      $("outRouteTitle").textContent = $("routeTitle").value;
+      $("outValidFrom").textContent = $("validFrom").value;
+
+      $("outRightHeader").innerHTML = textWithBreaks($("rightHeader").value);
+
+      $("outWeekdayTitle").innerHTML = textWithBreaks($("weekdayTitle").value);
+      $("outWeekdayHours").innerHTML = parseHours($("weekdayHours").value);
+
+      $("outHolidayTitle").innerHTML = textWithBreaks($("holidayTitle").value);
+      $("outHolidayHours").innerHTML = parseHours($("holidayHours").value);
+
+      $("outTariff").innerHTML = textWithBreaks($("tariff").value);
+      $("outDirection").innerHTML = textWithBreaks($("direction").value);
+      $("outStops").innerHTML = parseStops($("stopsInput").value, $("currentStop").value);
+
+      $("outNotes").innerHTML = textWithBreaks($("notes").value);
+      $("outFooter").innerHTML = textWithBreaks($("footer").value);
+      $("outMeta").textContent = $("meta").value;
+
+      const scale = $("paperScale").value;
+      $("paper").style.transform = `scale(${scale})`;
+      $("paper").style.transformOrigin = "top center";
+      $("paper").style.marginBottom = `${(1 - scale) * -650}px`;
+
+      const lineWeight = $("lineWeight").value;
+      document.documentElement.style.setProperty("--line", "#111111");
+
+      document.querySelectorAll(".timetable, .header, .line-box, .hours-col, .hours-title, .footer-note, .left-side, .right-side, .right-top").forEach((element) => {
+        element.style.borderWidth = `${lineWeight}px`;
+      });
+
+      saveState();
+    }
+
+    function saveState() {
+      const data = {};
+
+      fields.forEach((field) => {
+        data[field] = $(field).value;
+      });
+
+      localStorage.setItem("zm-timetable-generator", JSON.stringify(data));
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem("zm-timetable-generator");
+
+      if (!raw) {
+        renderTimetable();
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+
+        fields.forEach((field) => {
+          if (data[field] !== undefined) {
+            $(field).value = data[field];
+          }
+        });
+      } catch (error) {
+        console.warn("Nie udało się wczytać zapisanych danych.", error);
+      }
+
+      renderTimetable();
+    }
+
+    function resetExample() {
+      localStorage.removeItem("zm-timetable-generator");
+      location.reload();
+    }
+
+    fields.forEach((field) => {
+      const element = $(field);
+
+      if (element) {
+        element.addEventListener("input", renderTimetable);
+        element.addEventListener("change", renderTimetable);
+      }
+    });
+
+    loadState();
+  </script>
+</body>
+</html>
