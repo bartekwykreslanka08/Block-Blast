@@ -3,7 +3,7 @@
 <head>      
   <meta charset="UTF-8" />      
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />      
-  <title>Generator rozkładu ZM & Klikacz</title>        
+  <title>Generator rozkładu ZM, Klikacz & Niedziele</title>        
   <style>      
     :root {      
       --bg: #f3f4f6;      
@@ -553,8 +553,8 @@
       font-weight: 700;      
     }      
 
-    /* KLIKACZ - STYLE */
-    .clicker-section {
+    /* KLIKACZ / SEKCJE WSPÓLNE - STYLE */
+    .tool-section {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -565,7 +565,7 @@
       color: white;
       font-family: var(--font-ui);
     }
-    .clicker-container {
+    .tool-container {
       background: #1e293b;
       padding: 50px 70px;
       border-radius: 32px;
@@ -573,7 +573,7 @@
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    .clicker-container h2 {
+    .tool-container h2 {
       margin-top: 0;
       color: #cbd5e1;
       font-size: 24px;
@@ -624,6 +624,91 @@
       color: #f87171;
       border-color: #f87171;
     }
+
+    /* NIEDZIELA - STYLE */
+    .sunday-container {
+      max-width: 900px;
+      width: 95%;
+      padding: 60px 40px;
+    }
+    .sunday-title {
+      font-size: 20px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    .sunday-date {
+      font-size: 32px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 5px;
+    }
+    .sunday-status {
+      font-size: 56px;
+      font-weight: 900;
+      margin: 10px 0 40px 0;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+    .status-handlowa {
+      color: #10b981; /* Zielony */
+      text-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+    }
+    .status-niehandlowa {
+      color: #ef4444; /* Czerwony */
+      text-shadow: 0 10px 30px rgba(239, 68, 68, 0.25);
+    }
+    
+    .countdown-title {
+      font-size: 16px;
+      color: #cbd5e1;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+    .countdown-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .cd-box {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 24px 20px;
+      min-width: 120px;
+      box-shadow: inset 0 2px 15px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .cd-value {
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .cd-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+    .cd-box.ms-box {
+      min-width: 140px;
+    }
+    .cd-box.ms-box .cd-value {
+      background: linear-gradient(45deg, #f472b6, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -637,7 +722,13 @@
       .preview-wrap {      
         padding: 18px;      
       }      
-    }      
+    }
+    @media (max-width: 768px) {
+      .cd-box { min-width: 80px; padding: 16px 12px; }
+      .cd-value { font-size: 32px; }
+      .cd-box.ms-box { min-width: 100px; }
+      .sunday-status { font-size: 40px; }
+    }
       
     @media print {      
       body {      
@@ -647,7 +738,7 @@
       .lobby-container,      
       .editor,      
       .topbar,
-      .clicker-section {      
+      .tool-section {      
         display: none !important;      
       }      
       
@@ -685,6 +776,7 @@
     <div class="tabs-menu">
       <button id="tabBtnCreator" class="tab-btn" onclick="toggleCreatorTab()">Kreator Rozkładów ZTM</button>
       <button id="tabBtnClicker" class="tab-btn" onclick="toggleClickerTab()">Klikanie</button>
+      <button id="tabBtnSunday" class="tab-btn" onclick="toggleSundayTab()">Niedziela</button>
     </div>
   </div>
 
@@ -894,12 +986,44 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     </section>
   </main>      
 
-  <main class="clicker-section" id="clickerContent" style="display: none;">
-    <div class="clicker-container">
+  <main class="tool-section" id="clickerContent" style="display: none;">
+    <div class="tool-container">
       <h2>Licznik Kliknięć</h2>
       <div class="click-count" id="clickCountDisplay">0</div>
       <button class="click-button" onclick="incrementClick()">Kliknij mnie!</button>
       <button class="btn-danger reset-btn" onclick="resetClicks()">Resetuj licznik</button>
+    </div>
+  </main>
+
+  <main class="tool-section" id="sundayContent" style="display: none;">
+    <div class="tool-container sunday-container">
+      <div class="sunday-title">Najbliższa Niedziela</div>
+      <div class="sunday-date" id="upcomingSundayDate">--.--.----</div>
+      <div class="sunday-status" id="sundayStatusText">Sprawdzanie...</div>
+
+      <div class="countdown-title">Odliczanie do najbliższej niedzieli handlowej:</div>
+      <div class="countdown-wrapper">
+        <div class="cd-box">
+          <div class="cd-value" id="cdDays">00</div>
+          <div class="cd-label">Dni</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-value" id="cdHours">00</div>
+          <div class="cd-label">Godz</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-value" id="cdMins">00</div>
+          <div class="cd-label">Min</div>
+        </div>
+        <div class="cd-box">
+          <div class="cd-value" id="cdSecs">00</div>
+          <div class="cd-label">Sek</div>
+        </div>
+        <div class="cd-box ms-box">
+          <div class="cd-value" id="cdMs">000</div>
+          <div class="cd-label">Milisek</div>
+        </div>
+      </div>
     </div>
   </main>
   
@@ -907,7 +1031,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     const $ = (id) => document.getElementById(id);      
       
     // ===========================================
-    // ZTM CREATOR LOGIC (BEZ ZMIAN)
+    // ZTM CREATOR LOGIC
     // ===========================================
     const fields = [      
       "lineNumber", "validFrom", "routeTitle", "variant", "rightHeader",      
@@ -1023,7 +1147,6 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       a.click();      
     }
 
-    // Rejestracja zdarzeń dla kreatora ZTM
     fields.forEach((field) => {      
       const element = $(field);      
       if (element) {      
@@ -1056,23 +1179,103 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     // ===========================================
+    // LOGIKA NIEDZIELI HANDLOWEJ
+    // ===========================================
+    const tradingSundays = [
+      "2024-01-28", "2024-03-24", "2024-04-28", "2024-06-30", "2024-08-25", "2024-12-15", "2024-12-22",
+      "2025-01-26", "2025-04-13", "2025-04-27", "2025-06-29", "2025-08-31", "2025-12-14", "2025-12-21",
+      "2026-01-25", "2026-03-29", "2026-04-26", "2026-06-28", "2026-08-30", "2026-12-13", "2026-12-20",
+      "2027-01-31", "2027-03-21", "2027-04-25", "2027-06-27", "2027-08-29", "2027-12-12", "2027-12-19"
+    ];
+
+    let nextTradingObj = null;
+
+    function initSundayLogic() {
+      const now = new Date();
+      const dayOfWeek = now.getDay(); 
+
+      // Obliczanie najbliższej niedzieli (jeśli dzisiaj jest niedziela, to pokazuje dzisiejszą)
+      let upcomingSunday = new Date(now);
+      if (dayOfWeek !== 0) {
+        upcomingSunday.setDate(now.getDate() + (7 - dayOfWeek));
+      }
+      
+      const yyyy = upcomingSunday.getFullYear();
+      const mm = String(upcomingSunday.getMonth() + 1).padStart(2, '0');
+      const dd = String(upcomingSunday.getDate()).padStart(2, '0');
+      const upcomingStr = `${yyyy}-${mm}-${dd}`;
+      
+      $("upcomingSundayDate").innerText = `${dd}.${mm}.${yyyy}`;
+
+      const statusEl = $("sundayStatusText");
+      if (tradingSundays.includes(upcomingStr)) {
+        statusEl.innerText = "Handlowa";
+        statusEl.className = "sunday-status status-handlowa";
+      } else {
+        statusEl.innerText = "Niehandlowa";
+        statusEl.className = "sunday-status status-niehandlowa";
+      }
+
+      // Szukanie NASTĘPNEJ (lub obecnej, ale jeszcze nie rozpoczętej) niedzieli handlowej do odliczania
+      for (let dateStr of tradingSundays) {
+        let [y, m, d] = dateStr.split('-');
+        let dObj = new Date(y, m - 1, d, 0, 0, 0); // 00:00:00 w danym dniu
+        if (dObj.getTime() > now.getTime()) {
+          nextTradingObj = dObj;
+          break;
+        }
+      }
+    }
+
+    function updateSundayCountdown() {
+      if (!nextTradingObj) return;
+
+      const current = new Date().getTime();
+      const diff = nextTradingObj.getTime() - current;
+
+      if (diff <= 0) {
+        initSundayLogic();
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      const ms = Math.floor(diff % 1000);
+
+      $("cdDays").innerText = String(days).padStart(2, '0');
+      $("cdHours").innerText = String(hours).padStart(2, '0');
+      $("cdMins").innerText = String(mins).padStart(2, '0');
+      $("cdSecs").innerText = String(secs).padStart(2, '0');
+      $("cdMs").innerText = String(ms).padStart(3, '0');
+
+      requestAnimationFrame(updateSundayCountdown);
+    }
+
+    // ===========================================
     // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
     // ===========================================
     function toggleCreatorTab() {
       const lobby = $("lobbyMenu");
       const appContent = $("appContent");
       const clickerContent = $("clickerContent");
+      const sundayContent = $("sundayContent");
+      
       const btnCreator = $("tabBtnCreator");
       const btnClicker = $("tabBtnClicker");
+      const btnSunday = $("tabBtnSunday");
       
       if (appContent.style.display === "none") {
         appContent.style.display = "grid";
         clickerContent.style.display = "none";
+        sundayContent.style.display = "none";
         
         lobby.classList.remove("closed");
         lobby.classList.add("opened");
         btnCreator.classList.add("active");
         btnClicker.classList.remove("active");
+        btnSunday.classList.remove("active");
         
         renderTimetable();
       } else {
@@ -1087,17 +1290,22 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       const lobby = $("lobbyMenu");
       const appContent = $("appContent");
       const clickerContent = $("clickerContent");
+      const sundayContent = $("sundayContent");
+
       const btnCreator = $("tabBtnCreator");
       const btnClicker = $("tabBtnClicker");
+      const btnSunday = $("tabBtnSunday");
 
       if (clickerContent.style.display === "none") {
         clickerContent.style.display = "flex";
         appContent.style.display = "none";
+        sundayContent.style.display = "none";
         
         lobby.classList.remove("closed");
         lobby.classList.add("opened");
         btnClicker.classList.add("active");
         btnCreator.classList.remove("active");
+        btnSunday.classList.remove("active");
         
         updateClickDisplay(); 
       } else {
@@ -1108,9 +1316,41 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       }
     }
 
-    // Inicjalizacja Danych
+    function toggleSundayTab() {
+      const lobby = $("lobbyMenu");
+      const appContent = $("appContent");
+      const clickerContent = $("clickerContent");
+      const sundayContent = $("sundayContent");
+
+      const btnCreator = $("tabBtnCreator");
+      const btnClicker = $("tabBtnClicker");
+      const btnSunday = $("tabBtnSunday");
+
+      if (sundayContent.style.display === "none") {
+        sundayContent.style.display = "flex";
+        appContent.style.display = "none";
+        clickerContent.style.display = "none";
+        
+        lobby.classList.remove("closed");
+        lobby.classList.add("opened");
+        btnSunday.classList.add("active");
+        btnCreator.classList.remove("active");
+        btnClicker.classList.remove("active");
+        
+        initSundayLogic();
+        requestAnimationFrame(updateSundayCountdown); // start odliczania
+      } else {
+        sundayContent.style.display = "none";
+        lobby.classList.remove("opened");
+        lobby.classList.add("closed");
+        btnSunday.classList.remove("active");
+      }
+    }
+
+    // Inicjalizacja Danych Startowych
     loadState();      
     updateClickDisplay();
+    initSundayLogic(); // Żeby wyliczył zmienne z góry
   </script>      
 </body>      
 </html>
