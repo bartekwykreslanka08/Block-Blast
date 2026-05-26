@@ -762,6 +762,62 @@
       -webkit-text-fill-color: transparent;
       line-height: 1;
     }
+
+    /* ZAAWANSOWANY PAINT - STYLE */
+    .paint-toolbar {
+      display: flex; 
+      gap: 8px; 
+      flex-wrap: wrap; 
+      margin-top: 20px; 
+      justify-content: center; 
+      align-items: center;
+      background: rgba(255,255,255,0.05); 
+      padding: 15px; 
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .paint-toolbar input[type="color"] { 
+      width: 44px; 
+      height: 44px; 
+      padding: 0; 
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      background: transparent;
+    }
+    .paint-toolbar input[type="range"] { 
+      width: 120px; 
+      margin: 0 10px;
+    }
+    .paint-tool-btn {
+      background: #334155; 
+      color: white; 
+      border: 1px solid transparent; 
+      padding: 10px 14px; 
+      border-radius: 10px; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+    .paint-tool-btn.active { 
+      background: #2563eb; 
+      border-color: #60a5fa;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+    }
+    .paint-tool-btn:hover:not(.active) { 
+      background: #475569; 
+    }
+    .paint-action-btn {
+      background: #1e293b;
+      border: 1px solid #475569;
+    }
+    .paint-action-btn:hover {
+      background: #334155;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -798,6 +854,7 @@
       <button id="tabBtnCircle" class="tab-btn" onclick="toggleCircleTab()">Idealne Koło</button>
       <button id="tabBtnFindItem" class="tab-btn" onclick="toggleFindItemTab()">Znajdź Rzecz</button>
       <button id="tabBtnLove" class="tab-btn" onclick="toggleLoveTab()">Miłość</button>
+      <button id="tabBtnDraw" class="tab-btn" onclick="toggleDrawTab()">Rysuj</button>
     </div>
   </div>
 
@@ -1118,6 +1175,43 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         <button class="click-button" style="margin: 10px 0; background: #ec4899; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);" onclick="calculateLove()">Sprawdź dopasowanie</button>
         
         <div class="yesno-result status-empty" id="loveDisplay" style="font-size: 72px; min-height: 90px; margin: 20px 0; background: linear-gradient(45deg, #f472b6, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+      </div>
+    </div>
+  </main>
+
+  <main class="tool-section" id="drawContent" style="display: none;">
+    <div class="tool-container" style="max-width: 1000px; width: 100%;">
+      <h2>Zaawansowany Paint</h2>
+      
+      <div class="paint-toolbar">
+        <input type="color" id="paintColor" value="#000000" title="Wybierz kolor">
+        
+        <label style="margin: 0; color: #cbd5e1; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+          Grubość: 
+          <input type="range" id="paintSize" min="1" max="50" value="5">
+        </label>
+
+        <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+
+        <button class="paint-tool-btn active" id="btnToolBrush" onclick="setPaintTool('brush')">✏️ Pędzel</button>
+        <button class="paint-tool-btn" id="btnToolEraser" onclick="setPaintTool('eraser')">🧹 Gumka</button>
+        <button class="paint-tool-btn" id="btnToolFill" onclick="setPaintTool('fill')">🪣 Wypełnienie</button>
+        <button class="paint-tool-btn" id="btnToolLine" onclick="setPaintTool('line')">➖ Linia</button>
+        <button class="paint-tool-btn" id="btnToolRect" onclick="setPaintTool('rect')">⬜ Prostokąt</button>
+        <button class="paint-tool-btn" id="btnToolRectFill" onclick="setPaintTool('rectFill')">⬛ Pełny Prostokąt</button>
+        <button class="paint-tool-btn" id="btnToolCircle" onclick="setPaintTool('circle')">⭕ Koło</button>
+        <button class="paint-tool-btn" id="btnToolCircleFill" onclick="setPaintTool('circleFill')">🌑 Pełne Koło</button>
+        
+        <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+
+        <button class="paint-tool-btn paint-action-btn" onclick="paintUndo()" title="Cofnij">↩️</button>
+        <button class="paint-tool-btn paint-action-btn" onclick="paintRedo()" title="Powtórz">↪️</button>
+        <button class="paint-tool-btn paint-action-btn" onclick="paintClear()" title="Wyczyść wszystko">🗑️</button>
+        <button class="paint-tool-btn paint-action-btn" onclick="paintDownload()" title="Zapisz rysunek">💾 Zapisz</button>
+      </div>
+
+      <div style="background: white; border-radius: 8px; overflow: hidden; margin-top: 20px; border: 2px solid rgba(255,255,255,0.2);">
+        <canvas id="paintCanvas" width="950" height="600" style="display: block; cursor: crosshair; touch-action: none; width: 100%;"></canvas>
       </div>
     </div>
   </main>
@@ -1637,12 +1731,233 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     // ===========================================
+    // LOGIKA ZAAWANSOWANEGO PAINTA
+    // ===========================================
+    let paintCanvas, paintCtx;
+    let isPainting = false;
+    let paintTool = "brush";
+    let paintColor = "#000000";
+    let paintSize = 5;
+    let paintStartX, paintStartY;
+    let paintSnapshot;
+    let paintUndoStack = [];
+    let paintRedoStack = [];
+
+    function initPaint() {
+      if (paintCanvas) return;
+      paintCanvas = $("paintCanvas");
+      paintCtx = paintCanvas.getContext("2d", { willReadFrequently: true });
+      
+      paintCtx.fillStyle = "#ffffff";
+      paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+      savePaintState();
+
+      paintCanvas.addEventListener("mousedown", paintStart);
+      paintCanvas.addEventListener("mousemove", paintDraw);
+      window.addEventListener("mouseup", paintStop);
+
+      paintCanvas.addEventListener("touchstart", (e) => { e.preventDefault(); paintStart(e.touches[0]); }, {passive: false});
+      paintCanvas.addEventListener("touchmove", (e) => { e.preventDefault(); paintDraw(e.touches[0]); }, {passive: false});
+      window.addEventListener("touchend", paintStop);
+      
+      updatePaintUI();
+    }
+
+    function setPaintTool(tool) {
+      paintTool = tool;
+      updatePaintUI();
+    }
+
+    function updatePaintUI() {
+      document.querySelectorAll(".paint-tool-btn:not(.paint-action-btn)").forEach(btn => btn.classList.remove("active"));
+      const activeBtnId = "btnTool" + paintTool.charAt(0).toUpperCase() + paintTool.slice(1);
+      if ($(activeBtnId)) $(activeBtnId).classList.add("active");
+    }
+
+    function getPaintPos(e) {
+      const rect = paintCanvas.getBoundingClientRect();
+      const scaleX = paintCanvas.width / rect.width;
+      const scaleY = paintCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function paintStart(e) {
+      if ($("drawContent").style.display === "none") return;
+      isPainting = true;
+      const pos = getPaintPos(e);
+      paintStartX = pos.x;
+      paintStartY = pos.y;
+
+      paintColor = $("paintColor").value;
+      paintSize = parseInt($("paintSize").value);
+
+      paintCtx.beginPath();
+      paintCtx.moveTo(paintStartX, paintStartY);
+      
+      if (paintTool === "fill") {
+        paintFloodFill(Math.floor(paintStartX), Math.floor(paintStartY), hexToRgb(paintColor));
+        savePaintState();
+        isPainting = false;
+        return;
+      }
+
+      paintSnapshot = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      
+      if (paintTool === "brush" || paintTool === "eraser") {
+         paintDraw(e);
+      }
+    }
+
+    function paintDraw(e) {
+      if (!isPainting || paintTool === "fill") return;
+      const pos = getPaintPos(e);
+
+      if (paintTool !== "brush" && paintTool !== "eraser") {
+        paintCtx.putImageData(paintSnapshot, 0, 0); 
+      }
+
+      paintCtx.lineWidth = paintSize;
+      paintCtx.lineCap = "round";
+      paintCtx.lineJoin = "round";
+
+      if (paintTool === "eraser") {
+        paintCtx.strokeStyle = "#ffffff";
+        paintCtx.fillStyle = "#ffffff";
+      } else {
+        paintCtx.strokeStyle = paintColor;
+        paintCtx.fillStyle = paintColor;
+      }
+
+      if (paintTool === "brush" || paintTool === "eraser") {
+        paintCtx.lineTo(pos.x, pos.y);
+        paintCtx.stroke();
+      } else if (paintTool === "line") {
+        paintCtx.beginPath();
+        paintCtx.moveTo(paintStartX, paintStartY);
+        paintCtx.lineTo(pos.x, pos.y);
+        paintCtx.stroke();
+      } else if (paintTool === "rect") {
+        paintCtx.beginPath();
+        paintCtx.rect(paintStartX, paintStartY, pos.x - paintStartX, pos.y - paintStartY);
+        paintCtx.stroke();
+      } else if (paintTool === "rectFill") {
+        paintCtx.fillRect(paintStartX, paintStartY, pos.x - paintStartX, pos.y - paintStartY);
+      } else if (paintTool === "circle") {
+        paintCtx.beginPath();
+        const radius = Math.hypot(pos.x - paintStartX, pos.y - paintStartY);
+        paintCtx.arc(paintStartX, paintStartY, radius, 0, 2 * Math.PI);
+        paintCtx.stroke();
+      } else if (paintTool === "circleFill") {
+        paintCtx.beginPath();
+        const radius = Math.hypot(pos.x - paintStartX, pos.y - paintStartY);
+        paintCtx.arc(paintStartX, paintStartY, radius, 0, 2 * Math.PI);
+        paintCtx.fill();
+      }
+    }
+
+    function paintStop() {
+      if (!isPainting) return;
+      isPainting = false;
+      if (paintTool !== "fill") {
+        savePaintState();
+      }
+    }
+
+    function savePaintState() {
+      paintUndoStack.push(paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+      paintRedoStack = []; 
+      if (paintUndoStack.length > 50) paintUndoStack.shift(); 
+    }
+
+    function paintUndo() {
+      if (paintUndoStack.length > 1) {
+        paintRedoStack.push(paintUndoStack.pop());
+        const state = paintUndoStack[paintUndoStack.length - 1];
+        paintCtx.putImageData(state, 0, 0);
+      }
+    }
+
+    function paintRedo() {
+      if (paintRedoStack.length > 0) {
+        const state = paintRedoStack.pop();
+        paintUndoStack.push(state);
+        paintCtx.putImageData(state, 0, 0);
+      }
+    }
+
+    function paintClear() {
+      paintCtx.fillStyle = "#ffffff";
+      paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+      savePaintState();
+    }
+
+    function paintDownload() {
+      const link = document.createElement("a");
+      link.download = "moj-rysunek.png";
+      link.href = paintCanvas.toDataURL();
+      link.click();
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16), 255] : [0,0,0,255];
+    }
+
+    function paintFloodFill(startX, startY, fillColor) {
+      const imgData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      const data = imgData.data;
+      const startPos = (startY * paintCanvas.width + startX) * 4;
+      const startColor = [data[startPos], data[startPos+1], data[startPos+2], data[startPos+3]];
+
+      if (startColor[0] === fillColor[0] && startColor[1] === fillColor[1] && startColor[2] === fillColor[2]) return;
+
+      const stack = [[startX, startY]];
+      const width = paintCanvas.width;
+      const height = paintCanvas.height;
+
+      while (stack.length) {
+        const pt = stack.pop();
+        let x = pt[0], y = pt[1];
+        let p = (y * width + x) * 4;
+
+        while (y >= 0 && data[p] === startColor[0] && data[p+1] === startColor[1] && data[p+2] === startColor[2]) {
+          y--;
+          p -= width * 4;
+        }
+        p += width * 4;
+        y++;
+        let reachLeft = false;
+        let reachRight = false;
+
+        while (y < height && data[p] === startColor[0] && data[p+1] === startColor[1] && data[p+2] === startColor[2]) {
+          data[p] = fillColor[0]; data[p+1] = fillColor[1]; data[p+2] = fillColor[2]; data[p+3] = fillColor[3];
+          if (x > 0) {
+            if (data[p - 4] === startColor[0] && data[p - 3] === startColor[1] && data[p - 2] === startColor[2]) {
+              if (!reachLeft) { stack.push([x - 1, y]); reachLeft = true; }
+            } else { reachLeft = false; }
+          }
+          if (x < width - 1) {
+            if (data[p + 4] === startColor[0] && data[p + 5] === startColor[1] && data[p + 6] === startColor[2]) {
+              if (!reachRight) { stack.push([x + 1, y]); reachRight = true; }
+            } else { reachRight = false; }
+          }
+          y++;
+          p += width * 4;
+        }
+      }
+      paintCtx.putImageData(imgData, 0, 0);
+    }
+
+    // ===========================================
     // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
     // ===========================================
     function switchTab(activeContentId, activeBtnId) {
       const lobby = $("lobbyMenu");
-      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent", "circleContent", "findItemContent", "loveContent"];
-      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove"];
+      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent"];
+      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw"];
       
       const targetContent = $(activeContentId);
       const targetBtn = $(activeBtnId);
@@ -1685,6 +2000,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     function toggleCircleTab() { switchTab("circleContent", "tabBtnCircle"); initCircleCanvas(); }
     function toggleFindItemTab() { switchTab("findItemContent", "tabBtnFindItem"); }
     function toggleLoveTab() { switchTab("loveContent", "tabBtnLove"); }
+    function toggleDrawTab() { switchTab("drawContent", "tabBtnDraw"); initPaint(); }
 
     // Inicjalizacja Danych Startowych
     loadState();      
