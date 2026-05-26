@@ -564,14 +564,17 @@
       width: 100%;
       color: white;
       font-family: var(--font-ui);
+      padding: 20px;
     }
     .tool-container {
       background: #1e293b;
-      padding: 50px 70px;
+      padding: 40px 30px;
       border-radius: 32px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 500px;
     }
     .tool-container h2 {
       margin-top: 0;
@@ -592,21 +595,21 @@
     .click-button {
       background: #3b82f6;
       color: #fff;
-      font-size: 28px;
-      padding: 24px 60px;
-      border-radius: 99px;
+      font-size: 24px;
+      padding: 18px 30px;
+      border-radius: 20px;
       border: none;
       cursor: pointer;
       font-weight: 900;
       transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
       box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
       width: 100%;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
     .click-button:active {
-      transform: scale(0.92);
+      transform: scale(0.96);
       box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
     }
     .click-button:hover {
@@ -709,6 +712,32 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
+    /* TAK / NIE - STYLE */
+    .yesno-result {
+      font-size: 84px;
+      font-weight: 900;
+      margin: 40px 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .status-tak {
+      color: #10b981;
+      text-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+    .status-nie {
+      color: #ef4444;
+      text-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+    }
+    .status-empty {
+      color: #64748b;
+      font-size: 48px;
+      font-weight: 500;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -728,45 +757,8 @@
       .cd-value { font-size: 32px; }
       .cd-box.ms-box { min-width: 100px; }
       .sunday-status { font-size: 40px; }
-    }
-      
-    @media print {      
-      body {      
-        background: #fff;      
-      }
-
-      .lobby-container,      
-      .editor,      
-      .topbar,
-      .tool-section {      
-        display: none !important;      
-      }      
-      
-      .app {      
-        display: block;      
-      }      
-      
-      .preview-wrap {      
-        padding: 0;      
-      }      
-      
-      .paper {      
-        width: 100%;      
-        height: 100vh;      
-        margin: 0;      
-        border: 0;      
-        box-shadow: none;      
-        padding: 0;      
-      }      
-      
-      .timetable {      
-        height: 100%;      
-      }      
-      
-      @page {      
-        size: A4 landscape;      
-        margin: 5mm;      
-      }      
+      .tool-container { padding: 30px 20px; }
+      .click-button { font-size: 20px; padding: 16px 20px; border-radius: 16px; }
     }      
   </style>      
 </head>      
@@ -777,6 +769,8 @@
       <button id="tabBtnCreator" class="tab-btn" onclick="toggleCreatorTab()">Kreator Rozkładów ZTM</button>
       <button id="tabBtnClicker" class="tab-btn" onclick="toggleClickerTab()">Klikanie</button>
       <button id="tabBtnSunday" class="tab-btn" onclick="toggleSundayTab()">Niedziela</button>
+      <button id="tabBtnCat" class="tab-btn" onclick="toggleCatTab()">Tłumacz Koci</button>
+      <button id="tabBtnYesNo" class="tab-btn" onclick="toggleYesNoTab()">Tak / Nie</button>
     </div>
   </div>
 
@@ -898,7 +892,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
   
         <div class="grid-2">      
           <div>      
-            <label for="paperScale">Skala podglądu</label>      
+            <label for="paperScale">Skala podglądw</label>      
             <select id="paperScale">      
               <option value="1">100%</option>      
               <option value="0.9">90%</option>      
@@ -1027,6 +1021,29 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     </div>
   </main>
   
+  <main class="tool-section" id="catContent" style="display: none;">
+    <div class="tool-container">
+      <h2>Tłumacz Polski - Koci</h2>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; text-align: left;">
+        <label for="catInput" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Tekst po polsku:</label>
+        <textarea id="catInput" placeholder="Wpisz tekst, który chcesz przetłumaczyć na koci..." style="min-height: 120px; font-size: 16px; padding: 16px;"></textarea>
+        
+        <button class="click-button" style="margin: 10px 0;" onclick="translateToCat()">Przetłumacz na miau</button>
+        
+        <label for="catOutput" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Tekst po kociemu:</label>
+        <textarea id="catOutput" placeholder="Miau miau miau..." style="min-height: 120px; font-size: 16px; padding: 16px; background: #0f172a; color: #94a3b8; border-color: rgba(255,255,255,0.1);" readonly></textarea>
+      </div>
+    </div>
+  </main>
+
+  <main class="tool-section" id="yesNoContent" style="display: none;">
+    <div class="tool-container">
+      <h2>Wyrocznia Tak / Nie</h2>
+      <div class="yesno-result status-empty" id="yesNoDisplay">???</div>
+      <button class="click-button" onclick="drawYesNo()">Losuj odpowiedź</button>
+    </div>
+  </main>
+
   <script>      
     const $ = (id) => document.getElementById(id);      
       
@@ -1086,6 +1103,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }      
       
     function renderTimetable() {      
+      if(!$("outLineNumber")) return;
       $("outLineNumber").textContent = $("lineNumber").value || "ZM";      
       $("outVariant").innerHTML = textWithBreaks($("variant").value);      
       $("outRouteTitle").textContent = $("routeTitle").value;      
@@ -1156,7 +1174,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     });      
 
     // ===========================================
-    // LOGIKA LICZNIKA KLIKNIĘĆ
+    // LOGIKA LICZNKA KLIKNIĘĆ
     // ===========================================
     let clicks = parseInt(localStorage.getItem('saved-clicks')) || 0;
 
@@ -1194,7 +1212,6 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       const now = new Date();
       const dayOfWeek = now.getDay(); 
 
-      // Obliczanie najbliższej niedzieli (jeśli dzisiaj jest niedziela, to pokazuje dzisiejszą)
       let upcomingSunday = new Date(now);
       if (dayOfWeek !== 0) {
         upcomingSunday.setDate(now.getDate() + (7 - dayOfWeek));
@@ -1216,10 +1233,9 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         statusEl.className = "sunday-status status-niehandlowa";
       }
 
-      // Szukanie NASTĘPNEJ (lub obecnej, ale jeszcze nie rozpoczętej) niedzieli handlowej do odliczania
       for (let dateStr of tradingSundays) {
         let [y, m, d] = dateStr.split('-');
-        let dObj = new Date(y, m - 1, d, 0, 0, 0); // 00:00:00 w danym dniu
+        let dObj = new Date(y, m - 1, d, 0, 0, 0);
         if (dObj.getTime() > now.getTime()) {
           nextTradingObj = dObj;
           break;
@@ -1254,103 +1270,112 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     // ===========================================
+    // LOGIKA TŁUMACZA KOCIEGO
+    // ===========================================
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; 
+      }
+      return Math.abs(hash);
+    }
+
+    function translateToCat() {
+      const text = $("catInput").value.trim();
+      if (!text) {
+        $("catOutput").value = "";
+        return;
+      }
+      
+      const words = text.split(/\s+/);
+      const catWords = ["miau", "mrr", "purr", "miauu", "meow", "miau?", "mrr!", "hiss..."];
+      
+      let translated = words.map((word, index) => {
+        const seed = hashCode(word.toLowerCase() + "_" + index);
+        const catWord = catWords[seed % catWords.length];
+        
+        if (word.charAt(0) === word.charAt(0).toUpperCase()) {
+          return catWord.charAt(0).toUpperCase() + catWord.slice(1);
+        }
+        return catWord;
+      }).join(" ");
+      
+      if (!/[.!?]$/.test(translated)) {
+        translated += ".";
+      }
+      
+      $("catOutput").value = translated;
+    }
+
+    // ===========================================
+    // LOGIKA ZAKŁADKI TAK / NIE
+    // ===========================================
+    function drawYesNo() {
+      const display = $("yesNoDisplay");
+      const randomValue = Math.random();
+      
+      if (randomValue < 0.5) {
+        display.innerText = "TAK";
+        display.className = "yesno-result status-tak";
+      } else {
+        display.innerText = "NIE";
+        display.className = "yesno-result status-nie";
+      }
+    }
+
+    // ===========================================
     // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
     // ===========================================
-    function toggleCreatorTab() {
+    function switchTab(activeContentId, activeBtnId) {
       const lobby = $("lobbyMenu");
-      const appContent = $("appContent");
-      const clickerContent = $("clickerContent");
-      const sundayContent = $("sundayContent");
+      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent"];
+      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo"];
       
-      const btnCreator = $("tabBtnCreator");
-      const btnClicker = $("tabBtnClicker");
-      const btnSunday = $("tabBtnSunday");
+      const targetContent = $(activeContentId);
+      const targetBtn = $(activeBtnId);
       
-      if (appContent.style.display === "none") {
-        appContent.style.display = "grid";
-        clickerContent.style.display = "none";
-        sundayContent.style.display = "none";
-        
-        lobby.classList.remove("closed");
-        lobby.classList.add("opened");
-        btnCreator.classList.add("active");
-        btnClicker.classList.remove("active");
-        btnSunday.classList.remove("active");
-        
+      if (targetContent.style.display !== "none" && activeContentId !== "appContent" && targetContent.style.display !== "") {
+        targetContent.style.display = "none";
+        lobby.classList.remove("opened");
+        lobby.classList.add("closed");
+        targetBtn.classList.remove("active");
+        return;
+      }
+      if (activeContentId === "appContent" && $("appContent").style.display === "grid") {
+        $("appContent").style.display = "none";
+        lobby.classList.remove("opened");
+        lobby.classList.add("closed");
+        targetBtn.classList.remove("active");
+        return;
+      }
+
+      contents.forEach(id => { if($(id)) $(id).style.display = "none"; });
+      buttons.forEach(id => { if($(id)) $(id).classList.remove("active"); });
+
+      if (activeContentId === "appContent") {
+        targetContent.style.display = "grid";
         renderTimetable();
       } else {
-        appContent.style.display = "none";
-        lobby.classList.remove("opened");
-        lobby.classList.add("closed");
-        btnCreator.classList.remove("active");
+        targetContent.style.display = "flex";
       }
-    }      
 
-    function toggleClickerTab() {
-      const lobby = $("lobbyMenu");
-      const appContent = $("appContent");
-      const clickerContent = $("clickerContent");
-      const sundayContent = $("sundayContent");
-
-      const btnCreator = $("tabBtnCreator");
-      const btnClicker = $("tabBtnClicker");
-      const btnSunday = $("tabBtnSunday");
-
-      if (clickerContent.style.display === "none") {
-        clickerContent.style.display = "flex";
-        appContent.style.display = "none";
-        sundayContent.style.display = "none";
-        
-        lobby.classList.remove("closed");
-        lobby.classList.add("opened");
-        btnClicker.classList.add("active");
-        btnCreator.classList.remove("active");
-        btnSunday.classList.remove("active");
-        
-        updateClickDisplay(); 
-      } else {
-        clickerContent.style.display = "none";
-        lobby.classList.remove("opened");
-        lobby.classList.add("closed");
-        btnClicker.classList.remove("active");
-      }
+      lobby.classList.remove("closed");
+      lobby.classList.add("opened");
+      targetBtn.add("active");
     }
 
-    function toggleSundayTab() {
-      const lobby = $("lobbyMenu");
-      const appContent = $("appContent");
-      const clickerContent = $("clickerContent");
-      const sundayContent = $("sundayContent");
-
-      const btnCreator = $("tabBtnCreator");
-      const btnClicker = $("tabBtnClicker");
-      const btnSunday = $("tabBtnSunday");
-
-      if (sundayContent.style.display === "none") {
-        sundayContent.style.display = "flex";
-        appContent.style.display = "none";
-        clickerContent.style.display = "none";
-        
-        lobby.classList.remove("closed");
-        lobby.classList.add("opened");
-        btnSunday.classList.add("active");
-        btnCreator.classList.remove("active");
-        btnClicker.classList.remove("active");
-        
-        initSundayLogic();
-        requestAnimationFrame(updateSundayCountdown); // start odliczania
-      } else {
-        sundayContent.style.display = "none";
-        lobby.classList.remove("opened");
-        lobby.classList.add("closed");
-        btnSunday.classList.remove("active");
-      }
-    }
+    function toggleCreatorTab() { switchTab("appContent", "tabBtnCreator"); }
+    function toggleClickerTab() { switchTab("clickerContent", "tabBtnClicker"); updateClickDisplay(); }
+    function toggleSundayTab() { switchTab("sundayContent", "tabBtnSunday"); initSundayLogic(); requestAnimationFrame(updateSundayCountdown); }
+    function toggleCatTab() { switchTab("catContent", "tabBtnCat"); }
+    function toggleYesNoTab() { switchTab("yesNoContent", "tabBtnYesNo"); }
 
     // Inicjalizacja Danych Startowych
     loadState();      
     updateClickDisplay();
-    initSundayLogic(); // Żeby wyliczył zmienne z góry
+    initSundayLogic();
   </script>      
 </body>      
 </html>
