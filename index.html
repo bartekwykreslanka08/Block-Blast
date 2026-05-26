@@ -738,6 +738,30 @@
       font-size: 48px;
       font-weight: 500;
     }
+
+    /* IDEALNE KOŁO - STYLE */
+    .circle-canvas {
+      background: #0f172a;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      cursor: crosshair;
+      touch-action: none;
+      display: block;
+      margin: 0 auto;
+      width: 350px;
+      max-width: 100%;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .circle-result {
+      font-size: 56px;
+      font-weight: 900;
+      margin: 10px 0 20px;
+      min-height: 60px;
+      background: linear-gradient(45deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -771,6 +795,9 @@
       <button id="tabBtnSunday" class="tab-btn" onclick="toggleSundayTab()">Niedziela</button>
       <button id="tabBtnCat" class="tab-btn" onclick="toggleCatTab()">Tłumacz Koci</button>
       <button id="tabBtnYesNo" class="tab-btn" onclick="toggleYesNoTab()">Tak / Nie</button>
+      <button id="tabBtnCircle" class="tab-btn" onclick="toggleCircleTab()">Idealne Koło</button>
+      <button id="tabBtnFindItem" class="tab-btn" onclick="toggleFindItemTab()">Znajdź Rzecz</button>
+      <button id="tabBtnLove" class="tab-btn" onclick="toggleLoveTab()">Miłość</button>
     </div>
   </div>
 
@@ -1041,6 +1068,57 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       <h2>Wyrocznia Tak / Nie</h2>
       <div class="yesno-result status-empty" id="yesNoDisplay">???</div>
       <button class="click-button" onclick="drawYesNo()">Losuj odpowiedź</button>
+    </div>
+  </main>
+
+  <main class="tool-section" id="circleContent" style="display: none;">
+    <div class="tool-container" style="max-width: 600px;">
+      <h2>Narysuj Idealne Koło</h2>
+      <div class="circle-result" id="circleResult">0%</div>
+      <canvas id="circleCanvas" width="350" height="350" class="circle-canvas"></canvas>
+      <button class="click-button" style="margin-top:24px;" onclick="clearCircleCanvas()">Wyczyść i Spróbuj Ponownie</button>
+    </div>
+  </main>
+
+  <main class="tool-section" id="findItemContent" style="display: none;">
+    <div class="tool-container">
+      <h2>Znajdź Rzecz</h2>
+      <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+        <div><span style="color:#10b981; font-weight:bold; font-size:32px;" id="foundCounter">0</span><br><small style="color:#94a3b8; font-weight: bold; text-transform: uppercase;">Znalazłem</small></div>
+        <div><span style="color:#ef4444; font-weight:bold; font-size:32px;" id="notFoundCounter">0</span><br><small style="color:#94a3b8; font-weight: bold; text-transform: uppercase;">Nie znalazłem</small></div>
+      </div>
+      
+      <div id="findTarget" style="font-size: 36px; font-weight: 900; margin: 30px 0; min-height: 100px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; color: #f8fafc; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 10px; border: 1px solid rgba(255,255,255,0.1);">
+        ???
+      </div>
+
+      <div id="findTimerDisplay" style="font-size: 64px; font-weight: 900; font-variant-numeric: tabular-nums; color: #cbd5e1; margin-bottom: 30px;">
+        05:00
+      </div>
+
+      <button id="startFindBtn" class="click-button" onclick="startFindingItem()">Wylosuj rzecz do znalezienia</button>
+
+      <div id="findActionButtons" style="display: none; gap: 16px; flex-direction: column;">
+        <button class="click-button" style="background: #10b981; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); margin-bottom: 0;" onclick="markItemFound()">Znalazłem!</button>
+        <button class="click-button" style="background: #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); margin-bottom: 0;" onclick="markItemNotFound()">Nie dałem rady</button>
+      </div>
+    </div>
+  </main>
+
+  <main class="tool-section" id="loveContent" style="display: none;">
+    <div class="tool-container">
+      <h2>Kalkulator Miłości</h2>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; text-align: left;">
+        <label for="loveName1" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Pierwsze imię:</label>
+        <input id="loveName1" placeholder="Wpisz imię..." style="font-size: 16px; padding: 12px;" />
+        
+        <label for="loveName2" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Drugie imię:</label>
+        <input id="loveName2" placeholder="Wpisz drugie imię..." style="font-size: 16px; padding: 12px;" />
+        
+        <button class="click-button" style="margin: 10px 0; background: #ec4899; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4);" onclick="calculateLove()">Sprawdź dopasowanie</button>
+        
+        <div class="yesno-result status-empty" id="loveDisplay" style="font-size: 72px; min-height: 90px; margin: 20px 0; background: linear-gradient(45deg, #f472b6, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+      </div>
     </div>
   </main>
 
@@ -1326,12 +1404,245 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     // ===========================================
+    // LOGIKA IDEALNEGO KOŁA
+    // ===========================================
+    let circleCtx, isDrawingCircle = false, circlePoints = [];
+
+    function initCircleCanvas() {
+      const canvas = $("circleCanvas");
+      if (!canvas || circleCtx) return;
+      circleCtx = canvas.getContext("2d");
+      
+      canvas.addEventListener("mousedown", startCircleDraw);
+      canvas.addEventListener("mousemove", drawCircleMove);
+      window.addEventListener("mouseup", endCircleDraw);
+      
+      canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startCircleDraw(e.touches[0]); }, {passive: false});
+      canvas.addEventListener("touchmove", (e) => { e.preventDefault(); drawCircleMove(e.touches[0]); }, {passive: false});
+      window.addEventListener("touchend", endCircleDraw);
+    }
+
+    function startCircleDraw(e) {
+      if ($("circleContent").style.display === "none") return;
+      const canvas = $("circleCanvas");
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+      
+      isDrawingCircle = true;
+      circlePoints = [{x, y}];
+      circleCtx.clearRect(0, 0, canvas.width, canvas.height);
+      circleCtx.beginPath();
+      circleCtx.moveTo(x, y);
+      $("circleResult").innerText = "...";
+      $("circleResult").style.color = "";
+    }
+
+    function drawCircleMove(e) {
+      if (!isDrawingCircle) return;
+      const canvas = $("circleCanvas");
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      circleCtx.lineTo(x, y);
+      circleCtx.strokeStyle = "#3b82f6";
+      circleCtx.lineWidth = 4;
+      circleCtx.lineCap = "round";
+      circleCtx.stroke();
+      circlePoints.push({x, y});
+    }
+
+    function endCircleDraw() {
+      if (!isDrawingCircle) return;
+      isDrawingCircle = false;
+      calculateCircleScore();
+    }
+
+    function clearCircleCanvas() {
+      if(!circleCtx) return;
+      const canvas = $("circleCanvas");
+      circleCtx.clearRect(0, 0, canvas.width, canvas.height);
+      $("circleResult").innerText = "0%";
+      circlePoints = [];
+    }
+
+    function calculateCircleScore() {
+      if (circlePoints.length < 20) {
+        $("circleResult").innerText = "Za krótkie!";
+        return;
+      }
+      
+      let sumX = 0, sumY = 0;
+      circlePoints.forEach(p => { sumX += p.x; sumY += p.y; });
+      const cx = sumX / circlePoints.length;
+      const cy = sumY / circlePoints.length;
+
+      let sumR = 0;
+      const radii = circlePoints.map(p => {
+        const r = Math.hypot(p.x - cx, p.y - cy);
+        sumR += r;
+        return r;
+      });
+      const avgR = sumR / circlePoints.length;
+
+      if (avgR < 25) {
+         $("circleResult").innerText = "Za małe!";
+         return;
+      }
+
+      let sumDev = 0;
+      radii.forEach(r => { sumDev += Math.abs(r - avgR); });
+      const avgDev = sumDev / radii.length;
+
+      const firstP = circlePoints[0];
+      const lastP = circlePoints[circlePoints.length - 1];
+      const gap = Math.hypot(firstP.x - lastP.x, firstP.y - lastP.y);
+      const gapPenalty = Math.max(0, (gap / avgR) * 60);
+
+      let score = 100 - (avgDev / avgR) * 250 - gapPenalty;
+      if (score < 0) score = 0;
+      if (score > 100) score = 100;
+
+      $("circleResult").innerText = score.toFixed(1) + "%";
+    }
+
+    // ===========================================
+    // LOGIKA ZNAJDŹ RZECZ
+    // ===========================================
+    const itemsToFind = [
+      "łyżka", "widelec", "nóż", "kubek", "talerz", "miska", "garnek", "patelnia", "szklanka", "kieliszek",
+      "solniczka", "pieprzniczka", "deska do krojenia", "tarka", "otwieracz do butelek", "korkociąg", "serwetka",
+      "ręcznik papierowy", "gąbka do naczyń", "płyn do naczyń", "ścierka kuchenna", "miotła", "mop", "wiadro",
+      "śmietniczka", "odkurzacz", "pralka", "żelazko", "deska do prasowania", "wieszak", "klamerka do prania",
+      "kosz na śmieci", "mydło", "szampon", "żel pod prysznic", "pasta do zębów", "szczoteczka do zębów",
+      "papier toaletowy", "ręcznik", "suszarka do włosów", "grzebień", "szczotka do włosów", "golarka", "krem",
+      "perfumy", "dezodorant", "lustro", "poduszka", "koc", "kołdra", "prześcieradło", "poszewka", "materac",
+      "lampka nocna", "budzik", "książka", "długopis", "ołówek", "gumka do mazania", "linijka", "nożyczki", "klej",
+      "taśma klejąca", "zszywacz", "spinacz", "notes", "zeszyt", "kartka papieru", "koperta", "znaczek pocztowy",
+      "portfel", "moneta", "banknot", "karta płatnicza", "dowód osobisty", "klucze", "breloczek", "telefon",
+      "ładowarka", "słuchawki", "powerbank", "laptop", "myszka", "klawiatura", "pendrive", "płyta CD",
+      "pilot do telewizora", "telewizor", "radio", "zegarek", "okulary", "etui na okulary", "parasol", "plecak",
+      "torba", "walizka", "buty", "skarpetki", "spodnie", "koszula", "koszulka", "sweter", "bluza", "kurtka",
+      "czapka", "szalik", "rękawiczki", "pasek do spodni", "krawat", "sukienka", "spódnica", "biżuteria",
+      "pierścionek", "naszyjnik", "kolczyki", "bransoletka", "zegarek na rękę", "gumka do włosów", "spinka",
+      "kask", "rower", "pompka do roweru", "piłka", "paletka", "rakieta tenisowa", "hantle", "skakanka",
+      "mata do ćwiczeń", "zabawka", "pluszak", "klocki", "lalka", "gra planszowa", "karty do gry", "puzzle",
+      "smycz dla psa", "obroża", "miska dla zwierząt", "karma dla zwierząt", "kuweta", "roślina doniczkowa",
+      "konewka", "wazon", "świeczka", "zapałki", "zapalniczka", "latarka", "baterie", "żarówka", "przedłużacz",
+      "śrubokręt", "młotek", "gwóźdź", "śruba", "kombinerki", "miarka", "pędzel", "farba", "taśma izolacyjna",
+      "klucz płaski", "wiertarka", "dowód rejestracyjny", "prawo jazdy", "bilet", "paragon", "ulotka", "gazeta",
+      "czasopismo", "kalendarz", "zdjęcie", "ramka na zdjęcie", "obraz", "plakat", "magnes na lodówkę",
+      "pamiątka z wakacji", "muszelka", "kamyk", "szyszka", "liść", "kwiatek", "owoc", "warzywo", "chleb",
+      "masło", "ser", "wędlina", "jajko", "mleko", "woda w butelce", "sok", "herbata", "kawa", "cukier", "mąka",
+      "ryż", "makaron", "kasza", "płatki śniadaniowe", "czekolada", "cukierek", "ciastko", "chipsy", "orzechy",
+      "dżem", "miód", "musztarda", "ketchup", "majonez", "sos sojowy", "ocet", "olej", "oliwa", "przyprawa",
+      "czosnek", "cebula", "ziemniak", "marchewka", "jabłko", "banan", "cytryna", "pomarańcza", "plaster",
+      "bandaż", "woda utleniona", "tabletka", "syrop", "termometr", "maseczka ochronna", "płyn do dezynfekcji",
+      "rękawiczki jednorazowe", "chusteczki higieniczne", "mokre chusteczki", "waciki kosmetyczne",
+      "patyczki higieniczne", "pilniczek do paznokci", "obcinacz do paznokci", "lakier do paznokci",
+      "zmywacz do paznokci", "szminka", "tusz do rzęs", "puder", "cienie do powiek", "pędzel do makijażu",
+      "gąbeczka do makijażu", "waga łazienkowa", "waga kuchenna", "minutnik", "otwieracz do puszek",
+      "wyciskarka do czosnku", "durszlak", "sitko", "lejek", "wałek do ciasta", "foremka do ciastek",
+      "blacha do pieczenia", "rękawica kuchenna", "śliniaczek", "smoczek", "butelka dla dziecka", "pielucha",
+      "nocnik", "sanki", "łyżwy", "rolki", "deskorolka", "kreda", "farby plakatowe", "plastelina", "modelina",
+      "kordonek", "włóczka", "druty", "szydełko", "igła", "nitka", "agrafka", "guzik", "zamek błyskawiczny", "rzep"
+    ];
+
+    let foundItemsCount = 0;
+    let notFoundItemsCount = 0;
+    let findTimerInterval = null;
+    let findTimeLeft = 0;
+
+    function startFindingItem() {
+      if (findTimerInterval) clearInterval(findTimerInterval);
+      
+      const randomItem = itemsToFind[Math.floor(Math.random() * itemsToFind.length)];
+      $("findTarget").innerText = randomItem;
+      
+      findTimeLeft = 300; // 5 minut w sekundach
+      updateFindTimerDisplay();
+      
+      $("startFindBtn").style.display = "none";
+      $("findActionButtons").style.display = "flex";
+      $("findTarget").style.color = "#3b82f6";
+      
+      findTimerInterval = setInterval(() => {
+        findTimeLeft--;
+        updateFindTimerDisplay();
+        
+        if (findTimeLeft <= 0) {
+          markItemNotFound();
+        }
+      }, 1000);
+    }
+
+    function updateFindTimerDisplay() {
+      const minutes = Math.floor(findTimeLeft / 60);
+      const seconds = findTimeLeft % 60;
+      $("findTimerDisplay").innerText = 
+        String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+    }
+
+    function resetFindTurn() {
+      if (findTimerInterval) clearInterval(findTimerInterval);
+      $("startFindBtn").style.display = "block";
+      $("findActionButtons").style.display = "none";
+      $("findTarget").innerText = "???";
+      $("findTarget").style.color = "#f8fafc";
+      $("findTimerDisplay").innerText = "05:00";
+    }
+
+    function markItemFound() {
+      foundItemsCount++;
+      $("foundCounter").innerText = foundItemsCount;
+      resetFindTurn();
+    }
+
+    function markItemNotFound() {
+      notFoundItemsCount++;
+      $("notFoundCounter").innerText = notFoundItemsCount;
+      resetFindTurn();
+    }
+
+    // ===========================================
+    // LOGIKA KALKULATORA MIŁOŚCI
+    // ===========================================
+    function calculateLove() {
+      const n1 = $("loveName1").value.trim().toLowerCase();
+      const n2 = $("loveName2").value.trim().toLowerCase();
+      
+      if (!n1 || !n2) {
+        $("loveDisplay").innerText = "0%";
+        return;
+      }
+      
+      if ((n1 === "bartek" && n2 === "eliza") || (n1 === "eliza" && n2 === "bartek")) {
+        $("loveDisplay").innerText = "100%";
+        return;
+      }
+      
+      const combinedStr = [n1, n2].sort().join("");
+      let hash = 0;
+      for (let i = 0; i < combinedStr.length; i++) {
+        hash = combinedStr.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      
+      const percentage = Math.abs(hash) % 101;
+      $("loveDisplay").innerText = percentage + "%";
+    }
+
+    // ===========================================
     // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
     // ===========================================
     function switchTab(activeContentId, activeBtnId) {
       const lobby = $("lobbyMenu");
-      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent"];
-      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo"];
+      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent", "circleContent", "findItemContent", "loveContent"];
+      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove"];
       
       const targetContent = $(activeContentId);
       const targetBtn = $(activeBtnId);
@@ -1363,7 +1674,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
 
       lobby.classList.remove("closed");
       lobby.classList.add("opened");
-      targetBtn.add("active");
+      targetBtn.classList.add("active");
     }
 
     function toggleCreatorTab() { switchTab("appContent", "tabBtnCreator"); }
@@ -1371,6 +1682,9 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     function toggleSundayTab() { switchTab("sundayContent", "tabBtnSunday"); initSundayLogic(); requestAnimationFrame(updateSundayCountdown); }
     function toggleCatTab() { switchTab("catContent", "tabBtnCat"); }
     function toggleYesNoTab() { switchTab("yesNoContent", "tabBtnYesNo"); }
+    function toggleCircleTab() { switchTab("circleContent", "tabBtnCircle"); initCircleCanvas(); }
+    function toggleFindItemTab() { switchTab("findItemContent", "tabBtnFindItem"); }
+    function toggleLoveTab() { switchTab("loveContent", "tabBtnLove"); }
 
     // Inicjalizacja Danych Startowych
     loadState();      
