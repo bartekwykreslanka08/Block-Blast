@@ -574,7 +574,7 @@
       display: inline-flex;      
       align-items: center;      
       gap: 6px;      
-      padding: 5px 9px;      
+      padding: 5px 99px;      
       border-radius: 999px;      
       background: #ecfdf5;      
       color: #065f46;      
@@ -847,6 +847,64 @@
     .paint-action-btn:hover {
       background: #334155;
     }
+
+    /* ROZBUDOWANY KALKULATOR - STYLE */
+    .calc-screen {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: right;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .calc-display {
+      font-size: 28px;
+      font-weight: 700;
+      color: #f8fafc;
+      word-break: break-all;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .calc-btn {
+      background: #334155;
+      color: white;
+      font-size: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.15s;
+    }
+    .calc-btn:hover {
+      background: #475569;
+    }
+    .calc-btn.op {
+      background: #f97316;
+    }
+    .calc-btn.op:hover {
+      background: #ea580c;
+    }
+    .calc-btn.fn {
+      background: #1e293b;
+      color: #cbd5e1;
+    }
+    .calc-btn.fn:hover {
+      background: #334155;
+    }
+    .calc-btn.eq {
+      background: #2563eb;
+    }
+    .calc-btn.eq:hover {
+      background: #1d4ed8;
+    }
       
     @media (max-width: 1100px) {      
       .app {      
@@ -879,6 +937,7 @@
     
     <div class="tabs-menu" id="tabsMenu">
       <button id="tabBtnCreator" class="tab-btn" onclick="toggleCreatorTab()">Kreator Rozkładów ZTM</button>
+      <button id="tabBtnCalc" class="tab-btn" onclick="toggleCalcTab()">Kalkulator</button>
       <button id="tabBtnClicker" class="tab-btn" onclick="toggleClickerTab()">Klikanie</button>
       <button id="tabBtnSunday" class="tab-btn" onclick="toggleSundayTab()">Niedziela</button>
       <button id="tabBtnCat" class="tab-btn" onclick="toggleCatTab()">Tłumacz Koci</button>
@@ -1097,6 +1156,45 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       </div>      
     </section>
   </main>      
+
+  <main class="tool-section" id="calcContent" style="display: none;">
+    <div class="tool-container" style="max-width: 400px;">
+      <h2>Rozbudowany Kalkulator</h2>
+      <div class="calc-screen">
+        <div class="calc-display" id="calcDisplay">0</div>
+      </div>
+      <div class="calc-grid">
+        <button class="calc-btn fn" onclick="pressCalc('C')">C</button>
+        <button class="calc-btn fn" onclick="pressCalc('(')">(</button>
+        <button class="calc-btn fn" onclick="pressCalc(')')">)</button>
+        <button class="calc-btn op" onclick="pressCalc('÷')">÷</button>
+        
+        <button class="calc-btn fn" onclick="pressCalc('√')">√</button>
+        <button class="calc-btn fn" onclick="pressCalc('^')">^</button>
+        <button class="calc-btn fn" onclick="pressCalc('%')">%</button>
+        <button class="calc-btn op" onclick="pressCalc('×')">×</button>
+        
+        <button class="calc-btn" onclick="pressCalc('7')">7</button>
+        <button class="calc-btn" onclick="pressCalc('8')">8</button>
+        <button class="calc-btn" onclick="pressCalc('9')">9</button>
+        <button class="calc-btn op" onclick="pressCalc('-')">-</button>
+        
+        <button class="calc-btn" onclick="pressCalc('4')">4</button>
+        <button class="calc-btn" onclick="pressCalc('5')">5</button>
+        <button class="calc-btn" onclick="pressCalc('6')">6</button>
+        <button class="calc-btn op" onclick="pressCalc('+')">+</button>
+        
+        <button class="calc-btn" onclick="pressCalc('1')">1</button>
+        <button class="calc-btn" onclick="pressCalc('2')">2</button>
+        <button class="calc-btn" onclick="pressCalc('3')">3</button>
+        <button class="calc-btn fn" onclick="pressCalc('back')">⌫</button>
+        
+        <button class="calc-btn" style="grid-column: span 2;" onclick="pressCalc('0')">0</button>
+        <button class="calc-btn" onclick="pressCalc('.')">.</button>
+        <button class="calc-btn eq" onclick="pressCalc('=')">=</button>
+      </div>
+    </div>
+  </main>
 
   <main class="tool-section" id="clickerContent" style="display: none;">
     <div class="tool-container">
@@ -1428,6 +1526,49 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         element.addEventListener("change", renderTimetable);      
       }      
     });      
+
+    // ===========================================
+    // LOGIKA ROZBUDOWANEGO KALKULATORA
+    // ===========================================
+    let calcInput = "";
+    function pressCalc(key) {
+      if (key === 'C') {
+        calcInput = "";
+      } else if (key === 'back') {
+        calcInput = calcInput.slice(0, -1);
+      } else if (key === '=') {
+        try {
+          let parsed = calcInput
+            .replaceAll("×", "*")
+            .replaceAll("÷", "/")
+            .replaceAll("^", "**")
+            .replaceAll("%", "/100")
+            .replaceAll("√", "Math.sqrt");
+          
+          let res = eval(parsed);
+          if (res === Infinity || res === -Infinity) {
+            calcInput = "∞";
+          } else if (isNaN(res)) {
+            calcInput = "Błąd";
+          } else {
+            if (typeof res === 'number' && !Number.isInteger(res)) {
+              res = Math.round(res * 100000000) / 100000000;
+            }
+            calcInput = String(res);
+          }
+        } catch (err) {
+          calcInput = "Błąd";
+        }
+      } else {
+        if (calcInput === "Błąd" || calcInput === "∞") calcInput = "";
+        if (key === '√') {
+          calcInput += '√(';
+        } else {
+          calcInput += key;
+        }
+      }
+      $("calcDisplay").innerText = calcInput || "0";
+    }
 
     // ===========================================
     // LOGIKA LICZNKA KLIKNIĘĆ
@@ -1826,13 +1967,27 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       
       if (!n1 || !n2) {
         $("loveDisplay").innerText = "0%";
+        $("loveDisplay").style.webkitTextFillColor = "transparent";
+        $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)";
+        $("loveDisplay").style.webkitBackgroundClip = "text";
         return;
       }
       
-      if ((n1 === "bartek" && n2 === "eliza") || (n1 === "eliza" && n2 === "bartek")) {
-        $("loveDisplay").innerText = "100%";
+      if ((n1 === "bartek" && n2 === "eliza") || (n1 === "eliza" && n2 === "bartek") ||
+          (n1 === "amelia" && n2 === "łukasz") || (n1 === "łukasz" && n2 === "amelia")) {
+        $("loveDisplay").innerText = "♾️%";
+        // Naprawienie bledu rozowej kropki poprzez wyłączenie gradientu tekstowego dla Emoji
+        $("loveDisplay").style.webkitTextFillColor = "initial";
+        $("loveDisplay").style.background = "none";
+        $("loveDisplay").style.color = "#ec4899";
         return;
       }
+      
+      // Przywrócenie pierwotnego stylu gradientu dla normalnych wyliczeń
+      $("loveDisplay").style.webkitTextFillColor = "transparent";
+      $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)";
+      $("loveDisplay").style.webkitBackgroundClip = "text";
+      $("loveDisplay").style.color = "initial";
       
       const combinedStr = [n1, n2].sort().join("");
       let hash = 0;
@@ -2104,8 +2259,8 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     // ===========================================
     function switchTab(activeContentId, activeBtnId) {
       const lobby = $("lobbyMenu");
-      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "toszekContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent", "passwordContent"];
-      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnToszek", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw", "tabBtnPassword"];
+      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "toszekContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent", "passwordContent", "calcContent"];
+      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnToszek", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw", "tabBtnPassword", "tabBtnCalc"];
       
       const targetContent = $(activeContentId);
       const targetBtn = $(activeBtnId);
@@ -2143,6 +2298,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     function toggleCreatorTab() { switchTab("appContent", "tabBtnCreator"); }
+    function toggleCalcTab() { switchTab("calcContent", "tabBtnCalc"); }
     function toggleClickerTab() { switchTab("clickerContent", "tabBtnClicker"); updateClickDisplay(); }
     function toggleSundayTab() { switchTab("sundayContent", "tabBtnSunday"); initSundayLogic(); requestAnimationFrame(updateSundayCountdown); }
     function toggleCatTab() { switchTab("catContent", "tabBtnCat"); }
