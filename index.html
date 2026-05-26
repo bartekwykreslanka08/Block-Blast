@@ -68,6 +68,35 @@
       font-size: 28px;
       margin: 0 0 12px 0;
     }
+    
+    /* WYSZUKIWARKA ZAKŁADEK */
+    .search-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 450px;
+      margin-bottom: 24px;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: var(--font-ui);
+    }
+    .search-box::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .search-box:focus {
+      border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    .lobby-container.opened .search-box {
+      display: none; /* Ukryj wyszukiwarkę po wejściu w zakładkę dla zachowania czystości */
+    }
+
     .tabs-menu {
       display: flex;
       gap: 12px;
@@ -845,16 +874,21 @@
 <body>      
   <div id="lobbyMenu" class="lobby-container closed">
     <h1 class="lobby-title">Dziwna Strona</h1>
-    <div class="tabs-menu">
+    
+    <input type="text" id="tabSearch" class="search-box" placeholder="Wyszukaj zakładkę..." onkeyup="filterTabs()">
+    
+    <div class="tabs-menu" id="tabsMenu">
       <button id="tabBtnCreator" class="tab-btn" onclick="toggleCreatorTab()">Kreator Rozkładów ZTM</button>
       <button id="tabBtnClicker" class="tab-btn" onclick="toggleClickerTab()">Klikanie</button>
       <button id="tabBtnSunday" class="tab-btn" onclick="toggleSundayTab()">Niedziela</button>
       <button id="tabBtnCat" class="tab-btn" onclick="toggleCatTab()">Tłumacz Koci</button>
+      <button id="tabBtnToszek" class="tab-btn" onclick="toggleToszekTab()">Tłumacz Toszecki</button>
       <button id="tabBtnYesNo" class="tab-btn" onclick="toggleYesNoTab()">Tak / Nie</button>
       <button id="tabBtnCircle" class="tab-btn" onclick="toggleCircleTab()">Idealne Koło</button>
       <button id="tabBtnFindItem" class="tab-btn" onclick="toggleFindItemTab()">Znajdź Rzecz</button>
       <button id="tabBtnLove" class="tab-btn" onclick="toggleLoveTab()">Miłość</button>
       <button id="tabBtnDraw" class="tab-btn" onclick="toggleDrawTab()">Rysuj</button>
+      <button id="tabBtnPassword" class="tab-btn" onclick="togglePasswordTab()">Hasło</button>
     </div>
   </div>
 
@@ -1120,6 +1154,44 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     </div>
   </main>
 
+  <main class="tool-section" id="toszekContent" style="display: none;">
+    <div class="tool-container" id="toszekPinScreen">
+      <h2>Podaj kod PIN</h2>
+      <p style="color: #cbd5e1; margin-bottom: 20px;">Dostęp do Tłumacza Toszeckiego jest chroniony.</p>
+      <input type="password" id="toszekPinInput" placeholder="Wprowadź PIN..." style="font-size: 16px; padding: 12px; margin-bottom: 20px; text-align: center; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; width: 100%;" />
+      <button class="click-button" onclick="verifyToszekPin()">Odblokuj</button>
+      <p id="toszekPinError" style="color: #ef4444; display: none; margin-top: 10px; font-weight: bold;">Nieprawidłowy PIN!</p>
+    </div>
+
+    <div class="tool-container" id="toszekAppScreen" style="display: none; max-width: 800px;">
+      <h2>Tłumacz Toszecki</h2>
+      <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 25px; text-align: left;">
+        <label for="toszekInput" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Tekst do przetłumaczenia:</label>
+        <textarea id="toszekInput" placeholder="Wpisz tekst..." style="min-height: 100px; font-size: 16px; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;"></textarea>
+        
+        <button class="click-button" style="margin: 10px 0; background: #10b981; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);" onclick="translateToToszek()">Przetłumacz</button>
+        
+        <label for="toszekOutput" style="color: #cbd5e1; font-size: 14px; margin-bottom: 0;">Tekst po toszecku:</label>
+        <textarea id="toszekOutput" placeholder="..." style="min-height: 100px; font-size: 16px; padding: 16px; background: #0f172a; color: #94a3b8; border-color: rgba(255,255,255,0.1); border-radius: 12px;" readonly></textarea>
+      </div>
+
+      <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+        <h3 style="color: #cbd5e1; margin-bottom: 15px;">Legenda</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; font-size: 13px; color: #94a3b8; text-align: left; font-family: monospace;">
+          <div>A ➔ O</div><div>Ą ➔ ON</div><div>B ➔ G</div><div>C ➔ S</div><div>Ć ➔ Ś</div>
+          <div>D ➔ T</div><div>E ➔ A</div><div>Ę ➔ EN</div><div>F ➔ W</div><div>G ➔ B</div>
+          <div>H ➔ K</div><div>I ➔ E</div><div>J ➔ L</div><div>K ➔ H</div><div>L ➔ J</div>
+          <div>Ł ➔ R</div><div>M ➔ N</div><div>N ➔ M</div><div>Ń ➔ NI</div><div>O ➔ UU</div>
+          <div>Ó ➔ U</div><div>P ➔ F</div><div>R ➔ Ł</div><div>S ➔ C</div><div>T ➔ D</div>
+          <div>U ➔ I</div><div>W ➔ FU</div><div>Q ➔ KU</div><div>X ➔ KS</div><div>Y ➔ Y</div>
+          <div>Z ➔ Ż</div><div>Ź ➔ DŹE</div><div>Ś ➔ Ć</div>
+          <div>1 ➔ 3</div><div>2 ➔ 7</div><div>3 ➔ 1</div><div>4 ➔ 9</div><div>5 ➔ 6</div>
+          <div>6 ➔ 8</div><div>7 ➔ 2</div><div>8 ➔ 0</div><div>9 ➔ 5</div><div>0 ➔ 4</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
   <main class="tool-section" id="yesNoContent" style="display: none;">
     <div class="tool-container">
       <h2>Wyrocznia Tak / Nie</h2>
@@ -1213,6 +1285,18 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       <div style="background: white; border-radius: 8px; overflow: hidden; margin-top: 20px; border: 2px solid rgba(255,255,255,0.2);">
         <canvas id="paintCanvas" width="950" height="600" style="display: block; cursor: crosshair; touch-action: none; width: 100%;"></canvas>
       </div>
+    </div>
+  </main>
+
+  <main class="tool-section" id="passwordContent" style="display: none;">
+    <div class="tool-container">
+      <h2>Generator Silnego Hasła</h2>
+      <div class="yesno-result" id="passwordDisplay" style="font-size: 36px; word-break: break-all; min-height: 100px; letter-spacing: 2px; color: #10b981; margin: 20px 0;">---</div>
+      
+      <label style="color: #cbd5e1; font-size: 14px; display: block; margin-bottom: 10px;">Długość hasła: <span id="pwdLenDisp">16</span> znaków</label>
+      <input type="range" id="pwdLength" min="8" max="64" value="16" oninput="$('pwdLenDisp').innerText = this.value" style="margin-bottom: 30px; cursor: pointer;">
+      
+      <button class="click-button" onclick="generatePassword()" style="background: #8b5cf6; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);">Wygeneruj Hasło</button>
     </div>
   </main>
 
@@ -1479,6 +1563,36 @@ PKP GRODZISK MAZOWIECKI |</textarea>
       }
       
       $("catOutput").value = translated;
+    }
+
+    // ===========================================
+    // LOGIKA TŁUMACZA TOSZECKIEGO
+    // ===========================================
+    const toszekMap = {
+      'a': 'o', 'ą': 'on', 'b': 'g', 'c': 's', 'ć': 'ś', 'd': 't', 'e': 'a', 'ę': 'en', 'f': 'w', 'g': 'b', 'h': 'k', 'i': 'e', 'j': 'l', 'k': 'h', 'l': 'j', 'ł': 'r', 'm': 'n', 'n': 'm', 'ń': 'ni', 'o': 'uu', 'ó': 'u', 'p': 'f', 'r': 'ł', 's': 'c', 't': 'd', 'u': 'i', 'w': 'fu', 'q': 'ku', 'x': 'ks', 'y': 'y', 'z': 'ż', 'ź': 'dźe', 'ś': 'ć',
+      'A': 'O', 'Ą': 'On', 'B': 'G', 'C': 'S', 'Ć': 'Ś', 'D': 'T', 'E': 'A', 'Ę': 'En', 'F': 'W', 'G': 'B', 'H': 'K', 'I': 'E', 'J': 'L', 'K': 'H', 'L': 'J', 'Ł': 'R', 'M': 'N', 'N': 'M', 'Ń': 'Ni', 'O': 'Uu', 'Ó': 'U', 'P': 'F', 'R': 'Ł', 'S': 'C', 'T': 'D', 'U': 'I', 'W': 'Fu', 'Q': 'Ku', 'X': 'Ks', 'Y': 'Y', 'Z': 'Ż', 'Ź': 'Dźe', 'Ś': 'Ć',
+      '1': '3', '2': '7', '3': '1', '4': '9', '5': '6', '6': '8', '7': '2', '8': '0', '9': '5', '0': '4'
+    };
+
+    function translateToToszek() {
+      const input = $("toszekInput").value;
+      let output = "";
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        output += toszekMap[char] !== undefined ? toszekMap[char] : char;
+      }
+      $("toszekOutput").value = output;
+    }
+
+    function verifyToszekPin() {
+      const pin = $("toszekPinInput").value;
+      if (pin === "Toszek2025") {
+         $("toszekPinScreen").style.display = "none";
+         $("toszekAppScreen").style.display = "block";
+         $("toszekPinError").style.display = "none";
+      } else {
+         $("toszekPinError").style.display = "block";
+      }
     }
 
     // ===========================================
@@ -1952,12 +2066,46 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     }
 
     // ===========================================
+    // LOGIKA GENERATORA HASŁA
+    // ===========================================
+    function generatePassword() {
+      const length = parseInt($("pwdLength").value) || 16;
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+      let password = "";
+      
+      const array = new Uint32Array(length);
+      window.crypto.getRandomValues(array);
+      
+      for (let i = 0; i < length; i++) {
+        password += chars[array[i] % chars.length];
+      }
+      
+      $("passwordDisplay").innerText = password;
+    }
+
+    // ===========================================
+    // WYSZUKIWARKA ZAKŁADEK
+    // ===========================================
+    function filterTabs() {
+      const query = $("tabSearch").value.toLowerCase();
+      const buttons = document.querySelectorAll(".tabs-menu .tab-btn");
+      
+      buttons.forEach(btn => {
+        if (btn.innerText.toLowerCase().includes(query)) {
+          btn.style.display = "inline-block";
+        } else {
+          btn.style.display = "none";
+        }
+      });
+    }
+
+    // ===========================================
     // FUNKCJE OBSŁUGI ZAKŁADEK LOBBY
     // ===========================================
     function switchTab(activeContentId, activeBtnId) {
       const lobby = $("lobbyMenu");
-      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent"];
-      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw"];
+      const contents = ["appContent", "clickerContent", "sundayContent", "catContent", "toszekContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent", "passwordContent"];
+      const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnSunday", "tabBtnCat", "tabBtnToszek", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw", "tabBtnPassword"];
       
       const targetContent = $(activeContentId);
       const targetBtn = $(activeBtnId);
@@ -1967,6 +2115,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         lobby.classList.remove("opened");
         lobby.classList.add("closed");
         targetBtn.classList.remove("active");
+        $("tabSearch").style.display = "block"; // Przywróć wyszukiwarkę po zamknięciu
         return;
       }
       if (activeContentId === "appContent" && $("appContent").style.display === "grid") {
@@ -1974,6 +2123,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
         lobby.classList.remove("opened");
         lobby.classList.add("closed");
         targetBtn.classList.remove("active");
+        $("tabSearch").style.display = "block"; // Przywróć wyszukiwarkę
         return;
       }
 
@@ -1996,11 +2146,19 @@ PKP GRODZISK MAZOWIECKI |</textarea>
     function toggleClickerTab() { switchTab("clickerContent", "tabBtnClicker"); updateClickDisplay(); }
     function toggleSundayTab() { switchTab("sundayContent", "tabBtnSunday"); initSundayLogic(); requestAnimationFrame(updateSundayCountdown); }
     function toggleCatTab() { switchTab("catContent", "tabBtnCat"); }
+    function toggleToszekTab() { 
+      switchTab("toszekContent", "tabBtnToszek"); 
+      $("toszekPinScreen").style.display = "block"; 
+      $("toszekAppScreen").style.display = "none"; 
+      $("toszekPinInput").value = ""; 
+      $("toszekPinError").style.display = "none"; 
+    }
     function toggleYesNoTab() { switchTab("yesNoContent", "tabBtnYesNo"); }
     function toggleCircleTab() { switchTab("circleContent", "tabBtnCircle"); initCircleCanvas(); }
     function toggleFindItemTab() { switchTab("findItemContent", "tabBtnFindItem"); }
     function toggleLoveTab() { switchTab("loveContent", "tabBtnLove"); }
     function toggleDrawTab() { switchTab("drawContent", "tabBtnDraw"); initPaint(); }
+    function togglePasswordTab() { switchTab("passwordContent", "tabBtnPassword"); }
 
     // Inicjalizacja Danych Startowych
     loadState();      
