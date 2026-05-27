@@ -258,9 +258,17 @@ button { border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 700; 
 <h2 style="margin-top:0; color:#f8fafc; font-size: 32px;">Daily Bonus & Sklep</h2>
 <div class="daily-claim-box" id="vipBuyBox" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.2)); border-color: rgba(251, 191, 36, 0.3);">
 <h3 style="margin-top:0; color:#fbbf24; font-size:24px;">🌟 Ranga VIP</h3>
-<p style="color:#cbd5e1; margin-bottom: 15px;">Zdobywaj <strong>+50% XP</strong>, pomnóż nagrody za misje, skróć czas oczekiwania na giełdzie o połowę, <strong>kupuj diamenty ze zniżką (-10%)</strong> oraz uzyskaj dostęp do <strong>VIP Zdrapki</strong> oraz darmowego <strong>Złotego Motywu VIP</strong> i <strong>Królewskiego Kursora</strong>!</p>
+<p style="color:#cbd5e1; margin-bottom: 15px;">Zdobywaj <strong>+50% XP</strong>, pomnóż nagrody za misje, skróć czas oczekiwania na giełdzie o połowę, <strong>kupuj diamenty ze zniżką (-10%)</strong> oraz uzyskaj dostęp do <strong>VIP Zdrapki</strong>, darmowego <strong>Złotego Motywu VIP</strong> i <strong>Królewskiego Kursora</strong>!</p>
 <button class="click-button" style="background: linear-gradient(45deg, #fbbf24, #f59e0b); margin-bottom: 0; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);" onclick="buyVipStatus()">Kup VIP za 1000 🪙</button>
 </div>
+
+<div class="daily-claim-box" id="vipDailyBox" style="display:none; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.2)); border-color: rgba(251, 191, 36, 0.3);">
+<h3 style="margin-top:0; color:#fbbf24; font-size:24px;">👑 VIP Daily Bonus</h3>
+<p style="color:#cbd5e1; margin-bottom: 20px;">Jako VIP odbierasz darmowe 50 monet każdego dnia!</p>
+<button id="claimVipBonusBtn" class="click-button" style="background: linear-gradient(45deg, #fbbf24, #f59e0b); margin-bottom: 0; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);" onclick="claimVipDailyBonus()">Odbierz VIP Bonus</button>
+<p id="nextVipBonusText" style="color:#ef4444; font-weight:bold; display:none; margin-top:15px;">Już odebrano! Wróć po 10:00.</p>
+</div>
+
 <div class="daily-claim-box">
 <h3 style="margin-top:0; color:#fbbf24; font-size:24px;">Codzienna Nagroda</h3>
 <p style="color:#cbd5e1; margin-bottom: 20px;">Odbieraj od 1 do 15 monet codziennie! Nowy bonus resetuje się każdego dnia o godzinie 10:00.</p>
@@ -310,7 +318,6 @@ button { border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 700; 
 <button id="tabBtnScratch" class="tab-btn" onclick="toggleScratchTab()">Zdrapki 🎟️</button>
 </div>
 </div>
-
 <main class="app" id="appContent" style="display: none;">
 <aside class="editor">
 <h1>Generator rozkładu ZM</h1>
@@ -772,7 +779,6 @@ let activeBoosters = JSON.parse(localStorage.getItem('app-boosters')) || { coin:
 function getCoinMulti() { return (Date.now() < activeBoosters.coin.end) ? activeBoosters.coin.multi : 1; }
 function getXpMulti() { return (Date.now() < activeBoosters.xp.end) ? activeBoosters.xp.multi : 1; }
 
-// Główna funkcja do przyznawania monet z uwzględnieniem mnożnika z boosterów
 function addCoins(amount) {
 let actualGain = Math.floor(amount * getCoinMulti());
 globalCoins += actualGain;
@@ -813,9 +819,12 @@ const levelDisp = document.getElementById("levelDisplay");
 if(fill) fill.style.width = `${percentage}%`;
 if(levelDisp) levelDisp.innerText = globalLevel;
 const vipBadge = $("vipBadgeDisplay");
-if(isVip && vipBadge) { vipBadge.style.display = "block"; 
+if(isVip && vipBadge) { 
+vipBadge.style.display = "block"; 
 const vipBox = $("vipBuyBox");
 if(vipBox) vipBox.style.display = "none";
+const vipDaily = $("vipDailyBox");
+if(vipDaily) vipDaily.style.display = "block";
 }
 if($("diamondCostDisplay")) { $("diamondCostDisplay").innerText = isVip ? "90" : "100"; }
 }
@@ -823,7 +832,7 @@ function buyVipStatus() {
 if(isVip) { alert("Jesteś już VIPem!"); return; }
 if(globalCoins >= 1000) {
 globalCoins -= 1000;
-addProgress('spender', 1000); // osiągnięcie
+addProgress('spender', 1000); 
 isVip = true;
 updateCoinDisplay();
 saveXpState();
@@ -841,7 +850,12 @@ alert("Nie masz wystarczająco monet. Potrzebujesz 1000 🪙 na status VIP.");
 const boostersData = [
 { id: 'b_banana', name: 'Banan (Monety x2)', desc: 'Podwaja zdobywane monety przez 5 minut.', price: 100, type: 'coin', multi: 2, duration: 5 * 60 * 1000, emoji: '🍌' },
 { id: 'b_strawberry', name: 'Truskawka (Monety x3)', desc: 'Potraja zdobywane monety przez 3 minuty.', price: 250, type: 'coin', multi: 3, duration: 3 * 60 * 1000, emoji: '🍓' },
-{ id: 'b_apple', name: 'Jabłko (XP x2)', desc: 'Podwaja zdobywany exp (XP) przez 10 minut.', price: 150, type: 'xp', multi: 2, duration: 10 * 60 * 1000, emoji: '🍎' }
+{ id: 'b_apple', name: 'Jabłko (XP x2)', desc: 'Podwaja zdobywany exp (XP) przez 10 minut.', price: 150, type: 'xp', multi: 2, duration: 10 * 60 * 1000, emoji: '🍎' },
+{ id: 'b_watermelon', name: 'Arbuz (Monety x4)', desc: 'Czterokrotnie więcej monet przez 2 minuty.', price: 400, type: 'coin', multi: 4, duration: 2 * 60 * 1000, emoji: '🍉' },
+{ id: 'b_grape', name: 'Winogrono (XP x3)', desc: 'Potraja zdobywany exp przez 5 minut.', price: 300, type: 'xp', multi: 3, duration: 5 * 60 * 1000, emoji: '🍇' },
+{ id: 'b_peach', name: 'Brzoskwinia (Monety x2)', desc: 'Podwaja monety przez długi czas (15 minut).', price: 350, type: 'coin', multi: 2, duration: 15 * 60 * 1000, emoji: '🍑' },
+{ id: 'b_cherry', name: 'Wiśnia (XP x5)', desc: 'Ogromny zastrzyk expa przez 1 minutę.', price: 500, type: 'xp', multi: 5, duration: 1 * 60 * 1000, emoji: '🍒' },
+{ id: 'b_pineapple', name: 'Ananas (Monety x5)', desc: 'Pięciokrotnie więcej monet przez 1 minutę.', price: 600, type: 'coin', multi: 5, duration: 1 * 60 * 1000, emoji: '🍍' }
 ];
 
 setInterval(() => {
@@ -859,11 +873,11 @@ if (!panel) return;
 let html = ""; let now = Date.now();
 if (activeBoosters.coin.end > now) {
 let left = Math.ceil((activeBoosters.coin.end - now)/1000);
-html += `<div style="color: #fbbf24; margin-bottom: 5px;">🪙 Aktywny mnożnik monet (x${activeBoosters.coin.multi}): ${Math.floor(left/60)}m ${left%60}s</div>`;
+html += `<div style="color: #fbbf24; margin-bottom: 5px;">🪙 Aktywny mnożnik monet (x${activeBoosters.coin.multi}): ${Math.floor(left/60)}m ${String(left%60).padStart(2,'0')}s</div>`;
 }
 if (activeBoosters.xp.end > now) {
 let left = Math.ceil((activeBoosters.xp.end - now)/1000);
-html += `<div style="color: #a78bfa;">✨ Aktywny mnożnik XP (x${activeBoosters.xp.multi}): ${Math.floor(left/60)}m ${left%60}s</div>`;
+html += `<div style="color: #a78bfa;">✨ Aktywny mnożnik XP (x${activeBoosters.xp.multi}): ${Math.floor(left/60)}m ${String(left%60).padStart(2,'0')}s</div>`;
 }
 panel.innerHTML = html === "" ? "Brak aktywnych boosterów." : html;
 
@@ -899,10 +913,22 @@ clicker: { name: "Mistrz Klikania", desc: "Kliknij przycisk w Klikaczu", tiers: 
 flags: { name: "Geograf", desc: "Zdobądź punkty we Flagach", tiers: [10, 50, 150], rewards: [20, 150, 400], title: "Odkrywca" },
 market: { name: "Biznesmen", desc: "Wystaw obraz na giełdzie", tiers: [5, 25, 100], rewards: [50, 200, 1000], title: "Picasso" },
 find: { name: "Sokole Oko", desc: "Znajdź przedmioty w mini-grze", tiers: [10, 50, 200], rewards: [25, 150, 500], title: "Detektyw" },
-spender: { name: "Rozrzutny", desc: "Wydaj monety na ulepszenia i gry", tiers: [500, 2500, 10000], rewards: [100, 500, 2000], title: "Krezus" }
+spender: { name: "Rozrzutny", desc: "Wydaj monety na ulepszenia i gry", tiers: [500, 2500, 10000], rewards: [100, 500, 2000], title: "Krezus" },
+draw: { name: "Artysta", desc: "Narysuj coś w Paincie", tiers: [5, 20, 50], rewards: [15, 50, 200], title: "Malarz" },
+scratch: { name: "Hazardzista", desc: "Kup zdrapki", tiers: [5, 25, 100], rewards: [25, 100, 500], title: "Szczęściarz" },
+doors: { name: "Ryzykant", desc: "Zagraj w Drzwi", tiers: [10, 50, 150], rewards: [20, 100, 300], title: "Odważny" },
+calc: { name: "Matematyk", desc: "Wykonaj obliczenia", tiers: [10, 50, 200], rewards: [10, 50, 150], title: "Naukowiec" },
+cat: { name: "Kociarz", desc: "Przetłumacz na Koci", tiers: [5, 25, 100], rewards: [10, 40, 150], title: "Kotek" },
+toszek: { name: "Toszek", desc: "Przetłumacz na Toszecki", tiers: [5, 25, 100], rewards: [10, 40, 150], title: "Agent" },
+love: { name: "Amor", desc: "Sprawdź miłość", tiers: [5, 20, 50], rewards: [10, 30, 100], title: "Casanova" },
+circle: { name: "Cyrkiel", desc: "Narysuj koło", tiers: [5, 20, 50], rewards: [10, 40, 100], title: "Architekt" },
+password: { name: "Haker", desc: "Wygeneruj hasło", tiers: [5, 20, 50], rewards: [10, 40, 100], title: "Informatyk" },
+yesno: { name: "Wyrocznia", desc: "Zadaj pytanie wyroczni", tiers: [10, 50, 150], rewards: [10, 50, 150], title: "Wróżbita" }
 };
 
-let playerAchievs = JSON.parse(localStorage.getItem('app-achievs')) || { clicker: { progress: 0, tier: 0 }, flags: { progress: 0, tier: 0 }, market: { progress: 0, tier: 0 }, find: { progress: 0, tier: 0 }, spender: { progress: 0, tier: 0 } };
+let playerAchievs = JSON.parse(localStorage.getItem('app-achievs')) || {};
+Object.keys(achievementsDef).forEach(k => { if(!playerAchievs[k]) playerAchievs[k] = { progress: 0, tier: 0 }; });
+
 let playerTitles = JSON.parse(localStorage.getItem('app-titles')) || [];
 let equippedTitle = localStorage.getItem('app-equipped-title') || "";
 
@@ -991,6 +1017,7 @@ function pressCalc(key) {
 if (key === 'C') { calcInput = ""; } else if (key === 'back') { calcInput = calcInput.slice(0, -1); } else if (key === '=') {
 try { let parsed = calcInput.replaceAll("×", "*").replaceAll("÷", "/").replaceAll("^", "**").replaceAll("%", "/100").replaceAll("√", "Math.sqrt"); let res = eval(parsed);
 if (res === Infinity || res === -Infinity) { calcInput = "∞"; } else if (isNaN(res)) { calcInput = "Błąd"; } else { if (typeof res === 'number' && !Number.isInteger(res)) { res = Math.round(res * 100000000) / 100000000; } calcInput = String(res); }
+addProgress('calc', 1);
 } catch (err) { calcInput = "Błąd"; }
 } else { if (calcInput === "Błąd" || calcInput === "∞") calcInput = ""; if (key === '√') { calcInput += '√('; } else { calcInput += key; } }
 $("calcDisplay").innerText = calcInput || "0";
@@ -1050,20 +1077,20 @@ const text = $("catInput").value.trim(); if (!text) { $("catOutput").value = "";
 const words = text.split(/\s+/); const catWords = ["miau", "mrr", "purr", "miauu", "meow", "miau?", "mrr!", "hiss..."];
 let translated = words.map((word, index) => { const seed = hashCode(word.toLowerCase() + "_" + index); const catWord = catWords[seed % catWords.length]; if (word.charAt(0) === word.charAt(0).toUpperCase()) { return catWord.charAt(0).toUpperCase() + catWord.slice(1); } return catWord; }).join(" ");
 if (!/[.!?]$/.test(translated)) { translated += "."; }
-$("catOutput").value = translated; addXp(2); checkDailyReset();
+$("catOutput").value = translated; addXp(2); addProgress('cat', 1); checkDailyReset();
 if (!dailyState.claimed.cat) {
 dailyState.missions.cat = 1; dailyState.claimed.cat = true; let missionReward = isVip ? 6 : 3; let gained = addCoins(missionReward);
 showToast(`Misja ukończona: Koci Tłumacz! +${gained} 🪙`); saveDailyState(); updateMissionsUI();
 }
 }
 const toszekMap = { 'a': 'o', 'ą': 'on', 'b': 'g', 'c': 's', 'ć': 'ś', 'd': 't', 'e': 'a', 'ę': 'en', 'f': 'w', 'g': 'b', 'h': 'k', 'i': 'e', 'j': 'l', 'k': 'h', 'l': 'j', 'ł': 'r', 'm': 'n', 'n': 'm', 'ń': 'ni', 'o': 'uu', 'ó': 'u', 'p': 'f', 'r': 'ł', 's': 'c', 't': 'd', 'u': 'i', 'w': 'fu', 'q': 'ku', 'x': 'ks', 'y': 'y', 'z': 'ż', 'ź': 'dźe', 'ś': 'ć', 'A': 'O', 'Ą': 'On', 'B': 'G', 'C': 'S', 'Ć': 'Ś', 'D': 'T', 'E': 'A', 'Ę': 'En', 'F': 'W', 'G': 'B', 'H': 'K', 'I': 'E', 'J': 'L', 'K': 'H', 'L': 'J', 'Ł': 'R', 'M': 'N', 'N': 'M', 'Ń': 'Ni', 'O': 'Uu', 'Ó': 'U', 'P': 'F', 'R': 'Ł', 'S': 'C', 'T': 'D', 'U': 'I', 'W': 'Fu', 'Q': 'Ku', 'X': 'Ks', 'Y': 'Y', 'Z': 'Ż', 'Ź': 'Dźe', 'Ś': 'Ć', '1': '3', '2': '7', '3': '1', '4': '9', '5': '6', '6': '8', '7': '2', '8': '0', '9': '5', '0': '4' };
-function translateToToszek() { const input = $("toszekInput").value; let output = ""; for(let char of input) { output += toszekMap[char] || char; } $("toszekOutput").value = output; addXp(2); }
+function translateToToszek() { const input = $("toszekInput").value; let output = ""; for(let char of input) { output += toszekMap[char] || char; } $("toszekOutput").value = output; addXp(2); addProgress('toszek', 1); }
 function verifyToszekPin() { const pin = $("toszekPinInput").value; if (pin === "Toszek2025") { $("toszekPinScreen").style.display = "none"; $("toszekAppScreen").style.display = "block"; $("toszekPinError").style.display = "none"; } else { $("toszekPinError").style.display = "block"; } }
 
 // ===========================================
 // TAK/NIE & IDEALNE KOŁO
 // ===========================================
-function drawYesNo() { const display = $("yesNoDisplay"); const randomValue = Math.random(); if (randomValue < 0.5) { display.innerText = "TAK"; display.className = "yesno-result status-tak"; } else { display.innerText = "NIE"; display.className = "yesno-result status-nie"; } addXp(1); }
+function drawYesNo() { const display = $("yesNoDisplay"); const randomValue = Math.random(); if (randomValue < 0.5) { display.innerText = "TAK"; display.className = "yesno-result status-tak"; } else { display.innerText = "NIE"; display.className = "yesno-result status-nie"; } addXp(1); addProgress('yesno', 1); }
 
 let circleCtx, isDrawingCircle = false, circlePoints = [];
 function initCircleCanvas() { const canvas = $("circleCanvas"); if (!canvas || circleCtx) return; circleCtx = canvas.getContext("2d"); canvas.addEventListener("mousedown", startCircleDraw); canvas.addEventListener("mousemove", drawCircleMove); window.addEventListener("mouseup", endCircleDraw); canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startCircleDraw(e.touches[0]); }, {passive: false}); canvas.addEventListener("touchmove", (e) => { e.preventDefault(); drawCircleMove(e.touches[0]); }, {passive: false}); window.addEventListener("touchend", endCircleDraw); }
@@ -1071,7 +1098,7 @@ function startCircleDraw(e) { if ($("circleContent").style.display === "none") r
 function drawCircleMove(e) { if (!isDrawingCircle) return; const canvas = $("circleCanvas"); const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; const x = (e.clientX - rect.left) * scaleX; const y = (e.clientY - rect.top) * scaleY; circleCtx.lineTo(x, y); circleCtx.strokeStyle = "#3b82f6"; circleCtx.lineWidth = 4; circleCtx.lineCap = "round"; circleCtx.stroke(); circlePoints.push({x, y}); }
 function endCircleDraw() { if (!isDrawingCircle) return; isDrawingCircle = false; calculateCircleScore(); }
 function clearCircleCanvas() { if(!circleCtx) return; const canvas = $("circleCanvas"); circleCtx.clearRect(0, 0, canvas.width, canvas.height); $("circleResult").innerText = "0%"; circlePoints = []; }
-function calculateCircleScore() { if (circlePoints.length < 20) { $("circleResult").innerText = "Za krótkie!"; return; } let sumX = 0, sumY = 0; circlePoints.forEach(p => { sumX += p.x; sumY += p.y; }); const cx = sumX / circlePoints.length; const cy = sumY / circlePoints.length; let sumR = 0; const radii = circlePoints.map(p => { const r = Math.hypot(p.x - cx, p.y - cy); sumR += r; return r; }); const avgR = sumR / circlePoints.length; if (avgR < 25) { $("circleResult").innerText = "Za małe!"; return; } let sumDev = 0; radii.forEach(r => { sumDev += Math.abs(r - avgR); }); const avgDev = sumDev / radii.length; const firstP = circlePoints[0]; const lastP = circlePoints[circlePoints.length - 1]; const gap = Math.hypot(firstP.x - lastP.x, firstP.y - lastP.y); const gapPenalty = Math.max(0, (gap / avgR) * 60); let score = 100 - (avgDev / avgR) * 250 - gapPenalty; if (score < 0) score = 0; if (score > 100) score = 100; $("circleResult").innerText = score.toFixed(1) + "%"; addXp(Math.floor(score / 20)); }
+function calculateCircleScore() { if (circlePoints.length < 20) { $("circleResult").innerText = "Za krótkie!"; return; } let sumX = 0, sumY = 0; circlePoints.forEach(p => { sumX += p.x; sumY += p.y; }); const cx = sumX / circlePoints.length; const cy = sumY / circlePoints.length; let sumR = 0; const radii = circlePoints.map(p => { const r = Math.hypot(p.x - cx, p.y - cy); sumR += r; return r; }); const avgR = sumR / circlePoints.length; if (avgR < 25) { $("circleResult").innerText = "Za małe!"; return; } let sumDev = 0; radii.forEach(r => { sumDev += Math.abs(r - avgR); }); const avgDev = sumDev / radii.length; const firstP = circlePoints[0]; const lastP = circlePoints[circlePoints.length - 1]; const gap = Math.hypot(firstP.x - lastP.x, firstP.y - lastP.y); const gapPenalty = Math.max(0, (gap / avgR) * 60); let score = 100 - (avgDev / avgR) * 250 - gapPenalty; if (score < 0) score = 0; if (score > 100) score = 100; $("circleResult").innerText = score.toFixed(1) + "%"; addXp(Math.floor(score / 20)); addProgress('circle', 1); }
 
 // ===========================================
 // ZNAJDŹ RZECZ & MIŁOŚĆ
@@ -1084,7 +1111,7 @@ function resetFindTurn() { if (findTimerInterval) clearInterval(findTimerInterva
 function markItemFound() { foundItemsCount++; $("foundCounter").innerText = foundItemsCount; addXp(10); resetFindTurn(); addProgress('find', 1); checkDailyReset(); if (!dailyState.claimed.find) { dailyState.missions.find++; if (dailyState.missions.find >= 3) { dailyState.claimed.find = true; let missionReward = isVip ? 10 : 5; let gained = addCoins(missionReward); showToast(`Misja ukończona: Poszukiwacz! +${gained} 🪙`); } saveDailyState(); updateMissionsUI(); } }
 function markItemNotFound() { notFoundItemsCount++; $("notFoundCounter").innerText = notFoundItemsCount; resetFindTurn(); }
 
-function calculateLove() { const n1 = $("loveName1").value.trim().toLowerCase(); const n2 = $("loveName2").value.trim().toLowerCase(); if (!n1 || !n2) { $("loveDisplay").innerText = "???"; $("loveDisplay").style.webkitTextFillColor = "transparent"; $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)"; $("loveDisplay").style.webkitBackgroundClip = "text"; return; } if ((n1 === "bartek" && n2 === "eliza") || (n1 === "eliza" && n2 === "bartek") || (n1 === "amelia" && n2 === "łukasz") || (n1 === "łukasz" && n2 === "amelia")) { $("loveDisplay").innerText = "100%"; $("loveDisplay").style.webkitTextFillColor = "initial"; $("loveDisplay").style.color = "#ec4899"; addXp(2); return; } $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)"; $("loveDisplay").style.color = "initial"; const combinedStr = [n1, n2].sort().join(""); let hash = 0; for (let i = 0; i < combinedStr.length; i++) { hash = combinedStr.charCodeAt(i) + ((hash << 5) - hash); } const percentage = Math.abs(hash) % 101; $("loveDisplay").innerText = percentage + "%"; addXp(1); }
+function calculateLove() { const n1 = $("loveName1").value.trim().toLowerCase(); const n2 = $("loveName2").value.trim().toLowerCase(); if (!n1 || !n2) { $("loveDisplay").innerText = "???"; $("loveDisplay").style.webkitTextFillColor = "transparent"; $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)"; $("loveDisplay").style.webkitBackgroundClip = "text"; return; } if ((n1 === "bartek" && n2 === "eliza") || (n1 === "eliza" && n2 === "bartek") || (n1 === "amelia" && n2 === "łukasz") || (n1 === "łukasz" && n2 === "amelia")) { $("loveDisplay").innerText = "100%"; $("loveDisplay").style.webkitTextFillColor = "initial"; $("loveDisplay").style.color = "#ec4899"; addXp(2); return; } $("loveDisplay").style.background = "linear-gradient(45deg, #f472b6, #ef4444)"; $("loveDisplay").style.color = "initial"; const combinedStr = [n1, n2].sort().join(""); let hash = 0; for (let i = 0; i < combinedStr.length; i++) { hash = combinedStr.charCodeAt(i) + ((hash << 5) - hash); } const percentage = Math.abs(hash) % 101; $("loveDisplay").innerText = percentage + "%"; addXp(1); addProgress('love', 1); }
 
 // ===========================================
 // ZAAWANSOWANY PAINT & GIEŁDA
@@ -1094,9 +1121,9 @@ function initPaint() { if (paintCanvas) return; paintCanvas = $("paintCanvas"); 
 function setPaintTool(tool) { paintTool = tool; updatePaintUI(); }
 function updatePaintUI() { document.querySelectorAll(".paint-tool-btn:not(.paint-action-btn)").forEach(btn => btn.classList.remove("active")); const activeBtnId = "btnTool" + paintTool.charAt(0).toUpperCase() + paintTool.slice(1); if ($(activeBtnId)) $(activeBtnId).classList.add("active"); }
 function getPaintPos(e) { const rect = paintCanvas.getBoundingClientRect(); const scaleX = paintCanvas.width / rect.width; const scaleY = paintCanvas.height / rect.height; return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }; }
-function paintStart(e) { if ($("drawContent").style.display === "none") return; isPainting = true; const pos = getPaintPos(e); paintStartX = pos.x; paintStartY = pos.y; paintColor = $("paintColor").value; paintSize = parseInt($("paintSize").value); paintCtx.beginPath(); paintCtx.moveTo(paintStartX, paintStartY); if (paintTool === "fill") { paintFloodFill(Math.floor(paintStartX), Math.floor(paintStartY), hexToRgb(paintColor)); savePaintState(); isPainting = false; return; } paintSnapshot = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height); if (paintTool === "brush" || paintTool === "eraser") { paintDraw(e); } }
+function paintStart(e) { if ($("drawContent").style.display === "none") return; isPainting = true; const pos = getPaintPos(e); paintStartX = pos.x; paintStartY = pos.y; paintColor = $("paintColor").value; paintSize = parseInt($("paintSize").value); paintCtx.beginPath(); paintCtx.moveTo(paintStartX, paintStartY); if (paintTool === "fill") { paintFloodFill(Math.floor(paintStartX), Math.floor(paintStartY), hexToRgb(paintColor)); savePaintState(); isPainting = false; addProgress('draw', 1); return; } paintSnapshot = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height); if (paintTool === "brush" || paintTool === "eraser") { paintDraw(e); } }
 function paintDraw(e) { if (!isPainting || paintTool === "fill") return; const pos = getPaintPos(e); if (paintTool !== "brush" && paintTool !== "eraser") { paintCtx.putImageData(paintSnapshot, 0, 0); } paintCtx.lineWidth = paintSize; paintCtx.lineCap = "round"; paintCtx.lineJoin = "round"; if (paintTool === "eraser") { paintCtx.strokeStyle = "#ffffff"; paintCtx.fillStyle = "#ffffff"; } else { paintCtx.strokeStyle = paintColor; paintCtx.fillStyle = paintColor; } if (paintTool === "brush" || paintTool === "eraser") { paintCtx.lineTo(pos.x, pos.y); paintCtx.stroke(); } else if (paintTool === "line") { paintCtx.beginPath(); paintCtx.moveTo(paintStartX, paintStartY); paintCtx.lineTo(pos.x, pos.y); paintCtx.stroke(); } else if (paintTool === "rect") { paintCtx.beginPath(); paintCtx.rect(paintStartX, paintStartY, pos.x - paintStartX, pos.y - paintStartY); paintCtx.stroke(); } else if (paintTool === "rectFill") { paintCtx.fillRect(paintStartX, paintStartY, pos.x - paintStartX, pos.y - paintStartY); } else if (paintTool === "circle") { paintCtx.beginPath(); const radius = Math.hypot(pos.x - paintStartX, pos.y - paintStartY); paintCtx.arc(paintStartX, paintStartY, radius, 0, 2 * Math.PI); paintCtx.stroke(); } else if (paintTool === "circleFill") { paintCtx.beginPath(); const radius = Math.hypot(pos.x - paintStartX, pos.y - paintStartY); paintCtx.arc(paintStartX, paintStartY, radius, 0, 2 * Math.PI); paintCtx.fill(); } }
-function paintStop() { if (!isPainting) return; isPainting = false; if (paintTool !== "fill") { savePaintState(); } }
+function paintStop() { if (!isPainting) return; isPainting = false; if (paintTool !== "fill") { savePaintState(); addProgress('draw', 1); } }
 function savePaintState() { paintUndoStack.push(paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height)); paintRedoStack = []; if (paintUndoStack.length > 50) paintUndoStack.shift(); }
 function paintUndo() { if (paintUndoStack.length > 1) { paintRedoStack.push(paintUndoStack.pop()); const state = paintUndoStack[paintUndoStack.length - 1]; paintCtx.putImageData(state, 0, 0); } }
 function paintRedo() { if (paintRedoStack.length > 0) { const state = paintRedoStack.pop(); paintUndoStack.push(state); paintCtx.putImageData(state, 0, 0); } }
@@ -1113,7 +1140,7 @@ setInterval(checkMarket, 5000);
 // ===========================================
 // GENERATOR HASŁA, MOTYWY I KURSORY
 // ===========================================
-function generatePassword() { const length = parseInt($("pwdLength").value) || 16; const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-="; let password = ""; const array = new Uint32Array(length); window.crypto.getRandomValues(array); for (let i = 0; i < length; i++) { password += chars[array[i] % chars.length]; } $("passwordDisplay").innerText = password; addXp(2); checkDailyReset(); if (!dailyState.claimed.password) { dailyState.missions.password = 1; dailyState.claimed.password = true; let missionReward = isVip ? 6 : 3; let gained = addCoins(missionReward); showToast(`Misja ukończona: Wygeneruj Hasło! +${gained} 🪙`); saveDailyState(); updateMissionsUI(); } }
+function generatePassword() { const length = parseInt($("pwdLength").value) || 16; const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~`|}{[]:;?><,./-="; let password = ""; const array = new Uint32Array(length); window.crypto.getRandomValues(array); for (let i = 0; i < length; i++) { password += chars[array[i] % chars.length]; } $("passwordDisplay").innerText = password; addXp(2); addProgress('password', 1); checkDailyReset(); if (!dailyState.claimed.password) { dailyState.missions.password = 1; dailyState.claimed.password = true; let missionReward = isVip ? 6 : 3; let gained = addCoins(missionReward); showToast(`Misja ukończona: Wygeneruj Hasło! +${gained} 🪙`); saveDailyState(); updateMissionsUI(); } }
 function setTheme(filterValue) { document.documentElement.style.filter = filterValue; }
 function setWallpaper(bgString) { if(bgString) { document.body.style.background = bgString; localStorage.setItem('equipped-wallpaper', bgString); } else { document.body.style.background = "var(--bg)"; localStorage.removeItem('equipped-wallpaper'); } renderShop(); }
 function initWallpaper() { const w = localStorage.getItem('equipped-wallpaper'); if (w) { document.body.style.background = w; } }
@@ -1132,19 +1159,31 @@ function endFlagGame() { clearInterval(flagTimerInterval); $("flagInput").disabl
 let doorPot = 0; let doorRound = 1; let doorTimerInterval = null; let nextDoorPlayTime = parseInt(localStorage.getItem('door-next-time')) || 0;
 function startDoorTimer() { if(doorTimerInterval) clearInterval(doorTimerInterval); updateDoorTimerUI(); doorTimerInterval = setInterval(() => { if($("doorsContent").style.display === "none") { clearInterval(doorTimerInterval); return; } updateDoorTimerUI(); }, 1000); }
 function updateDoorTimerUI() { const now = Date.now(); const el = $("doorDailyTimer"); if (now < nextDoorPlayTime) { const diffSec = Math.ceil((nextDoorPlayTime - now) / 1000); const m = Math.floor(diffSec / 60); const s = diffSec % 60; if(el) { el.innerText = `Kolejna gra za: ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; el.style.color = "#ef4444"; } $("btnDoor1").disabled = true; $("btnDoor2").disabled = true; } else { if(el) { el.innerText = `Gotowe do gry!`; el.style.color = "#10b981"; } $("btnDoor1").disabled = false; $("btnDoor2").disabled = false; } }
-function chooseDoor(doorIndex) { if(Date.now() < nextDoorPlayTime) return; const winningDoor = Math.random() < 0.5 ? 1 : 2; if (doorIndex === winningDoor) { const reward = doorRound * 2; doorPot += reward; doorRound++; $("doorMessage").innerText = `Udało się! +${reward} do puli. Graj dalej lub wypłać.`; $("doorMessage").style.color = "#10b981"; } else { addXp(doorRound * 5); doorPot = 0; doorRound = 1; $("doorMessage").innerText = "Pudło! Tracisz pulę."; $("doorMessage").style.color = "#ef4444"; nextDoorPlayTime = Date.now() + 10 * 60 * 1000; localStorage.setItem('door-next-time', nextDoorPlayTime); updateDoorTimerUI(); } $("doorRoundDisplay").innerText = doorRound; $("doorPotDisplay").innerText = doorPot; }
+function chooseDoor(doorIndex) { if(Date.now() < nextDoorPlayTime) return; const winningDoor = Math.random() < 0.5 ? 1 : 2; if (doorIndex === winningDoor) { const reward = doorRound * 2; doorPot += reward; doorRound++; $("doorMessage").innerText = `Udało się! +${reward} do puli. Graj dalej lub wypłać.`; $("doorMessage").style.color = "#10b981"; } else { addXp(doorRound * 5); doorPot = 0; doorRound = 1; $("doorMessage").innerText = "Pudło! Tracisz pulę."; $("doorMessage").style.color = "#ef4444"; nextDoorPlayTime = Date.now() + 10 * 60 * 1000; localStorage.setItem('door-next-time', nextDoorPlayTime); updateDoorTimerUI(); } addProgress('doors', 1); $("doorRoundDisplay").innerText = doorRound; $("doorPotDisplay").innerText = doorPot; }
 function cashOutDoors() { if (doorPot > 0) { let earned = doorPot; if(isVip) earned = Math.floor(earned * 2); let gained = addCoins(earned); showToast(`Wypłacono ${gained} 🪙!`); $("doorMessage").innerText = `Zatrzymałeś się. Otrzymujesz ${gained} 🪙!`; $("doorMessage").style.color = "#fbbf24"; addXp(doorRound * 5); doorPot = 0; doorRound = 1; $("doorRoundDisplay").innerText = doorRound; $("doorPotDisplay").innerText = doorPot; nextDoorPlayTime = Date.now() + 10 * 60 * 1000; localStorage.setItem('door-next-time', nextDoorPlayTime); updateDoorTimerUI(); } else { $("doorMessage").innerText = "Nic nie masz w puli!"; $("doorMessage").style.color = "#ef4444"; } }
 
 function exchangeCoinsForDiamonds(qty) { let costPerDiamond = isVip ? 90 : 100; let totalCost = costPerDiamond * qty; if (globalCoins >= totalCost) { globalCoins -= totalCost; globalDiamonds += qty; localStorage.setItem('app-diamonds', globalDiamonds); updateCoinDisplay(); addProgress('spender', totalCost); showToast(`Wymieniono ${totalCost} 🪙 na ${qty} 💎!`); addXp(10 * qty); } else { alert(`Nie masz wystarczająco monet! Potrzebujesz ${totalCost} 🪙 za ${qty} 💎.`); } }
 
 let scratchCtx = null; let isScratching = false; let scratchRevealed = false; let currentScratchWin = 0; let currentScratchCurrency = 'coins';
-function buyScratchCard(type) { if (type === 'vip' && !isVip) { alert("Musisz posiadać status VIP, aby kupować tę zdrapkę!"); return; } const cost = type === 'normal' ? 50 : 250; if (globalCoins < cost) { alert(`Nie masz wystarczająco monet! Potrzebujesz ${cost} 🪙.`); return; } globalCoins -= cost; updateCoinDisplay(); addProgress('spender', cost); scratchRevealed = false; currentScratchCurrency = 'coins'; if (type === 'normal') { if (Math.random() < 0.6) { currentScratchWin = 0; } else { currentScratchWin = Math.floor(Math.random() * 80) + 20; } } else { const rand = Math.random(); if (rand < 0.4) { currentScratchWin = 0; } else if (rand < 0.55) { currentScratchCurrency = 'diamonds'; currentScratchWin = Math.floor(Math.random() * 3) + 1; } else { currentScratchWin = Math.floor(Math.random() * 400) + 100; } } $("scratchArea").style.display = "block"; $("scratchMessage").innerText = "Zdrapuj szary obszar, aby zobaczyć wynik!"; $("scratchMessage").style.color = "#cbd5e1"; initScratchCanvas(); }
+function buyScratchCard(type) { if (type === 'vip' && !isVip) { alert("Musisz posiadać status VIP, aby kupować tę zdrapkę!"); return; } const cost = type === 'normal' ? 50 : 250; if (globalCoins < cost) { alert(`Nie masz wystarczająco monet! Potrzebujesz ${cost} 🪙.`); return; } globalCoins -= cost; updateCoinDisplay(); addProgress('spender', cost); addProgress('scratch', 1); scratchRevealed = false; currentScratchCurrency = 'coins'; if (type === 'normal') { if (Math.random() < 0.6) { currentScratchWin = 0; } else { currentScratchWin = Math.floor(Math.random() * 80) + 20; } } else { const rand = Math.random(); if (rand < 0.4) { currentScratchWin = 0; } else if (rand < 0.55) { currentScratchCurrency = 'diamonds'; currentScratchWin = Math.floor(Math.random() * 3) + 1; } else { currentScratchWin = Math.floor(Math.random() * 400) + 100; } } $("scratchArea").style.display = "block"; $("scratchMessage").innerText = "Zdrapuj szary obszar, aby zobaczyć wynik!"; $("scratchMessage").style.color = "#cbd5e1"; initScratchCanvas(); }
 function initScratchCanvas() { const canvas = $("scratchCanvas"); scratchCtx = canvas.getContext("2d", { willReadFrequently: true }); const resultEl = $("scratchResult"); if (currentScratchWin === 0) { resultEl.innerText = "SPRÓBUJ PONOWNIE"; resultEl.style.color = "#ef4444"; } else { if (currentScratchCurrency === 'diamonds') { resultEl.innerText = `WYGRANA: ${currentScratchWin} 💎`; resultEl.style.color = "#3b82f6"; } else { resultEl.innerText = `WYGRANA: ${currentScratchWin} 🪙`; resultEl.style.color = "#10b981"; } } scratchCtx.globalCompositeOperation = "source-over"; scratchCtx.fillStyle = "#94a3b8"; scratchCtx.fillRect(0, 0, canvas.width, canvas.height); scratchCtx.fillStyle = "#475569"; scratchCtx.font = "bold 24px sans-serif"; scratchCtx.textAlign = "center"; scratchCtx.fillText("ZDRAP MNIE", canvas.width / 2, canvas.height / 2 + 8); scratchCtx.globalCompositeOperation = "destination-out"; canvas.addEventListener("mousedown", scratchStart); canvas.addEventListener("mousemove", scratchMove); window.addEventListener("mouseup", scratchEnd); canvas.addEventListener("touchstart", (e) => { e.preventDefault(); scratchStart(e.touches[0]); }, {passive: false}); canvas.addEventListener("touchmove", (e) => { e.preventDefault(); scratchMove(e.touches[0]); }, {passive: false}); window.addEventListener("touchend", scratchEnd); }
 function getScratchPos(e) { const canvas = $("scratchCanvas"); const rect = canvas.getBoundingClientRect(); return { x: (e.clientX - rect.left) * (canvas.width / rect.width), y: (e.clientY - rect.top) * (canvas.height / rect.height) }; }
 function scratchStart(e) { if ($("scratchContent").style.display === "none" || scratchRevealed) return; isScratching = true; scratchMove(e); }
 function scratchMove(e) { if (!isScratching || scratchRevealed) return; const pos = getScratchPos(e); scratchCtx.beginPath(); scratchCtx.arc(pos.x, pos.y, 20, 0, 2 * Math.PI, false); scratchCtx.fill(); checkScratchReveal(); }
 function scratchEnd() { isScratching = false; }
 function checkScratchReveal() { const canvas = $("scratchCanvas"); const imageData = scratchCtx.getImageData(0, 0, canvas.width, canvas.height); const pixels = imageData.data; let cleared = 0; for (let i = 0; i < pixels.length; i += 4) { if (pixels[i + 3] === 0) cleared++; } const totalPixels = pixels.length / 4; const percentCleared = (cleared / totalPixels) * 100; if (percentCleared > 50 && !scratchRevealed) { scratchRevealed = true; scratchCtx.clearRect(0, 0, canvas.width, canvas.height); if (currentScratchWin > 0) { if (currentScratchCurrency === 'diamonds') { globalDiamonds += currentScratchWin; localStorage.setItem('app-diamonds', globalDiamonds); $("scratchMessage").innerText = `Gratulacje! Wygrywasz ${currentScratchWin} 💎!`; $("scratchMessage").style.color = "#3b82f6"; updateCoinDisplay(); } else { let gained = addCoins(currentScratchWin); $("scratchMessage").innerText = `Gratulacje! Wygrywasz ${gained} 🪙!`; $("scratchMessage").style.color = "#10b981"; } addXp(15); } else { $("scratchMessage").innerText = "Tym razem się nie udało. Kup kolejną zdrapkę!"; $("scratchMessage").style.color = "#ef4444"; addXp(5); } } }
+
+function claimVipDailyBonus() {
+const lastClaimed = localStorage.getItem('last-vip-daily-claim');
+const currentPeriod = getCurrentRewardPeriod();
+if (lastClaimed !== currentPeriod) {
+let gained = addCoins(50);
+localStorage.setItem('last-vip-daily-claim', currentPeriod);
+checkDailyStatus();
+showToast(`Otrzymałeś ${gained} monet z VIP Daily Bonus!`);
+addXp(25);
+}
+}
 
 // ===========================================
 // WYSZUKIWARKA I NAWIGACJA
@@ -1202,10 +1241,8 @@ if(!dailyState.claimed) dailyState.claimed = { clicks: false, password: false, c
 if(dailyState.missions.find === undefined) dailyState.missions.find = 0; if(dailyState.missions.flags === undefined) dailyState.missions.flags = 0; if(dailyState.claimed.find === undefined) dailyState.claimed.find = false; if(dailyState.claimed.flags === undefined) dailyState.claimed.flags = false;
 
 const premiumWallpapersList = [ { id: 'pw1', name: 'Nocne Niebo', bg: 'linear-gradient(to bottom, #0f2027, #203a43, #2c5364)', price: 15 }, { id: 'pw2', name: 'Cyberpunk', bg: 'linear-gradient(45deg, #ff0844 0%, #ffb199 100%)', price: 30 }, { id: 'pw3', name: 'Zachód Słońca', bg: 'linear-gradient(to right, #f6d365 0%, #fda085 100%)', price: 45 }, { id: 'pw4', name: 'Neon City', bg: 'linear-gradient(135deg, #1f1c2c, #928dab)', price: 60 }, { id: 'pw5', name: 'Oceanarium', bg: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)', price: 75 }, { id: 'pw6', name: 'Mroczny Las', bg: 'linear-gradient(to right, #434343 0%, black 100%)', price: 100 }, { id: 'pw7', name: 'Purpurowy Sen', bg: 'linear-gradient(to right, #667eea 0%, #764ba2 100%)', price: 150 }, { id: 'pw8', name: 'Ognista Furia', bg: 'linear-gradient(to top, #f43b47 0%, #453a94 100%)', price: 200 } ];
-const premiumThemesList = [ { id: 'pt1', name: 'Złoto Premium', filter: 'sepia(1) saturate(200%) brightness(1.3) hue-rotate(15deg)', price: 5 }, { id: 'pt2', name: 'Głęboki Ocean', filter: 'hue-rotate(200deg) saturate(150%) brightness(0.8)', price: 10 }, { id: 'pt3', name: 'Krwawy Księżyc', filter: 'sepia(1) hue-rotate(-50deg) saturate(300%) contrast(1.2)', price: 15 }, { id: 'pt4', name: 'Zatruty Las', filter: 'hue-rotate(90deg) saturate(200%) contrast(1.1) brightness(0.9)', price: 20 }, { id: 'pt5', name: 'Cyber Neon', filter: 'invert(0.1) hue-rotate(250deg) saturate(300%) contrast(1.3)', price: 25 }, { id: 'pt6', name: 'Retro Kineskop', filter: 'sepia(0.4) contrast(1.5) brightness(0.8) saturate(1.2)', price: 30 }, { id: 'pt7', name: 'Czysty Lód', filter: 'hue-rotate(180deg) saturate(100%) brightness(1.5) contrast(1.1)', price: 40 }, { id: 'pt8', name: 'Wampiryzm', filter: 'invert(0.9) hue-rotate(160deg) saturate(250%)', price: 50 }, { id: 'pt9', name: 'Magma', filter: 'sepia(1) hue-rotate(320deg) saturate(400%) brightness(0.9)', price: 75 }, { id: 'pt10', name: 'Matrix X', filter: 'invert(1) sepia(1) hue-rotate(70deg) saturate(500%) brightness(0.8)', price: 100 },
-{ id: 'pt_vip', name: 'Złoty VIP (Tylko VIP)', filter: 'sepia(1) saturate(300%) brightness(1.2) hue-rotate(10deg)', price: 0, isVipOnly: true } ];
-const premiumCursorsList = [ { id: 'pc1', name: '🍔 Burger', emoji: '🍔', price: 5 }, { id: 'pc2', name: '🦄 Jednorożec', emoji: '🦄', price: 10 }, { id: 'pc3', name: '🎸 Gitara', emoji: '🎸', price: 15 }, { id: 'pc4', name: '👑 Korona', emoji: '👑', price: 20 }, { id: 'pc5', name: '🐉 Smok', emoji: '🐉', price: 25 }, { id: 'pc6', name: '🛸 UFO', emoji: '🛸', price: 30 }, { id: 'pc7', name: '⚡ Błyskawica', emoji: '⚡', price: 40 }, { id: 'pc8', name: '💸 Pieniądze', emoji: '💸', price: 50 }, { id: 'pc9', name: '💀 Czaszka', emoji: '💀', price: 75 }, { id: 'pc10', name: '🏆 Puchar', emoji: '🏆', price: 100 },
-{ id: 'pc_vip', name: '👑 Kursor VIP (Tylko VIP)', emoji: '👑', price: 0, isVipOnly: true } ];
+const premiumThemesList = [ { id: 'pt1', name: 'Złoto Premium', filter: 'sepia(1) saturate(200%) brightness(1.3) hue-rotate(15deg)', price: 5 }, { id: 'pt2', name: 'Głęboki Ocean', filter: 'hue-rotate(200deg) saturate(150%) brightness(0.8)', price: 10 }, { id: 'pt3', name: 'Krwawy Księżyc', filter: 'sepia(1) hue-rotate(-50deg) saturate(300%) contrast(1.2)', price: 15 }, { id: 'pt4', name: 'Zatruty Las', filter: 'hue-rotate(90deg) saturate(200%) contrast(1.1) brightness(0.9)', price: 20 }, { id: 'pt5', name: 'Cyber Neon', filter: 'invert(0.1) hue-rotate(250deg) saturate(300%) contrast(1.3)', price: 25 }, { id: 'pt6', name: 'Retro Kineskop', filter: 'sepia(0.4) contrast(1.5) brightness(0.8) saturate(1.2)', price: 30 }, { id: 'pt7', name: 'Czysty Lód', filter: 'hue-rotate(180deg) saturate(100%) brightness(1.5) contrast(1.1)', price: 40 }, { id: 'pt8', name: 'Wampiryzm', filter: 'invert(0.9) hue-rotate(160deg) saturate(250%)', price: 50 }, { id: 'pt9', name: 'Magma', filter: 'sepia(1) hue-rotate(320deg) saturate(400%) brightness(0.9)', price: 75 }, { id: 'pt10', name: 'Matrix X', filter: 'invert(1) sepia(1) hue-rotate(70deg) saturate(500%) brightness(0.8)', price: 100 }, { id: 'pt_vip', name: 'Złoty VIP (Tylko VIP)', filter: 'sepia(1) saturate(300%) brightness(1.2) hue-rotate(10deg)', price: 0, isVipOnly: true } ];
+const premiumCursorsList = [ { id: 'pc1', name: '🍔 Burger', emoji: '🍔', price: 5 }, { id: 'pc2', name: '🦄 Jednorożec', emoji: '🦄', price: 10 }, { id: 'pc3', name: '🎸 Gitara', emoji: '🎸', price: 15 }, { id: 'pc4', name: '👑 Korona', emoji: '👑', price: 20 }, { id: 'pc5', name: '🐉 Smok', emoji: '🐉', price: 25 }, { id: 'pc6', name: '🛸 UFO', emoji: '🛸', price: 30 }, { id: 'pc7', name: '⚡ Błyskawica', emoji: '⚡', price: 40 }, { id: 'pc8', name: '💸 Pieniądze', emoji: '💸', price: 50 }, { id: 'pc9', name: '💀 Czaszka', emoji: '💀', price: 75 }, { id: 'pc10', name: '🏆 Puchar', emoji: '🏆', price: 100 }, { id: 'pc_vip', name: '👑 Kursor VIP (Tylko VIP)', emoji: '👑', price: 0, isVipOnly: true } ];
 const premiumBadgesList = [ { id: 'pb1', name: 'Prestiż 500', price: 500, icon: '🥉' }, { id: 'pb2', name: 'Prestiż 1000', price: 1000, icon: '🥈' }, { id: 'pb3', name: 'Prestiż 1500', price: 1500, icon: '🥇' }, { id: 'pb4', name: 'Prestiż 2000', price: 2000, icon: '🎖️' }, { id: 'pb5', name: 'Prestiż 2500', price: 2500, icon: '💎' }, { id: 'pb6', name: 'Prestiż 3000', price: 3000, icon: '👑' }, { id: 'pb7', name: 'Prestiż 3500', price: 3500, icon: '🔥' }, { id: 'pb8', name: 'Prestiż 4000', price: 4000, icon: '⚡' }, { id: 'pb9', name: 'Prestiż 4500', price: 4500, icon: '🌠' }, { id: 'pb10', name: 'Prestiż 5000', price: 5000, icon: '🏆' } ];
 
 function showToast(msg) { let toast = $("coinToast"); if (!toast) { toast = document.createElement("div"); toast.id = "coinToast"; toast.className = "coin-toast"; document.body.appendChild(toast); } toast.innerText = msg; toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2500); }
@@ -1213,8 +1250,12 @@ function updateCoinDisplay() { let eqBadge = localStorage.getItem('equipped-badg
 function getCurrentRewardPeriod() { const now = new Date(); const currentHour = now.getHours(); let periodDate = new Date(now); if (currentHour < 10) { periodDate.setDate(periodDate.getDate() - 1); } return `${periodDate.getFullYear()}-${periodDate.getMonth() + 1}-${periodDate.getDate()}`; }
 function checkDailyReset() { const currentPeriod = getCurrentRewardPeriod(); if (dailyState.date !== currentPeriod) { dailyState = { date: currentPeriod, tabs: {}, missions: { clicks: 0, password: 0, cat: 0, find: 0, flags: 0 }, claimed: { clicks: false, password: false, cat: false, find: false, flags: false }, }; saveDailyState(); } }
 function saveDailyState() { localStorage.setItem('app-daily-state', JSON.stringify(dailyState)); }
-function checkDailyStatus() { const lastClaimed = localStorage.getItem('last-daily-claim'); const currentPeriod = getCurrentRewardPeriod(); if (lastClaimed === currentPeriod) { $("claimBonusBtn").style.display = "none"; $("nextBonusText").style.display = "block"; } else { $("claimBonusBtn").style.display = "inline-block"; $("nextBonusText").style.display = "none"; } }
-function claimDailyBonus() { const lastClaimed = localStorage.getItem('last-daily-claim'); const currentPeriod = getCurrentRewardPeriod(); if (lastClaimed !== currentPeriod) { let reward = Math.floor(Math.random() * 15) + 1; if (isVip) reward = Math.floor(reward * 2); let gained = addCoins(reward); localStorage.setItem('last-daily-claim', currentPeriod); checkDailyStatus(); showToast(`Otrzymałeś ${gained} monet z Daily Bonus!`); addXp(10); renderShop(); } }
+function checkDailyStatus() { 
+const lastClaimed = localStorage.getItem('last-daily-claim'); const currentPeriod = getCurrentRewardPeriod(); 
+if (lastClaimed === currentPeriod) { $("claimBonusBtn").style.display = "none"; $("nextBonusText").style.display = "block"; } else { $("claimBonusBtn").style.display = "inline-block"; $("nextBonusText").style.display = "none"; }
+const lastVipClaimed = localStorage.getItem('last-vip-daily-claim');
+if (lastVipClaimed === currentPeriod) { if($("claimVipBonusBtn")) $("claimVipBonusBtn").style.display = "none"; if($("nextVipBonusText")) $("nextVipBonusText").style.display = "block"; } else { if($("claimVipBonusBtn")) $("claimVipBonusBtn").style.display = "inline-block"; if($("nextVipBonusText")) $("nextVipBonusText").style.display = "none"; }
+}
 function updateMissionsUI() {
 const list = $("missionsList"); if(!list) return; checkDailyReset();
 const renderCard = (title, desc, maxProgress, currentProgress, claimed, baseReward) => { const isCompleted = claimed; const reward = isVip ? baseReward * 2 : baseReward; const statusIcon = isCompleted ? '✅' : '⏳'; const cardClass = isCompleted ? 'mission-card completed' : 'mission-card'; return `<div class="${cardClass}"><div class="mission-info"><div class="mission-title">${title}</div><div class="mission-desc">${desc} (${currentProgress}/${maxProgress})</div></div><div class="mission-reward-badge">+${Math.floor(reward * getCoinMulti())}🪙</div><div class="mission-status-icon">${statusIcon}</div></div>`; };
