@@ -235,6 +235,18 @@ button { border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 700; 
 .title-name { font-weight: 900; color: #fbbf24; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
 
 @media (max-width: 768px) { .top-left-coins { top: 10px; left: 10px; font-size: 16px; padding: 8px 16px; } .top-right-bonus { top: 10px; right: 10px; font-size: 14px; padding: 8px 16px; } .mission-card { flex-wrap: wrap; } }
+
+/* ROULETTE & SLOTS & PARTICLES */
+.roulette-container { width: 100%; height: 80px; background: #0f172a; border-radius: 12px; overflow: hidden; position: relative; border: 2px solid rgba(255,255,255,0.1); display: none; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+.roulette-strip { display: flex; height: 100%; transition: transform 4s cubic-bezier(0.15, 0.85, 0.15, 1); }
+.roulette-item { min-width: 80px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fbbf24; border-right: 1px solid rgba(255,255,255,0.05); background: linear-gradient(180deg, #1e293b, #0f172a); }
+.roulette-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #ef4444; transform: translateX(-50%); z-index: 10; box-shadow: 0 0 10px #ef4444; pointer-events: none; }
+.click-particle { position: fixed; font-size: 20px; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 9999; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
+.slot-machine { display: flex; gap: 15px; justify-content: center; margin: 30px 0; background: #0f172a; padding: 20px; border-radius: 16px; border: 2px solid #3b82f6; box-shadow: inset 0 10px 30px rgba(0,0,0,0.5); }
+.slot-reel { width: 80px; height: 100px; background: #1e293b; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 50px; overflow: hidden; position: relative; }
+.slot-strip { display: flex; flex-direction: column; transition: transform 3s cubic-bezier(0.15, 0.85, 0.15, 1); }
+.slot-item { width: 80px; height: 100px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
@@ -273,6 +285,10 @@ button { border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 700; 
 <h3 style="margin-top:0; color:#fbbf24; font-size:24px;">Codzienna Nagroda</h3>
 <p style="color:#cbd5e1; margin-bottom: 20px;">Odbieraj od 1 do 15 monet codziennie! Nowy bonus resetuje się każdego dnia o godzinie 10:00.</p>
 <button id="claimBonusBtn" class="click-button" style="background: linear-gradient(45deg, #fbbf24, #f59e0b); margin-bottom: 0; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);" onclick="claimDailyBonus()">Odbierz Monety</button>
+<div class="roulette-container" id="dailyRoulette">
+    <div class="roulette-center-line"></div>
+    <div class="roulette-strip" id="dailyRouletteStrip"></div>
+</div>
 <p id="nextBonusText" style="color:#ef4444; font-weight:bold; display:none; margin-top:15px;">Już odebrano! Wróć po 10:00.</p>
 </div>
 <div class="daily-claim-box" style="margin-top: 20px;">
@@ -316,6 +332,7 @@ button { border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 700; 
 <button id="tabBtnDoors" class="tab-btn" onclick="toggleDoorsTab()">Gra - Drzwi</button>
 <button id="tabBtnCurrency" class="tab-btn" onclick="toggleCurrencyTab()">Waluty 💎</button>
 <button id="tabBtnScratch" class="tab-btn" onclick="toggleScratchTab()">Zdrapki 🎟️</button>
+<button id="tabBtnSlots" class="tab-btn" onclick="toggleSlotsTab()">Automaty 🎰</button>
 </div>
 </div>
 <main class="app" id="appContent" style="display: none;">
@@ -470,7 +487,7 @@ PKP GRODZISK MAZOWIECKI |</textarea>
 <div class="tool-container">
 <h2>Licznik Kliknięć</h2>
 <div class="click-count" id="clickCountDisplay">0</div>
-<button class="click-button" onclick="incrementClick()">Kliknij mnie!</button>
+<button class="click-button" onclick="incrementClick(event)">Kliknij mnie!</button>
 <button class="btn-danger reset-btn" onclick="resetClicks()">Resetuj licznik</button>
 </div>
 </main>
@@ -762,6 +779,21 @@ Brak aktywnych boosterów.
 <div id="scratchMessage" style="margin-top: 20px; font-weight: bold; color: #f8fafc; font-size: 18px; min-height: 25px;">Wybierz zdrapkę, aby zagrać.</div>
 </div>
 </main>
+
+<main class="tool-section" id="slotsContent" style="display: none;">
+<div class="tool-container">
+<h2>Jednoręki Bandyta</h2>
+<p style="color:#cbd5e1; margin-bottom: 20px;">Zagraj o fortunę! Koszt: 10 🪙. Trzy takie same symbole = Mega Wygrana!</p>
+<div class="slot-machine">
+    <div class="slot-reel"><div class="slot-strip" id="slotStrip1"><div class="slot-item">❓</div></div></div>
+    <div class="slot-reel"><div class="slot-strip" id="slotStrip2"><div class="slot-item">❓</div></div></div>
+    <div class="slot-reel"><div class="slot-strip" id="slotStrip3"><div class="slot-item">❓</div></div></div>
+</div>
+<button class="click-button" id="spinSlotsBtn" style="background: #ef4444; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);" onclick="spinSlots()">Zakręć (10 🪙)</button>
+<div id="slotsMessage" style="margin-top: 20px; font-weight: bold; color: #f8fafc; font-size: 18px; min-height: 25px;">Wciśnij Zakręć!</div>
+</div>
+</main>
+
 <script>
 const $ = (id) => document.getElementById(id);
 
@@ -844,6 +876,109 @@ alert("Nie masz wystarczająco monet. Potrzebujesz 1000 🪙 na status VIP.");
 }
 }
 
+// ===========================================
+// CZĄSTECZKI & ROULETTE & SLOTS
+// ===========================================
+function createParticle(x, y, text) {
+const particle = document.createElement("div");
+particle.className = "click-particle";
+particle.innerText = text;
+particle.style.left = x + "px";
+particle.style.top = y + "px";
+particle.style.color = "#fbbf24";
+document.body.appendChild(particle);
+setTimeout(() => particle.remove(), 1000);
+}
+
+function claimDailyBonus() {
+const lastClaimed = localStorage.getItem('last-daily-claim');
+const currentPeriod = getCurrentRewardPeriod();
+if (lastClaimed === currentPeriod) return;
+
+$("claimBonusBtn").style.display = "none";
+$("dailyRoulette").style.display = "block";
+const strip = $("dailyRouletteStrip");
+strip.style.transition = "none";
+strip.style.transform = "translateX(0)";
+strip.innerHTML = "";
+
+const totalItems = 60;
+const winIndex = 50; 
+const winAmount = Math.floor(Math.random() * 15) + 1; 
+
+for (let i = 0; i < totalItems; i++) {
+    let amount = i === winIndex ? winAmount : Math.floor(Math.random() * 15) + 1;
+    strip.innerHTML += `<div class="roulette-item">${amount}🪙</div>`;
+}
+
+void strip.offsetWidth; // Reflow
+strip.style.transition = "transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)";
+const containerWidth = $("dailyRoulette").offsetWidth;
+const centerOffset = (containerWidth / 2) - 40; 
+const randomStopOffset = Math.floor(Math.random() * 60) - 30; 
+const targetTranslate = -(winIndex * 80) + centerOffset + randomStopOffset;
+
+strip.style.transform = `translateX(${targetTranslate}px)`;
+
+setTimeout(() => {
+    let gained = addCoins(winAmount);
+    localStorage.setItem('last-daily-claim', currentPeriod);
+    showToast(`Wylosowano ${gained} monet z Daily Bonus!`);
+    createParticle(window.innerWidth/2, window.innerHeight/2, `+${gained} 🪙`);
+    addXp(10);
+    setTimeout(() => {
+        checkDailyStatus();
+        $("dailyRoulette").style.display = "none";
+    }, 2500);
+}, 4000);
+}
+
+const slotSymbols = ["🍒", "🍋", "🍉", "🔔", "⭐", "💎", "7️⃣"];
+function spinSlots() {
+if (globalCoins < 10) { alert("Nie masz wystarczająco monet (10 🪙)!"); return; }
+globalCoins -= 10; updateCoinDisplay(); addProgress('spender', 10);
+$("spinSlotsBtn").disabled = true;
+$("slotsMessage").innerText = "Losowanie...";
+$("slotsMessage").style.color = "#fbbf24";
+
+const results = [];
+for(let i=1; i<=3; i++) {
+    const strip = $(`slotStrip${i}`);
+    strip.style.transition = "none";
+    strip.style.transform = "translateY(0)";
+    strip.innerHTML = "";
+    const targetSymbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+    results.push(targetSymbol);
+    for(let j=0; j<20; j++) {
+        strip.innerHTML += `<div class="slot-item">${slotSymbols[Math.floor(Math.random()*slotSymbols.length)]}</div>`;
+    }
+    strip.innerHTML += `<div class="slot-item">${targetSymbol}</div>`;
+    void strip.offsetWidth;
+    strip.style.transition = `transform ${2 + i*0.5}s cubic-bezier(0.15, 0.85, 0.15, 1)`;
+    strip.style.transform = `translateY(-${20 * 100}px)`; 
+}
+
+setTimeout(() => {
+    $("spinSlotsBtn").disabled = false;
+    let win = 0;
+    if(results[0] === results[1] && results[1] === results[2]) {
+        if(results[0] === "7️⃣") win = 500;
+        else if(results[0] === "💎") win = 250;
+        else win = 50;
+    } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+        win = 5;
+    }
+    if(win > 0) {
+        let gained = addCoins(win);
+        $("slotsMessage").innerText = `Wygrywasz ${gained} 🪙!`;
+        $("slotsMessage").style.color = "#10b981";
+        createParticle(window.innerWidth/2, window.innerHeight/2, `+${gained} 🪙`);
+    } else {
+        $("slotsMessage").innerText = "Spróbuj ponownie!";
+        $("slotsMessage").style.color = "#ef4444";
+    }
+}, 3500);
+}
 // ===========================================
 // BOOSTERY (SKLEP)
 // ===========================================
@@ -1028,8 +1163,9 @@ $("calcDisplay").innerText = calcInput || "0";
 // ===========================================
 let clicks = parseInt(localStorage.getItem('saved-clicks')) || 0;
 function updateClickDisplay() { $("clickCountDisplay").innerText = clicks; }
-function incrementClick() {
+function incrementClick(e) {
 clicks++; localStorage.setItem('saved-clicks', clicks); updateClickDisplay(); addProgress('clicker', 1);
+if (e) createParticle(e.clientX, e.clientY, "+1");
 if (clicks % 100 === 0 && clicks > 0) {
 let gained = addCoins(isVip ? 2 : 1);
 showToast(`Bonus: Osiągnięto wielokrotność 100 kliknięć! +${gained} 🪙`);
@@ -1190,13 +1326,13 @@ addXp(25);
 // ===========================================
 function filterTabs() { const query = $("tabSearch").value.toLowerCase(); const buttons = document.querySelectorAll(".tabs-menu .tab-btn"); buttons.forEach(btn => { if (btn.innerText.toLowerCase().includes(query)) { btn.style.display = "inline-block"; } else { btn.style.display = "none"; } }); }
 function updateTabsGlow() {
-const tabsMap = { "tabBtnCreator": "appContent", "tabBtnCalc": "calcContent", "tabBtnClicker": "clickerContent", "tabBtnAchiev": "achievContent", "tabBtnTitles": "titlesContent", "tabBtnBoosters": "boostersContent", "tabBtnSunday": "sundayContent", "tabBtnCat": "catContent", "tabBtnToszek": "toszekContent", "tabBtnYesNo": "yesNoContent", "tabBtnCircle": "circleContent", "tabBtnFindItem": "findItemContent", "tabBtnLove": "loveContent", "tabBtnDraw": "drawContent", "tabBtnPassword": "passwordContent", "tabBtnThemes": "themesContent", "tabBtnCursors": "cursorsContent", "tabBtnFlags": "flagsContent", "tabBtnDoors": "doorsContent", "tabBtnCurrency": "currencyContent", "tabBtnScratch": "scratchContent" };
+const tabsMap = { "tabBtnCreator": "appContent", "tabBtnCalc": "calcContent", "tabBtnClicker": "clickerContent", "tabBtnAchiev": "achievContent", "tabBtnTitles": "titlesContent", "tabBtnBoosters": "boostersContent", "tabBtnSunday": "sundayContent", "tabBtnCat": "catContent", "tabBtnToszek": "toszekContent", "tabBtnYesNo": "yesNoContent", "tabBtnCircle": "circleContent", "tabBtnFindItem": "findItemContent", "tabBtnLove": "loveContent", "tabBtnDraw": "drawContent", "tabBtnPassword": "passwordContent", "tabBtnThemes": "themesContent", "tabBtnCursors": "cursorsContent", "tabBtnFlags": "flagsContent", "tabBtnDoors": "doorsContent", "tabBtnCurrency": "currencyContent", "tabBtnScratch": "scratchContent", "tabBtnSlots": "slotsContent" };
 for (const [btnId, contentId] of Object.entries(tabsMap)) { const btn = $(btnId); if (btn) { if (!dailyState.tabs[contentId]) { btn.classList.add("tab-btn-unvisited"); } else { btn.classList.remove("tab-btn-unvisited"); } } }
 }
 function switchTab(activeContentId, activeBtnId) {
 const lobby = $("lobbyMenu");
-const contents = ["appContent", "clickerContent", "achievContent", "titlesContent", "boostersContent", "sundayContent", "catContent", "toszekContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent", "passwordContent", "calcContent", "themesContent", "cursorsContent", "flagsContent", "doorsContent", "currencyContent", "scratchContent"];
-const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnAchiev", "tabBtnTitles", "tabBtnBoosters", "tabBtnSunday", "tabBtnCat", "tabBtnToszek", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw", "tabBtnPassword", "tabBtnCalc", "tabBtnThemes", "tabBtnCursors", "tabBtnFlags", "tabBtnDoors", "tabBtnCurrency", "tabBtnScratch"];
+const contents = ["appContent", "clickerContent", "achievContent", "titlesContent", "boostersContent", "sundayContent", "catContent", "toszekContent", "yesNoContent", "circleContent", "findItemContent", "loveContent", "drawContent", "passwordContent", "calcContent", "themesContent", "cursorsContent", "flagsContent", "doorsContent", "currencyContent", "scratchContent", "slotsContent"];
+const buttons = ["tabBtnCreator", "tabBtnClicker", "tabBtnAchiev", "tabBtnTitles", "tabBtnBoosters", "tabBtnSunday", "tabBtnCat", "tabBtnToszek", "tabBtnYesNo", "tabBtnCircle", "tabBtnFindItem", "tabBtnLove", "tabBtnDraw", "tabBtnPassword", "tabBtnCalc", "tabBtnThemes", "tabBtnCursors", "tabBtnFlags", "tabBtnDoors", "tabBtnCurrency", "tabBtnScratch", "tabBtnSlots"];
 const targetContent = $(activeContentId); const targetBtn = $(activeBtnId);
 if (targetContent.style.display !== "none" && activeContentId !== "appContent" && targetContent.style.display !== "") { targetContent.style.display = "none"; lobby.classList.remove("opened"); lobby.classList.add("closed"); targetBtn.classList.remove("active"); $("tabSearch").style.display = "block"; return; } 
 if (activeContentId === "appContent" && $("appContent").style.display === "grid") { $("tabSearch").style.display = "block"; return; }
@@ -1229,6 +1365,7 @@ function toggleFlagsTab() { switchTab("flagsContent", "tabBtnFlags"); }
 function toggleDoorsTab() { switchTab("doorsContent", "tabBtnDoors"); }
 function toggleCurrencyTab() { switchTab("currencyContent", "tabBtnCurrency"); }
 function toggleScratchTab() { switchTab("scratchContent", "tabBtnScratch"); }
+function toggleSlotsTab() { switchTab("slotsContent", "tabBtnSlots"); }
 
 // ===========================================
 // SKLEP, DAILY I MISJE
