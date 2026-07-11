@@ -15,15 +15,9 @@
         .header h2 { font-size: 28px; }
 
         .game-area { position: relative; height: 260px; background: #fafafa; overflow: hidden; cursor: crosshair; }
-        
-        /* Tło - imitacja podłogi/wzoru pod spodem */
         .background-pattern { position: absolute; width: 100%; height: 100%; background: radial-gradient(#ddd 2px, transparent 2px); background-size: 20px 20px; }
-        
-        /* Ukryty element */
         .hidden-key { position: absolute; font-size: 35px; transition: transform 0.2s; cursor: pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
         .hidden-key:active { transform: scale(0.9); }
-
-        /* Nakładka latarki (ciemność) - nie blokuje kliknięć! */
         .flashlight-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; pointer-events: none; transition: background 0.1s; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
@@ -54,19 +48,17 @@
         const verifyBtn = document.getElementById('verifyBtn');
         let isDone = false;
 
-        // Losowe pozycjonowanie klucza
         function initGame() {
-            let x = Math.floor(Math.random() * 80) + 10; // od 10% do 90% szerokości
-            let y = Math.floor(Math.random() * 70) + 15; // od 15% do 85% wysokości
+            let x = Math.floor(Math.random() * 80) + 10; 
+            let y = Math.floor(Math.random() * 70) + 15; 
             key.style.left = `${x}%`;
             key.style.top = `${y}%`;
-            
-            // Domyślna pozycja latarki (poza ekranem)
             flashlight.style.background = `radial-gradient(circle at -100px -100px, transparent 40px, rgba(10,10,10,0.98) 90px)`;
         }
 
         function updateFlashlight(e) {
             if (isDone) return;
+            if (e.cancelable) e.preventDefault(); // Brak scrollowania
             const rect = gameArea.getBoundingClientRect();
             let x = e.clientX || (e.touches && e.touches[0].clientX);
             let y = e.clientY || (e.touches && e.touches[0].clientY);
@@ -80,17 +72,19 @@
         function foundKey() {
             if (isDone) return;
             isDone = true;
-            // Odkrywa cały ekran po znalezieniu
             flashlight.style.background = `radial-gradient(circle at 50% 50%, transparent 100%, rgba(10,10,10,0) 100px)`;
             verifyBtn.disabled = false;
         }
 
         gameArea.addEventListener('mousemove', updateFlashlight);
-        gameArea.addEventListener('touchmove', updateFlashlight);
+        gameArea.addEventListener('touchmove', updateFlashlight, {passive: false});
 
         initGame();
 
-        function goToNextLevel() { window.location.href = 'Poziom12.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '12');
+            window.location.href = 'Poziom12.html'; 
+        }
     </script>
 </body>
 </html>
