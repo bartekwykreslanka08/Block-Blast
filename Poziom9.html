@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 9 - Odd One Out</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header h2 { font-size: 28px; }
+
+        .game-area { padding: 30px; background: #fafafa; display: flex; justify-content: center; align-items: center; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 250px; }
+        .tile { background: white; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 50px; display: flex; justify-content: center; align-items: center; padding: 20px 0; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .tile:active { transform: scale(0.95); }
+        
+        .shake { animation: shake 0.4s; border-color: #e74c3c !important; }
+        .success { background: #d4edda; border-color: #2ecc71; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
+        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <span class="level-badge">Level 9</span>
+            <h2>Find the odd one</h2>
+        </div>
+        <div class="game-area">
+            <div class="grid" id="grid">
+                <div class="tile" onclick="checkTile(0)"></div>
+                <div class="tile" onclick="checkTile(1)"></div>
+                <div class="tile" onclick="checkTile(2)"></div>
+                <div class="tile" onclick="checkTile(3)"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        const pairs = [
+            ['🍏', '🍐'], ['🐱', '🐶'], ['🚗', '🚓'], 
+            ['⚽', '🏀'], ['🍩', '🍪'], ['🌞', '🌝']
+        ];
+        const tiles = document.querySelectorAll('.tile');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let oddIndex = -1;
+        let isDone = false;
+
+        function initGame() {
+            // Losowanie pary emoji i pozycji "intruza"
+            const pair = pairs[Math.floor(Math.random() * pairs.length)];
+            oddIndex = Math.floor(Math.random() * 4);
+
+            tiles.forEach((tile, index) => {
+                tile.className = 'tile'; // reset klas
+                tile.innerText = (index === oddIndex) ? pair[1] : pair[0];
+            });
+        }
+
+        function checkTile(index) {
+            if (isDone) return;
+            
+            if (index === oddIndex) {
+                // Wygrana
+                tiles[index].classList.add('success');
+                isDone = true;
+                verifyBtn.disabled = false;
+            } else {
+                // Błąd - animacja trzęsienia
+                tiles[index].classList.remove('shake');
+                void tiles[index].offsetWidth; // trigger reflow
+                tiles[index].classList.add('shake');
+            }
+        }
+
+        initGame();
+
+        function goToNextLevel() { window.location.href = 'Poziom10.html'; }
+    </script>
+</body>
+</html>
