@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 3 - Find the Robot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
+        body { 
+            background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; color: #333;
+        }
+
+        .captcha-box {
+            background: #ffffff;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            padding: 28px 24px;
+        }
+        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
+        .header h2 { font-size: 32px; letter-spacing: 1px; }
+
+        .grid-container { padding: 12px; background: #fafafa; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; 
+        }
+
+        .emoji-cell {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .emoji-cell:hover {
+            transform: scale(1.05);
+            border-color: #4A90E2;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+        }
+        .emoji-cell.wrong {
+            background: #ffebee;
+            border-color: #ef5350;
+            animation: shake 0.3s;
+        }
+        .emoji-cell.correct {
+            background: #e8f5e9;
+            border-color: #66bb6a;
+            transform: scale(1.1);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .error-msg {
+            color: #d93025; font-size: 14px; 
+            padding: 0 16px 12px 16px; display: none;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .footer {
+            padding: 16px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white; border: none;
+            padding: 14px 36px; font-size: 16px;
+            border-radius: 6px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.2s ease; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+        .btn-verify:disabled { 
+            background: #b3cdef; cursor: not-allowed; box-shadow: none; 
+        }
+        .btn-verify:not(:disabled):hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="captcha-box">
+        <div class="header">
+            <p>Find and click the hidden</p>
+            <h2>Robot</h2>
+        </div>
+        
+        <div class="grid-container">
+            <div class="grid" id="emojiGrid">
+                <!-- Emotikony wygenerowane przez JS -->
+            </div>
+        </div>
+        
+        <div class="error-msg" id="errorMsg">That's a human! Try again.</div>
+
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        const characters = ['👨‍🚀', '🦸‍♂️', '🥷', '🧑‍🎄', '🧛‍♂️', '🧟‍♂️', '🧜‍♀️', '🧚‍♂️', '🧙‍♂️', '🧝‍♀️', '🧛‍♀️', '🧟‍♀️', '🧜‍♂️', '🧚‍♀️', '🕵️‍♂️'];
+        const robot = '🤖';
+        const grid = document.getElementById('emojiGrid');
+        const errorMsg = document.getElementById('errorMsg');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let levelPassed = false;
+
+        function initGame() {
+            grid.innerHTML = '';
+            errorMsg.style.display = 'none';
+            verifyBtn.disabled = true;
+            levelPassed = false;
+
+            // Tworzenie tablicy z 15 postaciami + 1 robotem
+            let gameItems = [...characters];
+            gameItems.push(robot);
+            
+            // Tasowanie tablicy (algorytm Fisher-Yates)
+            for (let i = gameItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameItems[i], gameItems[j]] = [gameItems[j], gameItems[i]];
+            }
+
+            // Renderowanie siatki
+            gameItems.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'emoji-cell';
+                cell.innerText = item;
+                cell.onclick = () => checkAnswer(cell, item);
+                grid.appendChild(cell);
+            });
+        }
+
+        function checkAnswer(cell, item) {
+            if (levelPassed) return;
+
+            if (item === robot) {
+                cell.classList.add('correct');
+                errorMsg.style.display = 'none';
+                verifyBtn.disabled = false;
+                levelPassed = true;
+            } else {
+                cell.classList.add('wrong');
+                errorMsg.style.display = 'block';
+                setTimeout(() => cell.classList.remove('wrong'), 400);
+            }
+        }
+
+        function goToNextLevel() {
+            window.location.href = 'Poziom4.html';
+        }
+
+        // Start gry
+        initGame();
+    </script>
+</body>
+</html>
