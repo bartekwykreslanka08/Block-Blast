@@ -7,174 +7,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
-        body { 
-            background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); 
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; color: #333;
-        }
-
-        .captcha-box {
-            background: #ffffff;
-            width: 420px;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-            overflow: hidden;
-            display: flex; flex-direction: column;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4A90E2, #357ABD);
-            color: white;
-            padding: 28px 24px;
-        }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; height: 100vh; color: #333; }
+        
+        .captcha-box { background: #ffffff; width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 24px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
         .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
         .header h2 { font-size: 32px; letter-spacing: 1px; }
 
-        .game-area {
-            position: relative;
-            height: 250px;
-            background: #fafafa;
-            overflow: hidden;
-            border-bottom: 1px solid #eee;
-        }
-
-        .hint-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ccc;
-            font-size: 20px;
-            pointer-events: none;
-            text-align: center;
-        }
+        .game-area { position: relative; height: 250px; background: #fafafa; overflow: hidden; border-bottom: 1px solid #eee; }
+        .hint-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; font-size: 20px; pointer-events: none; text-align: center; }
 
         .btn-verify-catch {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: linear-gradient(135deg, #4A90E2, #357ABD);
-            color: white; border: none;
-            padding: 14px 36px; font-size: 16px;
-            border-radius: 6px; text-transform: uppercase; cursor: pointer;
-            /* Usunięto transition dla top i left, aby animacja JS była płynna */
-            transition: box-shadow 0.2s;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
-            z-index: 10;
+            position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase;
+            cursor: pointer; transition: box-shadow 0.2s; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); z-index: 10;
         }
-        
-        .btn-verify-catch:hover {
-            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
-        }
+        .btn-verify-catch:hover { box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4); }
 
-        .footer {
-            padding: 16px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #fff;
-            height: 60px;
-        }
-        
-        .success-msg {
-            color: #0f9d58;
-            font-size: 16px;
-            display: none;
-            animation: fadeIn 0.4s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .footer { padding: 16px 20px; display: flex; justify-content: center; align-items: center; background: #fff; height: 60px; }
+        .success-msg { color: #0f9d58; font-size: 16px; display: none; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
     <div class="captcha-box">
         <div class="header">
+            <span class="level-badge">Level 4</span>
             <p>Prove you have fast reflexes</p>
             <h2>Click Verify</h2>
         </div>
-        
         <div class="game-area" id="gameArea">
             <div class="hint-text">Catch the moving target!</div>
             <button class="btn-verify-catch" id="catchBtn" onclick="finishLevel()">Verify</button>
         </div>
-
         <div class="footer">
             <div class="success-msg" id="successMsg">Success! You are human. 🎉</div>
         </div>
     </div>
-
     <script>
         const catchBtn = document.getElementById('catchBtn');
         const gameArea = document.getElementById('gameArea');
         const successMsg = document.getElementById('successMsg');
         
-        // Zmienne do kontrolowania ruchu (pozycja i prędkość)
-        let x = 10;
-        let y = 10;
-        let speedX = 2.5; // Prędkość w osi X
-        let speedY = 2.5; // Prędkość w osi Y
-        let animationId;
+        let x = 10, y = 10, speedX = 2.5, speedY = 2.5, animationId;
 
         function animateButton() {
-            // Pobieranie aktualnych wymiarów kontenera i przycisku
-            const areaWidth = gameArea.clientWidth;
-            const areaHeight = gameArea.clientHeight;
-            const btnWidth = catchBtn.clientWidth;
-            const btnHeight = catchBtn.clientHeight;
+            const areaWidth = gameArea.clientWidth, areaHeight = gameArea.clientHeight;
+            const btnWidth = catchBtn.clientWidth, btnHeight = catchBtn.clientHeight;
+            const maxX = areaWidth - btnWidth, maxY = areaHeight - btnHeight;
 
-            // Obliczanie maksymalnych pozycji
-            const maxX = areaWidth - btnWidth;
-            const maxY = areaHeight - btnHeight;
+            x += speedX; y += speedY;
 
-            // Aktualizacja pozycji
-            x += speedX;
-            y += speedY;
+            if (x <= 0) { x = 0; speedX *= -1; } else if (x >= maxX) { x = maxX; speedX *= -1; }
+            if (y <= 0) { y = 0; speedY *= -1; } else if (y >= maxY) { y = maxY; speedY *= -1; }
 
-            // Odbijanie od krawędzi (zabezpieczenie przed ucieczką za ekran)
-            if (x <= 0) {
-                x = 0;
-                speedX *= -1; // Zmiana kierunku
-            } else if (x >= maxX) {
-                x = maxX;
-                speedX *= -1;
-            }
-
-            if (y <= 0) {
-                y = 0;
-                speedY *= -1;
-            } else if (y >= maxY) {
-                y = maxY;
-                speedY *= -1;
-            }
-
-            // Aplikowanie nowej pozycji do stylów przycisku
-            catchBtn.style.left = `${x}px`;
-            catchBtn.style.top = `${y}px`;
-
-            // Kontynuacja pętli animacji
+            catchBtn.style.left = `${x}px`; catchBtn.style.top = `${y}px`;
             animationId = requestAnimationFrame(animateButton);
         }
-
-        // Uruchomienie animacji po załadowaniu skryptu
         animateButton();
 
         function finishLevel() {
-            // Zatrzymanie animacji
             cancelAnimationFrame(animationId);
-            
-            // Ukrycie przycisku i pokazanie komunikatu sukcesu
-            catchBtn.style.display = 'none';
-            successMsg.style.display = 'block';
-            
-            // Przejście dalej lub zakończenie zadania
-            setTimeout(() => {
-                alert("Congratulations! You passed all security checks.");
-                // window.location.href = 'KolejnyPoziom.html'; 
-            }, 1500);
+            catchBtn.style.display = 'none'; successMsg.style.display = 'block';
+            setTimeout(() => { alert("Congratulations! You passed all security checks."); }, 1500);
         }
     </script>
 </body>
