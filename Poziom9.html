@@ -60,12 +60,11 @@
         let isDone = false;
 
         function initGame() {
-            // Losowanie pary emoji i pozycji "intruza"
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
             oddIndex = Math.floor(Math.random() * 4);
 
             tiles.forEach((tile, index) => {
-                tile.className = 'tile'; // reset klas
+                tile.className = 'tile'; 
                 tile.innerText = (index === oddIndex) ? pair[1] : pair[0];
             });
         }
@@ -74,21 +73,23 @@
             if (isDone) return;
             
             if (index === oddIndex) {
-                // Wygrana
                 tiles[index].classList.add('success');
                 isDone = true;
                 verifyBtn.disabled = false;
             } else {
-                // Błąd - animacja trzęsienia
                 tiles[index].classList.remove('shake');
-                void tiles[index].offsetWidth; // trigger reflow
+                void tiles[index].offsetWidth;
                 tiles[index].classList.add('shake');
             }
         }
 
         initGame();
 
-        function goToNextLevel() { window.location.href = 'Poziom10.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '10');
+            window.location.href = 'Poziom10.html'; 
+        }
     </script>
 </body>
 </html>
+
