@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 20 - Catch Bubbles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; padding: 20px 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        
+        .game-area { position: relative; height: 300px; background: #eaf6ff; overflow: hidden; }
+        
+        .bubble {
+            position: absolute; bottom: -50px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(0, 198, 255, 0.2));
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.5), 0 0 5px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.6);
+            cursor: pointer;
+            animation: floatUp 4s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; transform: translateY(-300px) scale(1.1); }
+            100% { transform: translateY(-350px) scale(1.2); opacity: 0; }
+        }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: #fff; border-top: 1px solid #eee; z-index: 10; }
+        .counter { color: #0072ff; font-size: 18px; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 10px 24px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; opacity: 0.5; }
+        .btn-verify:not(:disabled) { opacity: 1; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 20</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset</button>
+            </div>
+            <h2>Pop 10 soap bubbles</h2>
+        </div>
+        <div class="game-area" id="gameArea"></div>
+        <div class="footer">
+            <div class="counter" id="counterText">Popped: 0/10</div>
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        localStorage.setItem('aktualnyPoziom', '20');
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        
+        // Zmień to na poziom 21, lub ekran końcowy gry jeśli to finałowy poziom!
+        function goToNextLevel() { alert("You won the whole game!"); } 
+
+        const gameArea = document.getElementById('gameArea');
+        const counterText = document.getElementById('counterText');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let popped = 0;
+        let gameActive = true;
+
+        function spawnBubble() {
+            if(!gameActive) return;
+
+            const bubble = document.createElement('div');
+            const size = Math.random() * 30 + 30; // 30px to 60px
+            const left = Math.random() * 80 + 5; // 5% to 85%
+            const duration = Math.random() * 2 + 3; // 3s to 5s
+
+            bubble.className = 'bubble';
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = left + '%';
+            bubble.style.animationDuration = duration + 's';
+
+            bubble.onmousedown = bubble.ontouchstart = function(e) {
+                if(e) e.preventDefault(); // prevents double-tap zoom
+                if(!gameActive) return;
+                
+                this.remove();
+                popped++;
+                counterText.innerText = `Popped: ${popped}/10`;
+                
+                if(popped >= 10) {
+                    gameActive = false;
+                    verifyBtn.disabled = false;
+                    counterText.style.color = '#2ecc71';
+                    gameArea.innerHTML = ''; // Wyczyść planszę
+                }
+            };
+
+            gameArea.appendChild(bubble);
+
+            // Clean up off-screen bubbles
+            setTimeout(() => { if(bubble.parentNode) bubble.remove(); }, duration * 1000);
+
+            // Spawn next bubble
+            setTimeout(spawnBubble, Math.random() * 600 + 400); // Co 0.4s - 1.0s
+        }
+
+        spawnBubble();
+    </script>
+</body>
+</html>
