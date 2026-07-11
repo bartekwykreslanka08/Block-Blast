@@ -1,59 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Level 12 - Connect Pipes</title>
+    <title>Level 12 - Signal Tuning</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
         .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
 
-        .game-area { background: #fafafa; padding: 30px 20px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .game-area { background: #fafafa; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         
-        .arrow-in { position: absolute; left: 10px; top: 40px; font-size: 24px; color: #3498db; }
-        .arrow-out { position: absolute; right: 10px; bottom: 40px; font-size: 24px; color: #3498db; }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(2, 70px); gap: 2px; background: #ddd; border: 2px solid #ddd; border-radius: 8px; overflow: hidden; }
+        /* Ekran oscyloskopu */
+        .oscilloscope-container {
+            width: 100%;
+            height: 160px;
+            background: #111;
+            border-radius: 8px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #2c3e50;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
         
-        .cell { width: 70px; height: 70px; background: white; cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center; }
-        .cell:active { background: #f0f0f0; }
+        .success .oscilloscope-container {
+            border-color: #2ecc71;
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4), inset 0 0 15px rgba(0,0,0,0.8);
+        }
 
-        /* Poprawione style rur */
-        .pipe { position: absolute; width: 100%; height: 100%; color: #3498db; background: transparent; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pipe-straight .bar { width: 100%; height: 24px; background: currentColor; position: absolute; top: 23px; left: 0; }
-        .pipe-corner .bar1 { width: 47px; height: 24px; background: currentColor; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
-        .pipe-corner .bar2 { width: 24px; height: 47px; background: currentColor; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
-        .pipe-corner::after { content: ''; position: absolute; width: 24px; height: 24px; background: currentColor; border-radius: 50%; top: 23px; left: 23px; }
+        canvas { display: block; width: 100%; height: 100%; }
 
-        .success .pipe { color: #2ecc71; } 
+        /* Suwaki i kontrolki */
+        .controls { display: flex; flex-direction: column; gap: 15px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        .control-group label { font-size: 14px; color: #555; display: flex; justify-content: space-between; }
+        .control-group label span { color: #3498db; }
+
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; cursor: pointer; background: #ddd; border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px; width: 24px; border-radius: 50%; background: #3498db; cursor: pointer;
+            -webkit-appearance: none; margin-top: -8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
+        input[type=range]:disabled::-webkit-slider-thumb { background: #2ecc71; cursor: default; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 12</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
-            <h2>Connect the flow</h2>
+            <h2>Match the Signal</h2>
         </div>
         <div class="game-area">
-            <div class="arrow-in">▶</div>
-            <div class="grid" id="grid"></div>
-            <div class="arrow-out">▶</div>
+            <div class="oscilloscope-container" id="screen">
+                <canvas id="oscCanvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Frequency (Częstotliwość) <span id="freqVal">--</span></label>
+                    <input type="range" id="freqSlider" min="10" max="80" value="10" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Amplitude (Amplituda) <span id="ampVal">--</span></label>
+                    <input type="range" id="ampSlider" min="10" max="60" value="10" step="1">
+                </div>
+            </div>
         </div>
         <div class="footer">
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
@@ -65,80 +101,124 @@
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
-
-        const gridEl = document.getElementById('grid');
-        const verifyBtn = document.getElementById('verifyBtn');
-        let isDone = false;
-
-        const levelData = [
-            { id: 0, type: 0, startRot: 90, targetRot: [0, 180] }, 
-            { id: 1, type: 1, startRot: 180, targetRot: [90] },    
-            { id: 2, type: 1, startRot: 0, targetRot: [] },      
-            { id: 3, type: 1, startRot: 90, targetRot: [] },     
-            { id: 4, type: 1, startRot: 0, targetRot: [270] },     
-            { id: 5, type: 0, startRot: 90, targetRot: [0, 180] }  
-        ];
-
-        let pipes = [];
-
-        levelData.forEach((data, index) => {
-            let cell = document.createElement('div');
-            cell.className = 'cell';
-            
-            let pipeWrapper = document.createElement('div');
-            pipeWrapper.className = data.type === 0 ? 'pipe pipe-straight' : 'pipe pipe-corner';
-            
-            if (data.type === 0) {
-                pipeWrapper.innerHTML = '<div class="bar"></div>';
-            } else {
-                pipeWrapper.innerHTML = '<div class="bar1"></div><div class="bar2"></div>';
-            }
-
-            data.currentRot = data.startRot;
-            pipeWrapper.style.transform = `rotate(${data.currentRot}deg)`;
-
-            cell.appendChild(pipeWrapper);
-            gridEl.appendChild(cell);
-
-            cell.addEventListener('mousedown', () => rotatePipe(index, pipeWrapper));
-            cell.addEventListener('touchstart', (e) => { e.preventDefault(); rotatePipe(index, pipeWrapper); }, {passive: false});
-
-            pipes.push({ data: data, element: pipeWrapper });
-        });
-
-        function rotatePipe(index, element) {
-            if (isDone) return;
-            let pipe = pipes[index].data;
-            pipe.currentRot += 90;
-            element.style.transform = `rotate(${pipe.currentRot}deg)`;
-            
-            setTimeout(checkWin, 200); 
-        }
-
-        function checkWin() {
-            let won = true;
-            for (let i = 0; i < pipes.length; i++) {
-                let p = pipes[i].data;
-                if (p.targetRot.length > 0) {
-                    let normalized = p.currentRot % 360;
-                    if (!p.targetRot.includes(normalized)) {
-                        won = false;
-                        break;
-                    }
-                }
-            }
-
-            if (won) {
-                isDone = true;
-                gridEl.classList.add('success');
-                verifyBtn.disabled = false;
-            }
-        }
-
         function goToNextLevel() { 
             localStorage.setItem('aktualnyPoziom', '13');
             window.location.href = 'Poziom13.html'; 
         }
+
+        const canvas = document.getElementById('oscCanvas');
+        const ctx = canvas.getContext('2d');
+        const freqSlider = document.getElementById('freqSlider');
+        const ampSlider = document.getElementById('ampSlider');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const app = document.getElementById('app');
+        
+        let isDone = false;
+        let phase = 0; // Odpowiada za płynne przesuwanie fal
+
+        // Wylosowane parametry sygnału docelowego
+        const targetFreq = 45; 
+        const targetAmp = 40;  
+
+        // Kalibracja Canvasa pod ekrany o wysokiej rozdzielczości (Retina/Smartfony) - żeby linie były ostre
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawWave(ctx, freq, amp, color, phaseOffset, lineWidth, width, height) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineJoin = 'round';
+            
+            const cy = height / 2;
+            
+            for (let x = 0; x <= width; x++) {
+                // Skomplikowanie brzmiący, ale prosty wzór na falę (Sinusoida)
+                const y = cy + Math.sin((x / width) * (freq / 10) * Math.PI * 2 + phaseOffset) * amp;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        function drawGrid(width, height) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            // Pionowe linie
+            for (let x = 0; x < width; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
+            // Poziome linie
+            for (let y = 0; y < height; y += 20) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
+            ctx.stroke();
+            
+            // Główna oś środkowa
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+        }
+
+        function animate() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+
+            // Czyszczenie ekranu
+            ctx.clearRect(0, 0, w, h);
+            
+            drawGrid(w, h);
+
+            let currentFreq = parseFloat(freqSlider.value);
+            let currentAmp = parseFloat(ampSlider.value);
+
+            // Mechanizm "Magnetyczny" - jeśli gracz jest bardzo blisko, gra dociąga wartości do ideału
+            if (!isDone) {
+                const freqDiff = Math.abs(currentFreq - targetFreq);
+                const ampDiff = Math.abs(currentAmp - targetAmp);
+                
+                if (freqDiff <= 2 && ampDiff <= 2) {
+                    currentFreq = targetFreq;
+                    currentAmp = targetAmp;
+                    freqSlider.value = targetFreq;
+                    ampSlider.value = targetAmp;
+                    
+                    isDone = true;
+                    freqSlider.disabled = true;
+                    ampSlider.disabled = true;
+                    verifyBtn.disabled = false;
+                    app.classList.add('success');
+                }
+            }
+
+            // Aktualizacja etykiet tekstowych
+            document.getElementById('freqVal').innerText = currentFreq + " Hz";
+            document.getElementById('ampVal').innerText = currentAmp + " dB";
+
+            // Rysowanie fali docelowej (słaba, w tle)
+            drawWave(ctx, targetFreq, targetAmp, 'rgba(255, 255, 255, 0.3)', phase, 2, w, h);
+
+            // Rysowanie fali gracza
+            const playerColor = isDone ? '#2ecc71' : '#3498db';
+            drawWave(ctx, currentFreq, currentAmp, playerColor, phase, 3, w, h);
+
+            // Przesunięcie animacji
+            phase += 0.08;
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animacji
+        animate();
     </script>
 </body>
 </html>
