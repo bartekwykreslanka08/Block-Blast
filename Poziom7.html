@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Level 7 - Balance</title>
+    <title>Level 7 - Crack the Safe</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
@@ -14,124 +14,173 @@
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
         .header h2 { font-size: 28px; }
 
-        .game-area { position: relative; height: 260px; background: #fafafa; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .game-area { position: relative; background: #fafafa; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px 20px 40px 20px; }
         
-        .see-saw-container { position: relative; width: 100%; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin-bottom: 30px; }
-        
-        /* Deska i punkt podparcia */
-        .board { width: 80%; height: 12px; background: #8d6e63; border-radius: 6px; transform-origin: center; transition: transform 0.1s ease-out; position: relative; }
-        .triangle { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 35px solid #4A90E2; margin-top: -2px; z-index: 2; }
-        
-        /* Ciężarek na desce */
-        .weight { width: 30px; height: 30px; background: #e74c3c; border-radius: 6px; position: absolute; bottom: 12px; left: 10%; transform: translateX(-50%); transition: left 0.1s ease-out; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 2px solid #c0392b; }
+        .hint { font-size: 20px; margin-bottom: 25px; color: #555; }
+        .hint span { font-size: 24px; color: #4A90E2; padding: 4px 10px; background: rgba(74, 144, 226, 0.1); border-radius: 8px; }
 
-        /* Suwak */
-        .slider-container { width: 80%; margin-bottom: 15px; }
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #ddd; border-radius: 5px; }
-        input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #4A90E2; cursor: pointer; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* Styl Pokrętła */
+        .dial-container { position: relative; width: 160px; height: 160px; display: flex; justify-content: center; align-items: center; }
         
-        /* Pasek postępu */
-        .progress-container { width: 80%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: #0f9d58; transition: width 0.1s linear, background-color 0.3s; }
+        .dial { 
+            width: 100%; height: 100%; border-radius: 50%; background: #2c3e50; 
+            border: 8px solid #34495e; box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 0 15px rgba(0,0,0,0.5);
+            position: relative; cursor: grab; transition: border-color 0.3s;
+        }
+        .dial:active { cursor: grabbing; }
+        
+        /* Czerwony znacznik na pokrętle */
+        .dial-marker { 
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
+            width: 6px; height: 20px; background: #e74c3c; border-radius: 3px; 
+        }
 
-        .footer { padding: 16px 20px; display: flex; justify-content: center; align-items: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); transition: opacity 0.3s; }
+        /* Cyfra w środku pokrętła */
+        .dial-value { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); /* Dodatkowy obrót dodawany z JS by tekst stał prosto */
+            color: white; font-size: 42px; pointer-events: none; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s, transform 0.1s; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
         .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
+        .btn-verify:not(:disabled):active { transform: scale(0.95); }
     </style>
 </head>
 <body>
     <div class="captcha-box">
         <div class="header">
             <span class="level-badge">Level 7</span>
-            <h2>Find the balance</h2>
+            <h2>Crack the safe</h2>
         </div>
         <div class="game-area">
-            <div class="see-saw-container">
-                <div class="board" id="board">
-                    <div class="weight" id="weight"></div>
-                </div>
-                <div class="triangle"></div>
-            </div>
+            <div class="hint">Set dial to: <span id="targetValue">42</span></div>
             
-            <div class="slider-container">
-                <input type="range" id="balanceSlider" min="0" max="100" value="10">
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <div class="dial-container">
+                <div class="dial" id="dial">
+                    <div class="dial-marker"></div>
+                    <div class="dial-value" id="currentValue">0</div>
+                </div>
             </div>
         </div>
         <div class="footer">
-            <button class="btn-verify" id="verifyBtn" onclick="finishGame()" disabled>Verify</button>
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
         </div>
     </div>
 
     <script>
-        const board = document.getElementById('board');
-        const weight = document.getElementById('weight');
-        const slider = document.getElementById('balanceSlider');
-        const progressBar = document.getElementById('progressBar');
+        const dial = document.getElementById('dial');
+        const currentValueEl = document.getElementById('currentValue');
+        const targetValueEl = document.getElementById('targetValue');
         const verifyBtn = document.getElementById('verifyBtn');
-        
-        let progress = 0;
-        let gameActive = true;
 
-        // Inicjalne ustawienie
-        updatePhysics();
+        // Losujemy docelowy numer (od 10 do 95)
+        const targetNum = Math.floor(Math.random() * 86) + 10;
+        targetValueEl.innerText = targetNum;
 
-        slider.addEventListener('input', updatePhysics);
+        let isDragging = false;
+        let currentNum = 0;
+        let dialCenter = { x: 0, y: 0 };
+        let successTimer = null;
+        let isUnlocked = false;
 
-        function updatePhysics() {
-            if (!gameActive) return;
-            
-            let val = parseInt(slider.value);
-            
-            // Przesuń ciężarek (val od 0 do 100%)
-            weight.style.left = `${val}%`;
-            
-            // Oblicz kąt deski (50 to środek, więc 0 stopni)
-            // Jeśli val = 0, kąt = -25 stopni. Jeśli val = 100, kąt = 25 stopni.
-            let angle = (val - 50) * 0.5;
-            board.style.transform = `rotate(${angle}deg)`;
+        // Pobiera środek pokrętła na ekranie
+        function updateCenter() {
+            const rect = dial.getBoundingClientRect();
+            dialCenter.x = rect.left + rect.width / 2;
+            dialCenter.y = rect.top + rect.height / 2;
         }
 
-        // Pętla sprawdzająca, czy ciężarek jest na środku
-        setInterval(() => {
-            if (!gameActive) return;
+        function startDrag(e) {
+            if (isUnlocked) return;
+            isDragging = true;
+            updateCenter();
+            rotateDial(e);
+        }
 
-            let val = parseInt(slider.value);
-            
-            // Jeśli ciężarek jest blisko środka (między 43 a 57)
-            if (val > 43 && val < 57) {
-                progress += 5; // pasek rośnie
-                weight.style.background = "#2ecc71"; // zmienia kolor na zielony
-                weight.style.borderColor = "#27ae60";
+        function drag(e) {
+            if (!isDragging || isUnlocked) return;
+            e.preventDefault(); // Blokuje scrollowanie ekranu na telefonie
+            rotateDial(e);
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        function rotateDial(e) {
+            // Współrzędne myszy lub dotyku
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            // Obliczanie kąta z użyciem arcus tangens
+            let dy = clientY - dialCenter.y;
+            let dx = clientX - dialCenter.x;
+            let rad = Math.atan2(dy, dx);
+            let deg = rad * (180 / Math.PI);
+
+            // Przesunięcie zera na szczyt tarczy (zgodnie ze wskazówkami zegara)
+            deg = deg + 90;
+            if (deg < 0) deg += 360;
+
+            // Ustawienie obrotu grafiki pokrętła
+            dial.style.transform = `rotate(${deg}deg)`;
+
+            // Odwrotny obrót tekstu, żeby zawsze stał w pionie!
+            currentValueEl.style.transform = `translate(-50%, -50%) rotate(${-deg}deg)`;
+
+            // Przeliczenie kąta (0-360) na wartość (0-99)
+            currentNum = Math.round(deg / 3.6);
+            if (currentNum === 100) currentNum = 0;
+
+            currentValueEl.innerText = currentNum;
+
+            checkWin();
+        }
+
+        function checkWin() {
+            if (currentNum === targetNum) {
+                // Gdy najedziemy na poprawny numer
+                if (!successTimer) {
+                    dial.style.borderColor = '#f1c40f'; // Kolor ostrzegawczy (żółty)
+                    
+                    // Musi utrzymać pozycję przez 0.5 sekundy
+                    successTimer = setTimeout(() => {
+                        unlock();
+                    }, 500); 
+                }
             } else {
-                progress -= 5; // pasek spada
-                weight.style.background = "#e74c3c";
-                weight.style.borderColor = "#c0392b";
+                // Jeśli zjedzie z numeru
+                dial.style.borderColor = '#34495e';
+                if (successTimer) {
+                    clearTimeout(successTimer);
+                    successTimer = null;
+                }
             }
-
-            // Limity postępu
-            if (progress < 0) progress = 0;
-            if (progress > 100) progress = 100;
-
-            progressBar.style.width = `${progress}%`;
-
-            // Wygrana
-            if (progress === 100) {
-                gameActive = false;
-                slider.disabled = true;
-                verifyBtn.disabled = false;
-                progressBar.style.background = "#4A90E2";
-            }
-        }, 100);
-
-        function finishGame() {
-            alert("SUCCESS! You passed all 7 levels. You are definitely a human! 🤖🚫");
         }
+
+        function unlock() {
+            isUnlocked = true;
+            dial.style.background = '#2ecc71';
+            dial.style.borderColor = '#27ae60';
+            currentValueEl.innerHTML = "🔓"; // Emoji otwartej kłódki
+            verifyBtn.disabled = false;
+        }
+
+        // Podłączenie zdarzeń dla myszki
+        dial.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', drag, { passive: false });
+        window.addEventListener('mouseup', endDrag);
+
+        // Podłączenie zdarzeń dla dotyku (smartfony)
+        dial.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', drag, { passive: false });
+        window.addEventListener('touchend', endDrag);
+
+        // Przejście do następnego poziomu (skrypt dla przycisku)
+        function goToNextLevel() { window.location.href = 'Poziom8.html'; }
     </script>
 </body>
 </html>
