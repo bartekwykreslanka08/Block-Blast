@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,48 +8,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
-        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.4s ease; position: relative; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
-
-        .game-area { padding: 30px; background: #fafafa; display: flex; justify-content: center; align-items: center; }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 250px; }
-        .tile { background: white; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 50px; display: flex; justify-content: center; align-items: center; padding: 20px 0; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .tile:active { transform: scale(0.95); }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .btn-reset:active { transform: scale(0.95); }
         
-        .shake { animation: shake 0.4s; border-color: #e74c3c !important; }
-        .success { background: #d4edda; border-color: #2ecc71; }
-        
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); box-shadow: none; transform: none; }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn-verify:not(:disabled):active { transform: translateY(0); }
+
+        
+        .game-area { padding: 40px 30px; background: #fafafa; display: flex; justify-content: center; align-items: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 250px; }
+        .tile { background: white; border: 2px solid #bdc3c7; border-radius: 12px; font-size: 50px; display: flex; justify-content: center; align-items: center; padding: 20px 0; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .tile:active { transform: scale(0.9); }
+        
+        .shake { animation: shake 0.4s; border-color: #e74c3c !important; }
+        
+        .success .tile { pointer-events: none; opacity: 0.5; filter: grayscale(100%); }
+        .success .tile.correct { opacity: 1; filter: none; transform: scale(1.1); border-color: #2ecc71; background: #eafaf1; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); z-index: 2; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-6px); } }
+
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 9</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
             <h2>Find the odd one</h2>
+            
         </div>
-        <div class="game-area">
+        <div class="game-area" >
+            
             <div class="grid" id="grid">
                 <div class="tile" onclick="checkTile(0)"></div>
                 <div class="tile" onclick="checkTile(1)"></div>
                 <div class="tile" onclick="checkTile(2)"></div>
                 <div class="tile" onclick="checkTile(3)"></div>
             </div>
+
         </div>
         <div class="footer">
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
@@ -60,15 +76,22 @@
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '10');
+            window.location.href = 'Poziom10.html'; 
+        }
 
+        const app = document.getElementById('app');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let isDone = false;
+
+        
         const pairs = [
             ['🍏', '🍐'], ['🐱', '🐶'], ['🚗', '🚓'], 
             ['⚽', '🏀'], ['🍩', '🍪'], ['🌞', '🌝']
         ];
         const tiles = document.querySelectorAll('.tile');
-        const verifyBtn = document.getElementById('verifyBtn');
         let oddIndex = -1;
-        let isDone = false;
 
         function initGame() {
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
@@ -84,7 +107,8 @@
             if (isDone) return;
             
             if (index === oddIndex) {
-                tiles[index].classList.add('success');
+                tiles[index].classList.add('correct');
+                app.classList.add('success');
                 isDone = true;
                 verifyBtn.disabled = false;
             } else {
@@ -96,11 +120,6 @@
 
         initGame();
 
-        function goToNextLevel() { 
-            localStorage.setItem('aktualnyPoziom', '10');
-            window.location.href = 'Poziom10.html'; 
-        }
     </script>
 </body>
 </html>
-
