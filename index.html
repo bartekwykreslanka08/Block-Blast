@@ -3,58 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Udowodnij, że jesteś człowiekiem</title>
+    <title>Weryfikacja</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background-color: #f0f2f5; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            color: #333;
+            background-color: #f2f2f2; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; color: #333;
         }
-        .container {
-            background: white;
-            padding: 50px 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            text-align: center;
-            max-width: 450px;
+        
+        /* Styl prawdziwego widżetu reCAPTCHA */
+        .recaptcha-widget {
+            background: #f9f9f9;
+            border: 1px solid #d3d3d3;
+            border-radius: 3px;
+            box-shadow: 0 0 4px 1px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 12px 0 12px;
+            width: 304px;
+            height: 78px;
+            cursor: pointer;
+            transition: background 0.3s;
         }
-        .logo { font-size: 3rem; margin-bottom: 10px; }
-        h1 { font-size: 1.8rem; margin-bottom: 15px; font-weight: 600; }
-        p { color: #666; margin-bottom: 30px; font-size: 0.95rem; line-height: 1.5; }
-        .btn-start {
-            display: inline-block;
-            background-color: #4285F4;
-            color: white;
-            text-decoration: none;
-            padding: 14px 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        .recaptcha-widget:hover { background: #ffffff; }
+        
+        .checkbox-container {
+            width: 28px; height: 28px;
+            background: #fff;
+            border: 2px solid #c1c1c1;
+            border-radius: 2px;
+            margin-right: 15px;
+            display: flex; justify-content: center; align-items: center;
+            transition: 0.2s;
         }
-        .btn-start:hover {
-            background-color: #3367D6;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.6);
+        .recaptcha-widget:hover .checkbox-container { border-color: #b2b2b2; }
+        
+        .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #222;
+            flex-grow: 1;
         }
+        
+        .logo-container {
+            display: flex; flex-direction: column; align-items: center;
+            margin-top: 4px;
+        }
+        .logo-container img { width: 32px; opacity: 0.8; margin-bottom: 2px; }
+        .logo-container span { font-size: 10px; color: #555; line-height: 1.2; text-align: center; }
+        .logo-container a { color: #555; text-decoration: none; }
+        .logo-container a:hover { text-decoration: underline; }
+
+        /* Animacja ładowania (spinner) */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border-left-color: #4A90E2;
+            animation: spin 1s linear infinite;
+            display: none; /* Domyślnie ukryte */
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="logo">🤖</div>
-        <h1>Test Człowieczeństwa</h1>
-        <p>Witaj, rzekomy człowieku. Aby kontynuować, musisz ukończyć serię naszych całkowicie logicznych i nieabsurdalnych testów.</p>
-        <a href="Poziom1.html" class="btn-start">Start</a>
+    <div class="recaptcha-widget" id="startWidget">
+        <div class="checkbox-container" id="checkboxBox">
+            <div class="spinner" id="spinner"></div>
+        </div>
+        <div class="label">Nie jestem robotem</div>
+        <div class="logo-container">
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA">
+            <span>reCAPTCHA<br><a href="#">Prywatność</a> - <a href="#">Warunki</a></span>
+        </div>
     </div>
 
+    <script>
+        document.getElementById('startWidget').addEventListener('click', function() {
+            const spinner = document.getElementById('spinner');
+            const checkboxBox = document.getElementById('checkboxBox');
+            
+            // Pokazuje spinner, ukrywa obramowanie kwadracika
+            spinner.style.display = 'block';
+            checkboxBox.style.border = 'none';
+            checkboxBox.style.background = 'transparent';
+            
+            // Po 1.2 sekundy przenosi do Poziom1.html
+            setTimeout(() => {
+                window.location.href = 'Poziom1.html';
+            }, 1200);
+        });
+    </script>
 </body>
 </html>
