@@ -4,57 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poziom 2 - Kółko i Krzyżyk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-        
-        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .captcha-box { background: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 400px; border: 1px solid #ccc; overflow: hidden;}
-        
-        .header { background-color: #4A90E2; color: white; padding: 20px; }
-        .header p { margin: 0; font-size: 0.9rem; }
-        .header h2 { margin: 5px 0 0; font-size: 1.6rem; font-weight: 600; }
-        
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 110px); background: #eee; gap: 2px; padding: 2px; }
-        .cell { background: white; display: flex; justify-content: center; align-items: center; font-size: 5rem; cursor: pointer; user-select: none; }
-        .cell:hover { background: #f9f9f9; }
-        
-        .x { color: #333; line-height: 1; }
-        .o { color: #E02424; line-height: 1; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+        body { 
+            background-color: #f2f2f2; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; color: #333;
+        }
 
-        .footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; background: #fafafa;}
+        .captcha-box {
+            background: #ffffff;
+            width: 400px;
+            border: 1px solid #cecece;
+            border-radius: 3px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .header {
+            background-color: #4A90E2;
+            color: white;
+            padding: 24px;
+        }
+        .header p { font-size: 14px; margin-bottom: 4px; font-weight: 400; }
+        .header h2 { font-size: 28px; font-weight: 600; letter-spacing: 0.5px; }
+
+        .game-wrapper { padding: 8px; }
         
-        .btn-verify { background-color: #4A90E2; color: white; border: none; padding: 10px 30px; font-size: 1rem; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: 600; text-transform: uppercase; transition: 0.3s;}
-        .btn-verify:disabled { background-color: #aaa; cursor: not-allowed; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 124px); /* Wymiar dający równe kwadraty */
+            gap: 4px;
+            background-color: #dfdfdf; /* Kolor linii miedzy kratkami */
+        }
+        
+        .cell {
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 70px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.1s;
+        }
+        .cell:hover { background: #f8f8f8; }
+        
+        .x { color: #555; line-height: 1; }
+        .o { color: #4A90E2; line-height: 1; }
+
+        .status-msg {
+            text-align: center; font-size: 14px; font-weight: 500; 
+            padding: 8px 16px 0 16px; color: #d93025; display: none;
+        }
+
+        .footer {
+            padding: 12px 16px;
+            border-top: 1px solid #dfdfdf;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 8px;
+        }
+
+        .footer-icons button {
+            background: none; border: none; cursor: pointer;
+            font-size: 22px; color: #737373; margin-right: 12px;
+            transition: 0.2s;
+        }
+        .footer-icons button:hover { color: #333; }
+
+        .btn-verify {
+            background-color: #4A90E2; color: white; border: none;
+            padding: 12px 32px; font-size: 14px; font-weight: 600;
+            border-radius: 3px; text-transform: uppercase; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-verify:disabled { background-color: #b3cdef; cursor: not-allowed; }
         .btn-verify:not(:disabled):hover { background-color: #357ABD; }
-        
-        .btn-refresh { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: 0.3s; }
-        .btn-refresh:hover { color: #333; transform: rotate(180deg); }
-        
-        .message { text-align: center; font-weight: 600; padding: 10px; color: #d93025; display: none;}
     </style>
 </head>
 <body>
 
     <div class="captcha-box">
         <div class="header">
-            <p>Wygraj w</p>
+            <p>Pokonaj robota w grze</p>
             <h2>Kółko i Krzyżyk</h2>
         </div>
-        <div class="message" id="msg">Bot wygrał! Spróbuj jeszcze raz.</div>
-        <div class="grid" id="board">
-            <div class="cell" onclick="makeMove(0)"></div>
-            <div class="cell" onclick="makeMove(1)"></div>
-            <div class="cell" onclick="makeMove(2)"></div>
-            <div class="cell" onclick="makeMove(3)"></div>
-            <div class="cell" onclick="makeMove(4)"></div>
-            <div class="cell" onclick="makeMove(5)"></div>
-            <div class="cell" onclick="makeMove(6)"></div>
-            <div class="cell" onclick="makeMove(7)"></div>
-            <div class="cell" onclick="makeMove(8)"></div>
+        
+        <div class="status-msg" id="msg">Remis! Zresetuj planszę.</div>
+
+        <div class="game-wrapper">
+            <div class="grid" id="board">
+                <div class="cell" onclick="makeMove(0)"></div>
+                <div class="cell" onclick="makeMove(1)"></div>
+                <div class="cell" onclick="makeMove(2)"></div>
+                <div class="cell" onclick="makeMove(3)"></div>
+                <div class="cell" onclick="makeMove(4)"></div>
+                <div class="cell" onclick="makeMove(5)"></div>
+                <div class="cell" onclick="makeMove(6)"></div>
+                <div class="cell" onclick="makeMove(7)"></div>
+                <div class="cell" onclick="makeMove(8)"></div>
+            </div>
         </div>
+
         <div class="footer">
-            <button class="btn-refresh" onclick="resetGame()">↻</button>
-            <!-- Przycisk zablokowany dopóki gracz nie wygra -->
+            <div class="footer-icons">
+                <button onclick="resetGame()" title="Zresetuj planszę">↻</button>
+            </div>
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
         </div>
     </div>
@@ -66,34 +125,29 @@
         const verifyBtn = document.getElementById('verifyBtn');
 
         const winConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rzędy
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Kolumny
-            [0, 4, 8], [2, 4, 6]             // Skosy
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+            [0, 4, 8], [2, 4, 6]             
         ];
 
         function makeMove(index) {
-            // Jeśli pole jest puste i gra nadal trwa, gracz (X) stawia znak
             if (board[index] === "" && gameActive) {
                 board[index] = "X";
                 updateBoard();
                 
                 if (checkWin("X")) {
-                    gameActive = false;
-                    msgDiv.style.display = "block";
-                    msgDiv.style.color = "#0f9d58";
-                    msgDiv.innerText = "Zwycięstwo! Możesz przejść dalej.";
-                    verifyBtn.disabled = false; // Aktywacja przycisku Verify
+                    endGame("Zwycięstwo! Możesz przejść dalej.", "#0f9d58");
+                    verifyBtn.disabled = false;
                     return;
                 }
                 
                 if (!board.includes("")) {
-                    endGame("Remis! Spróbuj ponownie.");
+                    endGame("Remis! Spróbuj ponownie.", "#d93025");
                     return;
                 }
 
-                // Tura bota (opóźnienie dla lepszego wrażenia)
                 gameActive = false; 
-                setTimeout(botMove, 400);
+                setTimeout(botMove, 400); // Małe opóźnienie, żeby wyglądało że bot myśli
             }
         }
 
@@ -104,22 +158,21 @@
             }
 
             if (emptyCells.length > 0) {
-                // Bot wykonuje prosty losowy ruch
                 let randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
                 board[randomIndex] = "O";
                 updateBoard();
 
                 if (checkWin("O")) {
-                    endGame("Bot wygrał! Zresetuj planszę.");
+                    endGame("Bot wygrał! Zresetuj planszę (↻).", "#d93025");
                     return;
                 }
                 
                 if (!board.includes("")) {
-                    endGame("Remis! Spróbuj ponownie.");
+                    endGame("Remis! Zresetuj planszę (↻).", "#d93025");
                     return;
                 }
                 
-                gameActive = true; // Oddanie tury graczowi
+                gameActive = true; 
             }
         }
 
@@ -136,10 +189,10 @@
             }
         }
 
-        function endGame(text) {
+        function endGame(text, color) {
             gameActive = false;
             msgDiv.style.display = "block";
-            msgDiv.style.color = "#d93025";
+            msgDiv.style.color = color;
             msgDiv.innerText = text;
         }
 
