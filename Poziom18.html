@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 18 - Catch Flies</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #111, #333); color: white; padding: 20px 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        
+        .dark-room { position: relative; width: 100%; height: 260px; background: #f1c40f; overflow: hidden; cursor: crosshair; }
+        
+        /* The flashlight effect */
+        .darkness-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), transparent 30px, rgba(0,0,0,0.98) 70px);
+            z-index: 10;
+        }
+
+        .fly { position: absolute; font-size: 20px; transition: transform 0.1s; cursor: pointer; z-index: 5; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: #fff; border-top: 1px solid #eee; }
+        .counter { color: #555; font-size: 18px; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 10px 24px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; opacity: 0.5; }
+        .btn-verify:not(:disabled) { opacity: 1; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 18</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset</button>
+            </div>
+            <h2>Catch all the flies</h2>
+        </div>
+        <div class="dark-room" id="room">
+            <div class="darkness-overlay" id="overlay"></div>
+        </div>
+        <div class="footer">
+            <div class="counter" id="counter">Caught: 0/5</div>
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        localStorage.setItem('aktualnyPoziom', '18');
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        function goToNextLevel() { window.location.href = 'Poziom19.html'; }
+
+        const room = document.getElementById('room');
+        const overlay = document.getElementById('overlay');
+        const counterText = document.getElementById('counter');
+        const verifyBtn = document.getElementById('verifyBtn');
+        
+        let caught = 0;
+        let flies = [];
+        const totalFlies = 5;
+
+        // Flashlight effect
+        function updateLight(e) {
+            let rect = room.getBoundingClientRect();
+            let x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            let y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+            overlay.style.setProperty('--x', x + 'px');
+            overlay.style.setProperty('--y', y + 'px');
+        }
+        room.addEventListener('mousemove', updateLight);
+        room.addEventListener('touchmove', updateLight);
+
+        // Spawn flies
+        for(let i=0; i<totalFlies; i++) {
+            let fly = document.createElement('div');
+            fly.className = 'fly';
+            fly.innerText = '🪰';
+            // Random start position
+            let fx = Math.random() * 80 + 10;
+            let fy = Math.random() * 80 + 10;
+            fly.style.left = fx + '%'; fly.style.top = fy + '%';
+            
+            // Random movement speeds
+            let vx = (Math.random() - 0.5) * 1.5;
+            let vy = (Math.random() - 0.5) * 1.5;
+            flies.push({el: fly, x: fx, y: fy, vx: vx, vy: vy});
+            
+            fly.onmousedown = fly.ontouchstart = function() {
+                this.remove();
+                caught++;
+                counterText.innerText = `Caught: ${caught}/${totalFlies}`;
+                if(caught === totalFlies) {
+                    verifyBtn.disabled = false;
+                    overlay.style.background = 'transparent'; // Turn on lights!
+                }
+            };
+            room.appendChild(fly);
+        }
+
+        // Animate flies
+        function animate() {
+            flies.forEach(f => {
+                if(f.el.parentNode) {
+                    f.x += f.vx; f.y += f.vy;
+                    // Bounce off walls
+                    if(f.x < 0 || f.x > 90) f.vx *= -1;
+                    if(f.y < 0 || f.y > 90) f.vy *= -1;
+                    
+                    // Rotate based on direction
+                    let angle = Math.atan2(f.vy, f.vx) * 180 / Math.PI + 90;
+                    f.el.style.left = f.x + '%';
+                    f.el.style.top = f.y + '%';
+                    f.el.style.transform = `rotate(${angle}deg)`;
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
