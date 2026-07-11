@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poziom 2 - Kółko i Krzyżyk</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .captcha-box { background: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 400px; border: 1px solid #ccc; overflow: hidden;}
+        
+        .header { background-color: #4A90E2; color: white; padding: 20px; }
+        .header p { margin: 0; font-size: 0.9rem; }
+        .header h2 { margin: 5px 0 0; font-size: 1.6rem; font-weight: 600; }
+        
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 110px); background: #eee; gap: 2px; padding: 2px; }
+        .cell { background: white; display: flex; justify-content: center; align-items: center; font-size: 5rem; cursor: pointer; user-select: none; }
+        .cell:hover { background: #f9f9f9; }
+        
+        .x { color: #333; line-height: 1; }
+        .o { color: #E02424; line-height: 1; }
+
+        .footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; background: #fafafa;}
+        
+        .btn-verify { background-color: #4A90E2; color: white; border: none; padding: 10px 30px; font-size: 1rem; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: 600; text-transform: uppercase; transition: 0.3s;}
+        .btn-verify:disabled { background-color: #aaa; cursor: not-allowed; }
+        .btn-verify:not(:disabled):hover { background-color: #357ABD; }
+        
+        .btn-refresh { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: 0.3s; }
+        .btn-refresh:hover { color: #333; transform: rotate(180deg); }
+        
+        .message { text-align: center; font-weight: 600; padding: 10px; color: #d93025; display: none;}
+    </style>
+</head>
+<body>
+
+    <div class="captcha-box">
+        <div class="header">
+            <p>Wygraj w</p>
+            <h2>Kółko i Krzyżyk</h2>
+        </div>
+        <div class="message" id="msg">Bot wygrał! Spróbuj jeszcze raz.</div>
+        <div class="grid" id="board">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <div class="footer">
+            <button class="btn-refresh" onclick="resetGame()">↻</button>
+            <!-- Przycisk zablokowany dopóki gracz nie wygra -->
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+        const msgDiv = document.getElementById('msg');
+        const verifyBtn = document.getElementById('verifyBtn');
+
+        const winConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rzędy
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Kolumny
+            [0, 4, 8], [2, 4, 6]             // Skosy
+        ];
+
+        function makeMove(index) {
+            // Jeśli pole jest puste i gra nadal trwa, gracz (X) stawia znak
+            if (board[index] === "" && gameActive) {
+                board[index] = "X";
+                updateBoard();
+                
+                if (checkWin("X")) {
+                    gameActive = false;
+                    msgDiv.style.display = "block";
+                    msgDiv.style.color = "#0f9d58";
+                    msgDiv.innerText = "Zwycięstwo! Możesz przejść dalej.";
+                    verifyBtn.disabled = false; // Aktywacja przycisku Verify
+                    return;
+                }
+                
+                if (!board.includes("")) {
+                    endGame("Remis! Spróbuj ponownie.");
+                    return;
+                }
+
+                // Tura bota (opóźnienie dla lepszego wrażenia)
+                gameActive = false; 
+                setTimeout(botMove, 400);
+            }
+        }
+
+        function botMove() {
+            let emptyCells = [];
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === "") emptyCells.push(i);
+            }
+
+            if (emptyCells.length > 0) {
+                // Bot wykonuje prosty losowy ruch
+                let randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[randomIndex] = "O";
+                updateBoard();
+
+                if (checkWin("O")) {
+                    endGame("Bot wygrał! Zresetuj planszę.");
+                    return;
+                }
+                
+                if (!board.includes("")) {
+                    endGame("Remis! Spróbuj ponownie.");
+                    return;
+                }
+                
+                gameActive = true; // Oddanie tury graczowi
+            }
+        }
+
+        function checkWin(player) {
+            return winConditions.some(condition => {
+                return condition.every(index => board[index] === player);
+            });
+        }
+
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            for (let i = 0; i < board.length; i++) {
+                cells[i].innerHTML = board[i] === "X" ? '<span class="x">✕</span>' : (board[i] === "O" ? '<span class="o">◯</span>' : '');
+            }
+        }
+
+        function endGame(text) {
+            gameActive = false;
+            msgDiv.style.display = "block";
+            msgDiv.style.color = "#d93025";
+            msgDiv.innerText = text;
+        }
+
+        function resetGame() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            msgDiv.style.display = "none";
+            verifyBtn.disabled = true;
+            updateBoard();
+        }
+
+        function goToNextLevel() {
+            window.location.href = 'Poziom3.html';
+        }
+    </script>
+</body>
+</html>
