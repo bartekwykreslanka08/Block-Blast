@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level 4 - DVD Button</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 4 - Catch Button</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
-        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; height: 100vh; color: #333; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
         
-        .captcha-box { background: #ffffff; width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 24px 24px; }
-        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
-        .header h2 { font-size: 32px; letter-spacing: 1px; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
+        .header h2 { font-size: 28px; letter-spacing: 1px; }
 
-        .game-area { position: relative; height: 250px; background: #fafafa; overflow: hidden; border-bottom: 1px solid #eee; }
+        .game-area { position: relative; height: 250px; background: #fafafa; overflow: hidden; border-bottom: 1px solid #eee; touch-action: none; }
         .hint-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; font-size: 20px; pointer-events: none; text-align: center; }
 
         .btn-verify-catch {
@@ -39,10 +39,10 @@
         </div>
         <div class="game-area" id="gameArea">
             <div class="hint-text">Catch the moving target!</div>
-            <button class="btn-verify-catch" id="catchBtn" onclick="finishLevel()">Verify</button>
+            <button class="btn-verify-catch" id="catchBtn" onclick="finishLevel()" ontouchstart="finishLevel()">Verify</button>
         </div>
         <div class="footer">
-            <div class="success-msg" id="successMsg">Success! You are human. 🎉</div>
+            <div class="success-msg" id="successMsg">Success! Loading Level 5... ⏳</div>
         </div>
     </div>
     <script>
@@ -69,8 +69,13 @@
 
         function finishLevel() {
             cancelAnimationFrame(animationId);
-            catchBtn.style.display = 'none'; successMsg.style.display = 'block';
-            setTimeout(() => { alert("Congratulations! You passed all security checks."); }, 1500);
+            catchBtn.style.display = 'none'; 
+            successMsg.style.display = 'block';
+            
+            // Przekierowanie do Poziomu 5 po sekundzie
+            setTimeout(() => { 
+                window.location.href = 'Poziom5.html'; 
+            }, 1000);
         }
     </script>
 </body>
