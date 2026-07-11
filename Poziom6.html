@@ -9,34 +9,49 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        @keyframes boxFadeIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; position: relative; animation: boxFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #d93025; transform: scale(1.05); }
+        .btn-reset:active { transform: scale(0.95); }
+        .header h2 { font-size: 28px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .game-area { position: relative; height: 220px; background: #fafafa; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .game-area { position: relative; height: 240px; background: #fafafa; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
         #holdBtn {
-            width: 120px; height: 120px; border-radius: 50%;
+            width: 130px; height: 130px; border-radius: 50%;
             background: conic-gradient(#4A90E2 0deg, #e0e0e0 0deg);
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            user-select: none; transition: transform 0.1s; position: relative;
+            user-select: none; transition: transform 0.1s, box-shadow 0.3s; position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            animation: pulseIdle 2s infinite;
         }
+        @keyframes pulseIdle { 0%, 100% { box-shadow: 0 8px 20px rgba(74, 144, 226, 0.15); } 50% { box-shadow: 0 8px 30px rgba(74, 144, 226, 0.4); } }
+        
         #holdBtn::before {
-            content: "HOLD"; background: white; width: 105px; height: 105px;
+            content: "HOLD"; background: white; width: 110px; height: 110px;
             border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 18px; color: #4A90E2; font-weight: bold;
+            font-size: 18px; color: #4A90E2; font-weight: bold; letter-spacing: 1px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
-        #holdBtn:active { transform: scale(0.95); }
+        #holdBtn:active { transform: scale(0.95); animation: none; }
 
         #verifyBtn { 
             background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; 
-            text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); 
-            display: none; 
+            text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); 
+            display: none; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transition: transform 0.2s, box-shadow 0.2s;
         }
+        #verifyBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5); }
+        #verifyBtn:active { transform: translateY(0); box-shadow: 0 2px 5px rgba(46, 204, 113, 0.4); }
+        
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -70,6 +85,7 @@
         function startLoading(e) {
             if (e && e.cancelable) e.preventDefault();
             if (isDone) return;
+            holdBtn.style.animation = 'none';
             timer = setInterval(() => {
                 progress += 2;
                 updateUI();
@@ -82,6 +98,7 @@
             clearInterval(timer);
             progress = 0;
             updateUI();
+            holdBtn.style.animation = 'pulseIdle 2s infinite';
         }
 
         function updateUI() {
