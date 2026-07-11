@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 4 - Escaping Button</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
+        body { 
+            background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; color: #333;
+        }
+
+        .captcha-box {
+            background: #ffffff;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            padding: 28px 24px;
+        }
+        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
+        .header h2 { font-size: 32px; letter-spacing: 1px; }
+
+        .game-area {
+            position: relative;
+            height: 250px;
+            background: #fafafa;
+            overflow: hidden;
+            border-bottom: 1px solid #eee;
+        }
+
+        .hint-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ccc;
+            font-size: 20px;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .btn-verify-catch {
+            position: absolute;
+            top: 100px;
+            left: 140px;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white; border: none;
+            padding: 14px 36px; font-size: 16px;
+            border-radius: 6px; text-transform: uppercase; cursor: pointer;
+            transition: top 0.2s ease-out, left 0.2s ease-out, box-shadow 0.2s;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+            z-index: 10;
+        }
+        
+        .btn-verify-catch:hover {
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .footer {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            height: 60px;
+        }
+        
+        .success-msg {
+            color: #0f9d58;
+            font-size: 16px;
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="captcha-box">
+        <div class="header">
+            <p>Prove you have fast reflexes</p>
+            <h2>Click Verify</h2>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="hint-text">Catch it if you can!</div>
+            <button class="btn-verify-catch" id="catchBtn" onclick="finishLevel()">Verify</button>
+        </div>
+
+        <div class="footer">
+            <div class="success-msg" id="successMsg">Success! You are human. 🎉</div>
+        </div>
+    </div>
+
+    <script>
+        const catchBtn = document.getElementById('catchBtn');
+        const gameArea = document.getElementById('gameArea');
+        const successMsg = document.getElementById('successMsg');
+        
+        let escapeCount = 0;
+        const maxEscapes = 5; // Przycisk "podda się" po 5 ucieczkach
+
+        catchBtn.addEventListener('mouseenter', () => {
+            if (escapeCount < maxEscapes) {
+                // Wymiary kontenera
+                const areaWidth = gameArea.clientWidth;
+                const areaHeight = gameArea.clientHeight;
+                
+                // Wymiary przycisku
+                const btnWidth = catchBtn.clientWidth;
+                const btnHeight = catchBtn.clientHeight;
+
+                // Bezpieczne granice
+                const maxX = areaWidth - btnWidth - 20;
+                const maxY = areaHeight - btnHeight - 20;
+
+                // Losowanie nowych pozycji
+                const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+                const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+
+                // Przypisanie nowych pozycji
+                catchBtn.style.left = `${randomX}px`;
+                catchBtn.style.top = `${randomY}px`;
+
+                escapeCount++;
+            }
+        });
+
+        function finishLevel() {
+            if (escapeCount >= maxEscapes) {
+                catchBtn.style.display = 'none';
+                successMsg.style.display = 'block';
+                
+                // Przejście do następnego ekranu po 1.5 sekundy
+                setTimeout(() => {
+                    alert("Gratulacje! Przeszedłeś wszystkie zabezpieczenia.");
+                    // window.location.href = 'KolejnyPoziom.html'; 
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
