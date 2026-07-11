@@ -19,29 +19,11 @@
         .hint { font-size: 20px; margin-bottom: 25px; color: #555; }
         .hint span { font-size: 24px; color: #4A90E2; padding: 4px 10px; background: rgba(74, 144, 226, 0.1); border-radius: 8px; }
 
-        /* Styl Pokrętła */
         .dial-container { position: relative; width: 160px; height: 160px; display: flex; justify-content: center; align-items: center; }
-        
-        .dial { 
-            width: 100%; height: 100%; border-radius: 50%; background: #2c3e50; 
-            border: 8px solid #34495e; box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 0 15px rgba(0,0,0,0.5);
-            position: relative; cursor: grab; transition: border-color 0.3s;
-        }
+        .dial { width: 100%; height: 100%; border-radius: 50%; background: #2c3e50; border: 8px solid #34495e; box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 0 15px rgba(0,0,0,0.5); position: relative; cursor: grab; transition: border-color 0.3s; }
         .dial:active { cursor: grabbing; }
-        
-        /* Czerwony znacznik na pokrętle */
-        .dial-marker { 
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%); 
-            width: 6px; height: 20px; background: #e74c3c; border-radius: 3px; 
-        }
-
-        /* Cyfra w środku pokrętła */
-        .dial-value { 
-            position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%); /* Dodatkowy obrót dodawany z JS by tekst stał prosto */
-            color: white; font-size: 42px; pointer-events: none; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .dial-marker { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 6px; height: 20px; background: #e74c3c; border-radius: 3px; }
+        .dial-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 42px; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
         .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s, transform 0.1s; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
@@ -57,7 +39,6 @@
         </div>
         <div class="game-area">
             <div class="hint">Set dial to: <span id="targetValue">42</span></div>
-            
             <div class="dial-container">
                 <div class="dial" id="dial">
                     <div class="dial-marker"></div>
@@ -76,7 +57,6 @@
         const targetValueEl = document.getElementById('targetValue');
         const verifyBtn = document.getElementById('verifyBtn');
 
-        // Losujemy docelowy numer (od 10 do 95)
         const targetNum = Math.floor(Math.random() * 86) + 10;
         targetValueEl.innerText = targetNum;
 
@@ -86,7 +66,6 @@
         let successTimer = null;
         let isUnlocked = false;
 
-        // Pobiera środek pokrętła na ekranie
         function updateCenter() {
             const rect = dial.getBoundingClientRect();
             dialCenter.x = rect.left + rect.width / 2;
@@ -102,39 +81,26 @@
 
         function drag(e) {
             if (!isDragging || isUnlocked) return;
-            e.preventDefault(); // Blokuje scrollowanie ekranu na telefonie
+            if (e.cancelable) e.preventDefault(); 
             rotateDial(e);
         }
 
-        function endDrag() {
-            isDragging = false;
-        }
+        function endDrag() { isDragging = false; }
 
         function rotateDial(e) {
-            // Współrzędne myszy lub dotyku
             let clientX = e.clientX || (e.touches && e.touches[0].clientX);
             let clientY = e.clientY || (e.touches && e.touches[0].clientY);
 
-            // Obliczanie kąta z użyciem arcus tangens
             let dy = clientY - dialCenter.y;
             let dx = clientX - dialCenter.x;
-            let rad = Math.atan2(dy, dx);
-            let deg = rad * (180 / Math.PI);
-
-            // Przesunięcie zera na szczyt tarczy (zgodnie ze wskazówkami zegara)
-            deg = deg + 90;
+            let deg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
             if (deg < 0) deg += 360;
 
-            // Ustawienie obrotu grafiki pokrętła
             dial.style.transform = `rotate(${deg}deg)`;
-
-            // Odwrotny obrót tekstu, żeby zawsze stał w pionie!
             currentValueEl.style.transform = `translate(-50%, -50%) rotate(${-deg}deg)`;
 
-            // Przeliczenie kąta (0-360) na wartość (0-99)
             currentNum = Math.round(deg / 3.6);
             if (currentNum === 100) currentNum = 0;
-
             currentValueEl.innerText = currentNum;
 
             checkWin();
@@ -142,17 +108,11 @@
 
         function checkWin() {
             if (currentNum === targetNum) {
-                // Gdy najedziemy na poprawny numer
                 if (!successTimer) {
-                    dial.style.borderColor = '#f1c40f'; // Kolor ostrzegawczy (żółty)
-                    
-                    // Musi utrzymać pozycję przez 0.5 sekundy
-                    successTimer = setTimeout(() => {
-                        unlock();
-                    }, 500); 
+                    dial.style.borderColor = '#f1c40f';
+                    successTimer = setTimeout(() => { unlock(); }, 500); 
                 }
             } else {
-                // Jeśli zjedzie z numeru
                 dial.style.borderColor = '#34495e';
                 if (successTimer) {
                     clearTimeout(successTimer);
@@ -165,22 +125,22 @@
             isUnlocked = true;
             dial.style.background = '#2ecc71';
             dial.style.borderColor = '#27ae60';
-            currentValueEl.innerHTML = "🔓"; // Emoji otwartej kłódki
+            currentValueEl.innerHTML = "🔓";
             verifyBtn.disabled = false;
         }
 
-        // Podłączenie zdarzeń dla myszki
         dial.addEventListener('mousedown', startDrag);
         window.addEventListener('mousemove', drag, { passive: false });
         window.addEventListener('mouseup', endDrag);
 
-        // Podłączenie zdarzeń dla dotyku (smartfony)
         dial.addEventListener('touchstart', startDrag, { passive: false });
         window.addEventListener('touchmove', drag, { passive: false });
         window.addEventListener('touchend', endDrag);
 
-        // Przejście do następnego poziomu (skrypt dla przycisku)
-        function goToNextLevel() { window.location.href = 'Poziom8.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '8');
+            window.location.href = 'Poziom8.html'; 
+        }
     </script>
 </body>
 </html>
