@@ -6,37 +6,34 @@
     <title>Level 6 - Clean Screen</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; } /* Zablokowanie scrolla */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; position: relative; }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; position: relative; z-index: 10; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
-        .header h2 { font-size: 28px; letter-spacing: 1px; }
+        .header h2 { font-size: 28px; }
 
-        .game-area { position: relative; height: 220px; background: #fafafa; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .game-area { position: relative; height: 220px; background: #fafafa; display: flex; justify-content: center; align-items: center; }
         
-        .secret-content { position: absolute; z-index: 1; text-align: center; }
-        .secret-content p { color: #0f9d58; font-size: 18px; margin-bottom: 12px; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); pointer-events: none; }
-        .btn-verify.active { pointer-events: auto; }
+        #verifyBtn { 
+            background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; 
+            text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); 
+            display: none; /* Ukryty dopóki nie wyczyścisz */
+            z-index: 20;
+        }
 
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15; cursor: crosshair; }
     </style>
 </head>
 <body>
     <div class="captcha-box">
         <div class="header">
             <span class="level-badge">Level 6</span>
-            <p>Prove you're human</p>
             <h2>Wipe the dirt</h2>
         </div>
         <div class="game-area">
-            <div class="secret-content">
-                <p>Clean enough!</p>
-                <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()">Verify</button>
-            </div>
+            <button id="verifyBtn" onclick="goToNextLevel()">Verify</button>
             <canvas id="scratchCanvas"></canvas>
         </div>
     </div>
@@ -52,66 +49,51 @@
         function initCanvas() {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
-            ctx.fillStyle = "#8d6e63"; // Brązowy kolor (brud)
+            ctx.fillStyle = "#8d6e63"; // Brud
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Drobny tekst-wskazówka na brudzie
-            ctx.fillStyle = "rgba(255,255,255,0.4)";
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
             ctx.font = "20px 'Fredoka One'";
             ctx.textAlign = "center";
             ctx.fillText("Rub here...", canvas.width/2, canvas.height/2);
-            ctx.globalCompositeOperation = "destination-out"; // Wymazywanie
+            ctx.globalCompositeOperation = "destination-out";
         }
 
-        window.addEventListener('resize', () => { if(!isDone) initCanvas(); });
         initCanvas();
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
 
         function erase(e) {
             if (!isDrawing || isDone) return;
-            e.preventDefault(); 
-            const pos = getMousePos(e);
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
             ctx.beginPath();
-            ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2); // Rozmiar gumki
+            ctx.arc(clientX - rect.left, clientY - rect.top, 30, 0, Math.PI * 2);
             ctx.fill();
             checkCleared();
         }
 
-        canvas.addEventListener("mousedown", (e) => { isDrawing = true; erase(e); });
+        canvas.addEventListener("mousedown", () => isDrawing = true);
         canvas.addEventListener("mousemove", erase);
-        canvas.addEventListener("mouseup", () => { isDrawing = false; });
-        canvas.addEventListener("mouseleave", () => { isDrawing = false; });
-
-        // Touch eventy (Mobile)
-        canvas.addEventListener("touchstart", (e) => { isDrawing = true; erase(e); });
+        canvas.addEventListener("mouseup", () => isDrawing = false);
+        canvas.addEventListener("touchstart", () => isDrawing = true);
         canvas.addEventListener("touchmove", erase);
-        canvas.addEventListener("touchend", () => { isDrawing = false; });
+        canvas.addEventListener("touchend", () => isDrawing = false);
 
-        // Sprawdzanie czy starte wystarczająco dużo (ok. 50%)
         function checkCleared() {
-            // Analiza co kilkanaście ruchów dla wydajności
-            if (Math.random() > 0.1) return; 
-            
+            if (isDone) return;
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let pixels = imageData.data;
             let cleared = 0;
+            for (let i = 3; i < pixels.length; i += 64) { if (pixels[i] === 0) cleared++; }
             
-            for (let i = 3; i < pixels.length; i += 16) { // co 4 piksel
-                if (pixels[i] === 0) cleared++;
-            }
-            
-            let percentage = cleared / (pixels.length / 16);
-            if (percentage > 0.45) {
+            if (cleared > (pixels.length / 256)) {
                 isDone = true;
-                canvas.style.transition = "opacity 0.5s ease";
+                canvas.style.transition = "opacity 0.5s";
                 canvas.style.opacity = "0";
-                verifyBtn.classList.add("active");
-                setTimeout(() => canvas.style.display = "none", 500);
+                setTimeout(() => {
+                    canvas.style.display = "none";
+                    verifyBtn.style.display = "block";
+                }, 500);
             }
         }
 
