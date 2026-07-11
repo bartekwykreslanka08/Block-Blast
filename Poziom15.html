@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 15 - Data Reconstruction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.3s; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.2); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.3s; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
+
+        .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        
+        .instructions { font-size: 14px; color: #7f8c8d; text-align: center; margin-bottom: 10px; }
+
+        /* Grid Configuration */
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: 110px 110px;
+            grid-template-rows: 110px 110px;
+            gap: 2px;
+            background: #2c3e50;
+            padding: 4px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .success .puzzle-grid {
+            background: #2ecc71;
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+            gap: 0; /* Closes the gap for a seamless image when completed */
+        }
+
+        .tile {
+            width: 100%;
+            height: 100%;
+            background-color: #ecf0f1;
+            /* Using an inline SVG graphic (Arrow/Key shape) to avoid external image dependencies */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M110 30 L190 110 L150 110 L150 190 L70 190 L70 110 L30 110 Z' fill='%233498db' stroke='%232c3e50' stroke-width='10' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: 220px 220px;
+            cursor: pointer;
+            border-radius: 2px;
+            /* Bouncy transition for rotation */
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-radius 0.3s; 
+        }
+        
+        /* Map background parts to the specific tiles */
+        .tile-0 { background-position: 0 0; }
+        .tile-1 { background-position: -110px 0; }
+        .tile-2 { background-position: 0 -110px; }
+        .tile-3 { background-position: -110px -110px; }
+
+        .success .tile {
+            cursor: default;
+            border-radius: 0;
+        }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box" id="app">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 15</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Fix the Shape</h2>
+        </div>
+        <div class="game-area">
+            <p class="instructions">Tap the tiles to rotate and align the symbol.</p>
+            
+            <div class="puzzle-grid" id="grid">
+                <!-- Tiles 0-3 represent Top-Left, Top-Right, Bottom-Left, Bottom-Right -->
+                <div class="tile tile-0" id="tile0" onclick="rotateTile(0)"></div>
+                <div class="tile tile-1" id="tile1" onclick="rotateTile(1)"></div>
+                <div class="tile tile-2" id="tile2" onclick="rotateTile(2)"></div>
+                <div class="tile tile-3" id="tile3" onclick="rotateTile(3)"></div>
+            </div>
+
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        function resetAllProgress() {
+            localStorage.setItem('aktualnyPoziom', '1');
+            window.location.href = 'index.html';
+        }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '16');
+            window.location.href = 'Poziom16.html'; 
+        }
+
+        const verifyBtn = document.getElementById('verifyBtn');
+        const app = document.getElementById('app');
+        
+        let isDone = false;
+
+        // Current rotation of each tile in degrees
+        // We start with scrambled rotations (multiples of 90, but none at 0 or 360 initially)
+        let rotations = [90, 270, 180, 270];
+
+        function applyRotations() {
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`tile${i}`).style.transform = `rotate(${rotations[i]}deg)`;
+            }
+        }
+
+        function checkWinCondition() {
+            // Check if every tile's rotation is a multiple of 360 (which means it's pointing up)
+            const won = rotations.every(angle => angle % 360 === 0);
+            
+            if (won && !isDone) {
+                isDone = true;
+                verifyBtn.disabled = false;
+                app.classList.add('success');
+            }
+        }
+
+        function rotateTile(index) {
+            if (isDone) return;
+            
+            // Add 90 degrees to the clicked tile
+            rotations[index] += 90;
+            
+            // Update visual CSS
+            applyRotations();
+            
+            // Wait for the animation to mostly finish before checking win condition
+            // This prevents a sudden snap while rotating
+            setTimeout(checkWinCondition, 300);
+        }
+
+        // Initialize the puzzle visually on load
+        applyRotations();
+    </script>
+</body>
+</html>
