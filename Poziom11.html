@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 11 - Flashlight</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header h2 { font-size: 28px; }
+
+        .game-area { position: relative; height: 260px; background: #fafafa; overflow: hidden; cursor: crosshair; }
+        
+        /* Tło - imitacja podłogi/wzoru pod spodem */
+        .background-pattern { position: absolute; width: 100%; height: 100%; background: radial-gradient(#ddd 2px, transparent 2px); background-size: 20px 20px; }
+        
+        /* Ukryty element */
+        .hidden-key { position: absolute; font-size: 35px; transition: transform 0.2s; cursor: pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .hidden-key:active { transform: scale(0.9); }
+
+        /* Nakładka latarki (ciemność) - nie blokuje kliknięć! */
+        .flashlight-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; pointer-events: none; transition: background 0.1s; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
+        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <span class="level-badge">Level 11</span>
+            <h2>Find the key</h2>
+        </div>
+        <div class="game-area" id="gameArea">
+            <div class="background-pattern"></div>
+            <div class="hidden-key" id="key" onclick="foundKey()">🗝️</div>
+            <div class="flashlight-overlay" id="flashlight"></div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const flashlight = document.getElementById('flashlight');
+        const key = document.getElementById('key');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let isDone = false;
+
+        // Losowe pozycjonowanie klucza
+        function initGame() {
+            let x = Math.floor(Math.random() * 80) + 10; // od 10% do 90% szerokości
+            let y = Math.floor(Math.random() * 70) + 15; // od 15% do 85% wysokości
+            key.style.left = `${x}%`;
+            key.style.top = `${y}%`;
+            
+            // Domyślna pozycja latarki (poza ekranem)
+            flashlight.style.background = `radial-gradient(circle at -100px -100px, transparent 40px, rgba(10,10,10,0.98) 90px)`;
+        }
+
+        function updateFlashlight(e) {
+            if (isDone) return;
+            const rect = gameArea.getBoundingClientRect();
+            let x = e.clientX || (e.touches && e.touches[0].clientX);
+            let y = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            x = x - rect.left;
+            y = y - rect.top;
+
+            flashlight.style.background = `radial-gradient(circle at ${x}px ${y}px, transparent 40px, rgba(10,10,10,0.98) 90px)`;
+        }
+
+        function foundKey() {
+            if (isDone) return;
+            isDone = true;
+            // Odkrywa cały ekran po znalezieniu
+            flashlight.style.background = `radial-gradient(circle at 50% 50%, transparent 100%, rgba(10,10,10,0) 100px)`;
+            verifyBtn.disabled = false;
+        }
+
+        gameArea.addEventListener('mousemove', updateFlashlight);
+        gameArea.addEventListener('touchmove', updateFlashlight);
+
+        initGame();
+
+        function goToNextLevel() { window.location.href = 'Poziom12.html'; }
+    </script>
+</body>
+</html>
