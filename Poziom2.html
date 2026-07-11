@@ -1,44 +1,45 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poziom 2 - Kółko i Krzyżyk</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Level 2 - Tic Tac Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
         body { 
-            background-color: #f2f2f2; 
+            background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); 
             display: flex; justify-content: center; align-items: center; 
             height: 100vh; color: #333;
         }
 
         .captcha-box {
             background: #ffffff;
-            width: 400px;
-            border: 1px solid #cecece;
-            border-radius: 3px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             overflow: hidden;
             display: flex; flex-direction: column;
         }
 
         .header {
-            background-color: #4A90E2;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
             color: white;
-            padding: 24px;
+            padding: 28px 24px;
         }
-        .header p { font-size: 14px; margin-bottom: 4px; font-weight: 400; }
-        .header h2 { font-size: 28px; font-weight: 600; letter-spacing: 0.5px; }
+        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
+        .header h2 { font-size: 32px; letter-spacing: 1px; }
 
-        .game-wrapper { padding: 8px; }
+        .game-wrapper { padding: 10px; }
         
         .grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 124px); /* Wymiar dający równe kwadraty */
-            gap: 4px;
-            background-color: #dfdfdf; /* Kolor linii miedzy kratkami */
+            grid-template-rows: repeat(3, 124px); 
+            gap: 6px;
+            background-color: #e0e0e0; 
+            border-radius: 8px;
+            overflow: hidden;
         }
         
         .cell {
@@ -46,55 +47,70 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 70px;
-            font-weight: 500;
+            font-size: 75px;
             cursor: pointer;
             user-select: none;
-            transition: background 0.1s;
+            transition: background 0.2s ease;
         }
-        .cell:hover { background: #f8f8f8; }
+        .cell:hover { background: #f0f4f8; }
         
-        .x { color: #555; line-height: 1; }
-        .o { color: #4A90E2; line-height: 1; }
+        .x { color: #555; line-height: 1; animation: popIn 0.2s ease-out; }
+        .o { color: #4A90E2; line-height: 1; animation: popIn 0.2s ease-out; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         .status-msg {
-            text-align: center; font-size: 14px; font-weight: 500; 
-            padding: 8px 16px 0 16px; color: #d93025; display: none;
+            text-align: center; font-size: 15px; 
+            padding: 12px 16px 0 16px; color: #d93025; display: none;
         }
 
         .footer {
-            padding: 12px 16px;
-            border-top: 1px solid #dfdfdf;
+            padding: 16px 20px;
+            border-top: 1px solid #eee;
             display: flex; justify-content: space-between; align-items: center;
             margin-top: 8px;
+            background: #fafafa;
         }
 
         .footer-icons button {
             background: none; border: none; cursor: pointer;
-            font-size: 22px; color: #737373; margin-right: 12px;
-            transition: 0.2s;
+            font-size: 26px; color: #888; margin-right: 12px;
+            transition: color 0.2s, transform 0.2s;
         }
-        .footer-icons button:hover { color: #333; }
+        .footer-icons button:hover { color: #4A90E2; transform: rotate(45deg); }
 
         .btn-verify {
-            background-color: #4A90E2; color: white; border: none;
-            padding: 12px 32px; font-size: 14px; font-weight: 600;
-            border-radius: 3px; text-transform: uppercase; cursor: pointer;
-            transition: background 0.2s;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white; border: none;
+            padding: 14px 36px; font-size: 16px;
+            border-radius: 6px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.2s ease; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
         }
-        .btn-verify:disabled { background-color: #b3cdef; cursor: not-allowed; }
-        .btn-verify:not(:disabled):hover { background-color: #357ABD; }
+        .btn-verify:disabled { 
+            background: #b3cdef; 
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none;
+        }
+        .btn-verify:not(:disabled):hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+        }
     </style>
 </head>
 <body>
 
     <div class="captcha-box">
         <div class="header">
-            <p>Pokonaj robota w grze</p>
-            <h2>Kółko i Krzyżyk</h2>
+            <p>Beat the robot in</p>
+            <h2>Tic Tac Toe</h2>
         </div>
         
-        <div class="status-msg" id="msg">Remis! Zresetuj planszę.</div>
+        <div class="status-msg" id="msg">Draw! Reset the board.</div>
 
         <div class="game-wrapper">
             <div class="grid" id="board">
@@ -112,7 +128,7 @@
 
         <div class="footer">
             <div class="footer-icons">
-                <button onclick="resetGame()" title="Zresetuj planszę">↻</button>
+                <button onclick="resetGame()" title="Reset the board">↻</button>
             </div>
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
         </div>
@@ -136,18 +152,18 @@
                 updateBoard();
                 
                 if (checkWin("X")) {
-                    endGame("Zwycięstwo! Możesz przejść dalej.", "#0f9d58");
+                    endGame("Victory! You can proceed.", "#0f9d58");
                     verifyBtn.disabled = false;
                     return;
                 }
                 
                 if (!board.includes("")) {
-                    endGame("Remis! Spróbuj ponownie.", "#d93025");
+                    endGame("Draw! Try again.", "#d93025");
                     return;
                 }
 
                 gameActive = false; 
-                setTimeout(botMove, 400); // Małe opóźnienie, żeby wyglądało że bot myśli
+                setTimeout(botMove, 400); 
             }
         }
 
@@ -163,12 +179,12 @@
                 updateBoard();
 
                 if (checkWin("O")) {
-                    endGame("Bot wygrał! Zresetuj planszę (↻).", "#d93025");
+                    endGame("Bot won! Reset the board (↻).", "#d93025");
                     return;
                 }
                 
                 if (!board.includes("")) {
-                    endGame("Remis! Zresetuj planszę (↻).", "#d93025");
+                    endGame("Draw! Reset the board (↻).", "#d93025");
                     return;
                 }
                 
