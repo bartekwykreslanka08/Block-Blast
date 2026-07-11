@@ -16,7 +16,6 @@
 
         .game-area { background: #fafafa; padding: 30px 20px; display: flex; justify-content: center; align-items: center; position: relative; }
         
-        /* Strzałki wejścia i wyjścia */
         .arrow-in { position: absolute; left: 10px; top: 40px; font-size: 24px; color: #3498db; }
         .arrow-out { position: absolute; right: 10px; bottom: 40px; font-size: 24px; color: #3498db; }
 
@@ -25,16 +24,13 @@
         .cell { width: 70px; height: 70px; background: white; cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center; }
         .cell:active { background: #f0f0f0; }
 
-        /* Konstrukcja rur w CSS */
         .pipe { position: absolute; background: #3498db; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .pipe-straight .bar { width: 100%; height: 24px; background: inherit; position: absolute; top: 23px; left: 0; }
         .pipe-corner .bar1 { width: 47px; height: 24px; background: inherit; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
         .pipe-corner .bar2 { width: 24px; height: 47px; background: inherit; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
-        
-        /* Środek rury (estetyczne koło na złączeniu) */
         .pipe-corner::after { content: ''; position: absolute; width: 24px; height: 24px; background: #3498db; border-radius: 50%; top: 23px; left: 23px; }
 
-        .success .pipe { background: #2ecc71; } /* Kolor po wygranej */
+        .success .pipe { background: #2ecc71; } 
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
         .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
@@ -49,9 +45,7 @@
         </div>
         <div class="game-area">
             <div class="arrow-in">▶</div>
-            <div class="grid" id="grid">
-                <!-- Rury wygenerowane przez JS -->
-            </div>
+            <div class="grid" id="grid"></div>
             <div class="arrow-out">▶</div>
         </div>
         <div class="footer">
@@ -64,15 +58,13 @@
         const verifyBtn = document.getElementById('verifyBtn');
         let isDone = false;
 
-        // Typ 0 = prosta, Typ 1 = zakręt
-        // Target to wymagany kąt obrotu aby woda płynęła
         const levelData = [
-            { id: 0, type: 0, startRot: 90, targetRot: [0, 180] }, // Top-Left: Prosta (musi iść wprawo)
-            { id: 1, type: 1, startRot: 180, targetRot: [90] },    // Top-Mid: Zakręt (musi łączyć Lewo-Dół, czyli 90st)
-            { id: 2, type: 1, startRot: 0, targetRot: [] },      // Top-Right: Mylący zakręt (dowolny kąt)
-            { id: 3, type: 1, startRot: 90, targetRot: [] },     // Bot-Left: Mylący zakręt (dowolny kąt)
-            { id: 4, type: 1, startRot: 0, targetRot: [270] },     // Bot-Mid: Zakręt (musi łączyć Góra-Prawo, czyli 270st)
-            { id: 5, type: 0, startRot: 90, targetRot: [0, 180] }  // Bot-Right: Prosta (musi łączyć Lewo-Prawo)
+            { id: 0, type: 0, startRot: 90, targetRot: [0, 180] }, 
+            { id: 1, type: 1, startRot: 180, targetRot: [90] },    
+            { id: 2, type: 1, startRot: 0, targetRot: [] },      
+            { id: 3, type: 1, startRot: 90, targetRot: [] },     
+            { id: 4, type: 1, startRot: 0, targetRot: [270] },     
+            { id: 5, type: 0, startRot: 90, targetRot: [0, 180] }  
         ];
 
         let pipes = [];
@@ -92,16 +84,14 @@
                 pipeWrapper.innerHTML = '<div class="bar1"></div><div class="bar2"></div>';
             }
 
-            // Ustawienie początkowej rotacji
             data.currentRot = data.startRot;
             pipeWrapper.style.transform = `rotate(${data.currentRot}deg)`;
 
             cell.appendChild(pipeWrapper);
             gridEl.appendChild(cell);
 
-            // Obsługa kliknięcia
             cell.addEventListener('mousedown', () => rotatePipe(index, pipeWrapper));
-            cell.addEventListener('touchstart', (e) => { e.preventDefault(); rotatePipe(index, pipeWrapper); });
+            cell.addEventListener('touchstart', (e) => { e.preventDefault(); rotatePipe(index, pipeWrapper); }, {passive: false});
 
             pipes.push({ data: data, element: pipeWrapper });
         });
@@ -112,7 +102,7 @@
             pipe.currentRot += 90;
             element.style.transform = `rotate(${pipe.currentRot}deg)`;
             
-            setTimeout(checkWin, 200); // Check after animation starts
+            setTimeout(checkWin, 200); 
         }
 
         function checkWin() {
@@ -120,7 +110,6 @@
             for (let i = 0; i < pipes.length; i++) {
                 let p = pipes[i].data;
                 if (p.targetRot.length > 0) {
-                    // Normalizuj rotację do 0, 90, 180, 270
                     let normalized = p.currentRot % 360;
                     if (!p.targetRot.includes(normalized)) {
                         won = false;
@@ -136,7 +125,10 @@
             }
         }
 
-        function goToNextLevel() { window.location.href = 'Poziom13.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '13');
+            window.location.href = 'Poziom13.html'; 
+        }
     </script>
 </body>
 </html>
