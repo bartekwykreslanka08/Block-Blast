@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,50 +10,66 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; position: relative; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.4s ease; position: relative; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
         
-        .hint-box { position: absolute; top: 60px; right: 24px; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 4px; }
-        .hint-dot { background: rgba(255,255,255,0.4); border-radius: 50%; }
-        .hint-dot.active { background: #fff; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .btn-reset:active { transform: scale(0.95); }
+        
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); box-shadow: none; transform: none; }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn-verify:not(:disabled):active { transform: translateY(0); }
+
+        
+        .hint-box { position: absolute; top: 60px; right: 24px; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 4px; transition: background 0.3s; }
+        .success .hint-box { background: rgba(255,255,255,0.3); }
+        .hint-dot { background: rgba(255,255,255,0.3); border-radius: 50%; }
+        .hint-dot.active { background: #fff; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
 
         .game-area { background: #fafafa; display: flex; justify-content: center; align-items: center; padding: 40px 0; }
         
         .pattern-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; position: relative; }
         .dot-container { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; position: relative; }
-        .dot { width: 14px; height: 14px; background: #ccc; border-radius: 50%; transition: all 0.2s; position: absolute; pointer-events: none; }
+        .dot { width: 14px; height: 14px; background: #bdc3c7; border-radius: 50%; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: absolute; pointer-events: none; }
         .touch-target { width: 60px; height: 60px; position: absolute; }
         
-        .dot-container.active .dot { transform: scale(1.8); background: #4A90E2; }
-        .pattern-grid.error .dot-container.active .dot { background: #e74c3c; }
-        .pattern-grid.success .dot-container.active .dot { background: #2ecc71; }
+        .dot-container.active .dot { transform: scale(1.8); background: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); }
+        .pattern-grid.error .dot-container.active .dot { background: #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+        .success .pattern-grid .dot-container.active .dot { background: #2ecc71; box-shadow: 0 0 15px rgba(46, 204, 113, 0.6); }
 
-        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 10</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
             <h2>Draw the shape</h2>
+            
             <div class="hint-box">
                 <div class="hint-dot active"></div> <div class="hint-dot"></div> <div class="hint-dot"></div>
                 <div class="hint-dot active"></div> <div class="hint-dot"></div> <div class="hint-dot"></div>
                 <div class="hint-dot active"></div> <div class="hint-dot active"></div> <div class="hint-dot active"></div>
             </div>
+
         </div>
-        <div class="game-area">
+        <div class="game-area" >
+            
             <div class="pattern-grid" id="patternGrid"></div>
+
         </div>
         <div class="footer">
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
@@ -64,13 +81,20 @@
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '11');
+            window.location.href = 'Poziom11.html'; 
+        }
 
-        const grid = document.getElementById('patternGrid');
+        const app = document.getElementById('app');
         const verifyBtn = document.getElementById('verifyBtn');
+        let isDone = false;
+
+        
+        const grid = document.getElementById('patternGrid');
         const targetPattern = [0, 3, 6, 7, 8]; 
         let currentPattern = [];
         let isDrawing = false;
-        let isDone = false;
         let dots = [];
 
         for(let i = 0; i < 9; i++) {
@@ -116,7 +140,7 @@
             
             if (currentPattern.join(',') === targetPattern.join(',')) {
                 isDone = true;
-                grid.classList.add('success');
+                app.classList.add('success');
                 verifyBtn.disabled = false;
             } else if (currentPattern.length > 0) {
                 grid.classList.add('error');
@@ -138,10 +162,6 @@
         window.addEventListener('touchmove', handleMove, { passive: false });
         window.addEventListener('touchend', endDraw);
 
-        function goToNextLevel() {
-            localStorage.setItem('aktualnyPoziom', '11');
-            window.location.href = 'Poziom11.html';
-        }
     </script>
 </body>
 </html>
