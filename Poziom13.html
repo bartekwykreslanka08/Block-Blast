@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,73 +9,88 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.4s ease; position: relative; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
-
-        .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 280px; }
         
-        .glass { width: 100px; height: 160px; border: 4px solid #bdc3c7; border-top: none; border-radius: 0 0 12px 12px; position: relative; overflow: hidden; background: white; margin-bottom: 20px; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .btn-reset:active { transform: scale(0.95); }
         
-        .target-line { position: absolute; bottom: 80%; width: 100%; border-bottom: 3px dashed #2ecc71; z-index: 10; }
-        
-        .water { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3498db; transition: height 0.1s linear, background 0.3s; }
-        
-        .pour-btn { background: #34495e; color: white; border: none; padding: 15px 0; width: 100%; border-radius: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 0 #2c3e50; transition: transform 0.1s, box-shadow 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; }
-        .pour-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #2c3e50; }
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); box-shadow: none; transform: none; }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn-verify:not(:disabled):active { transform: translateY(0); }
+
+        
+        .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 280px; }
+        
+        .glass { width: 100px; height: 160px; border: 4px solid #bdc3c7; border-top: none; border-radius: 0 0 12px 12px; position: relative; overflow: hidden; background: white; margin-bottom: 20px; transition: border-color 0.4s; }
+        .success .glass { border-color: #2ecc71; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2); }
+        
+        .target-line { position: absolute; bottom: 80%; width: 100%; border-bottom: 3px dashed #bdc3c7; z-index: 10; transition: border-color 0.4s; }
+        .success .target-line { border-bottom-color: #27ae60; }
+        
+        .water { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3498db; transition: height 0.1s linear, background 0.4s; }
+        
+        .pour-btn { background: #34495e; color: white; border: none; padding: 15px 0; width: 100%; border-radius: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 0 #2c3e50; transition: transform 0.1s, box-shadow 0.1s, background 0.4s, opacity 0.4s; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .pour-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #2c3e50; }
+        .success .pour-btn { background: #2ecc71; box-shadow: 0 4px 0 #27ae60; pointer-events: none; opacity: 0.8; }
+        .success .pour-btn:active { transform: none; box-shadow: 0 4px 0 #27ae60; }
+
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 13</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
             <h2>Perfect Pour</h2>
+            
         </div>
-        <div class="game-area">
+        <div class="game-area" >
+            
             <div class="glass">
                 <div class="target-line"></div>
                 <div class="water" id="water"></div>
             </div>
             <button class="pour-btn" id="pourBtn">HOLD TO POUR</button>
+
         </div>
         <div class="footer">
-            <!-- Dodany atrybut onclick -->
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
         </div>
     </div>
 
     <script>
-        // Update current level in memory
-        localStorage.setItem('aktualnyPoziom', '13');
-
         function resetAllProgress() {
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
-
-        // Added function to handle level progression
         function goToNextLevel() { 
             localStorage.setItem('aktualnyPoziom', '14');
             window.location.href = 'Poziom14.html'; 
         }
 
+        const app = document.getElementById('app');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let isDone = false;
+
+        
         const pourBtn = document.getElementById('pourBtn');
         const water = document.getElementById('water');
-        const verifyBtn = document.getElementById('verifyBtn');
         let fillLevel = 0;
         let pourInterval;
-        let isDone = false;
 
         function startPouring(e) {
             if (e && e.cancelable) e.preventDefault();
@@ -95,15 +109,13 @@
         }
 
         function checkLevel() {
-            // Target line is at 80%, giving a margin of error (75 - 85)
             if (fillLevel > 75 && fillLevel < 85) {
                 isDone = true;
                 water.style.background = '#2ecc71';
+                app.classList.add('success');
                 verifyBtn.disabled = false;
-                pourBtn.style.opacity = '0.5';
-                pourBtn.style.pointerEvents = 'none';
+                pourBtn.innerText = 'PERFECT!';
             } else if (fillLevel > 0) {
-                // Failed - too little or too much - resetting
                 water.style.background = '#e74c3c';
                 setTimeout(() => {
                     if (!isDone) {
@@ -115,14 +127,13 @@
             }
         }
 
-        // Mouse events
         pourBtn.addEventListener('mousedown', startPouring);
         pourBtn.addEventListener('mouseup', stopPouring);
         pourBtn.addEventListener('mouseleave', stopPouring);
 
-        // Touch events for mobile
         pourBtn.addEventListener('touchstart', startPouring, {passive: false});
         pourBtn.addEventListener('touchend', stopPouring);
+
     </script>
 </body>
 </html>
