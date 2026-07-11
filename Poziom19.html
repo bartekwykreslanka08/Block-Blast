@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 19 - Midnight Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #2c3e50, #000000); color: white; padding: 20px 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        
+        .game-area { padding: 40px 20px; display: flex; justify-content: center; align-items: center; background: #1a1a1a; }
+        
+        .clock-container { display: flex; gap: 15px; align-items: center; }
+        .time-block { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .btn-time { background: #333; border: none; color: white; width: 50px; height: 35px; border-radius: 6px; font-size: 20px; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #000; }
+        .btn-time:active { transform: translateY(4px); box-shadow: 0 0 0 #000; }
+        
+        .display { background: #000; border: 2px solid #444; border-radius: 8px; padding: 10px; font-size: 48px; color: #e74c3c; min-width: 80px; text-align: center; text-shadow: 0 0 10px #e74c3c; }
+        .success .display { color: #2ecc71; text-shadow: 0 0 10px #2ecc71; border-color: #2ecc71; }
+        .colon { font-size: 48px; color: #e74c3c; margin-top: -10px; animation: blink 1s infinite; }
+        .success .colon { color: #2ecc71; }
+
+        @keyframes blink { 50% { opacity: 0.2; } }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; opacity: 0.5; }
+        .btn-verify:not(:disabled) { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box" id="app">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 19</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset</button>
+            </div>
+            <h2>Set clock to midnight</h2>
+        </div>
+        <div class="game-area">
+            <div class="clock-container">
+                <div class="time-block">
+                    <button class="btn-time" onclick="changeTime('h', 1)">▲</button>
+                    <div class="display" id="hourDisplay">14</div>
+                    <button class="btn-time" onclick="changeTime('h', -1)">▼</button>
+                </div>
+                <div class="colon">:</div>
+                <div class="time-block">
+                    <button class="btn-time" onclick="changeTime('m', 15)">▲</button>
+                    <div class="display" id="minDisplay">45</div>
+                    <button class="btn-time" onclick="changeTime('m', -15)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        localStorage.setItem('aktualnyPoziom', '19');
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        function goToNextLevel() { window.location.href = 'Poziom20.html'; }
+
+        let h = 14; let m = 45;
+        const hDisplay = document.getElementById('hourDisplay');
+        const mDisplay = document.getElementById('minDisplay');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const app = document.getElementById('app');
+
+        function updateDisplay() {
+            hDisplay.innerText = h.toString().padStart(2, '0');
+            mDisplay.innerText = m.toString().padStart(2, '0');
+            
+            // Midnight check (both 00:00 or 12:00 PM logic - but usually midnight is 00:00)
+            if(h === 0 && m === 0) {
+                app.classList.add('success');
+                verifyBtn.disabled = false;
+            } else {
+                app.classList.remove('success');
+                verifyBtn.disabled = true;
+            }
+        }
+
+        function changeTime(type, amount) {
+            if(type === 'h') {
+                h = (h + amount + 24) % 24;
+            } else {
+                m = (m + amount + 60) % 60;
+            }
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>
