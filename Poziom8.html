@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,17 +10,30 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.4s ease; position: relative; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
-
-        .game-area { position: relative; height: 260px; background: #fafafa; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; }
         
-        .balloon-container { position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; transition: transform 2s ease-in, opacity 2s; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .btn-reset:active { transform: scale(0.95); }
+        
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); box-shadow: none; transform: none; }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn-verify:not(:disabled):active { transform: translateY(0); }
+
+        
+        .game-area { position: relative; height: 260px; background: #fafafa; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; }
+        .balloon-container { position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 2s; }
         .balloon { width: 80px; height: 100px; background: #e74c3c; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; position: relative; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.1); }
         .balloon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #e74c3c; }
         .string { width: 2px; height: 100px; background: #999; margin-top: 8px; transition: opacity 0.3s; }
@@ -27,27 +41,27 @@
         .cut-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: crosshair; }
         .hint { position: absolute; top: 20px; width: 100%; text-align: center; font-size: 16px; color: #aaa; pointer-events: none; opacity: 1; transition: opacity 0.3s; }
 
-        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 8</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
             <h2>Release the balloon</h2>
+            
         </div>
-        <div class="game-area">
+        <div class="game-area" >
+            
             <div class="hint" id="hint">Swipe to cut the string ✂️</div>
             <div class="balloon-container" id="balloon">
                 <div class="balloon"></div>
                 <div class="string" id="string"></div>
             </div>
             <div class="cut-zone" id="cutZone"></div>
+
         </div>
         <div class="footer">
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
@@ -59,25 +73,32 @@
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '9');
+            window.location.href = 'Poziom9.html'; 
+        }
 
+        const app = document.getElementById('app');
+        const verifyBtn = document.getElementById('verifyBtn');
+        let isDone = false;
+
+        
         const cutZone = document.getElementById('cutZone');
         const balloon = document.getElementById('balloon');
         const string = document.getElementById('string');
-        const verifyBtn = document.getElementById('verifyBtn');
         const hint = document.getElementById('hint');
         
         let startX = 0;
         let isSwiping = false;
-        let isCut = false;
 
         function startSwipe(e) {
-            if (isCut) return;
+            if (isDone) return;
             isSwiping = true;
             startX = e.clientX || (e.touches && e.touches[0].clientX);
         }
 
         function moveSwipe(e) {
-            if (!isSwiping || isCut) return;
+            if (!isSwiping || isDone) return;
             if (e.cancelable) e.preventDefault();
             
             let currentX = e.clientX || (e.touches && e.touches[0].clientX);
@@ -89,11 +110,12 @@
         function endSwipe() { isSwiping = false; }
 
         function cutString() {
-            isCut = true;
+            isDone = true;
             string.style.opacity = '0';
             hint.style.opacity = '0';
-            balloon.style.transform = 'translateY(-300px)';
+            balloon.style.transform = 'translateY(-350px)';
             balloon.style.opacity = '0';
+            app.classList.add('success');
             verifyBtn.disabled = false;
         }
 
@@ -105,10 +127,6 @@
         cutZone.addEventListener('touchmove', moveSwipe, {passive: false});
         window.addEventListener('touchend', endSwipe);
 
-        function goToNextLevel() { 
-            localStorage.setItem('aktualnyPoziom', '9');
-            window.location.href = 'Poziom9.html'; 
-        }
     </script>
 </body>
 </html>
