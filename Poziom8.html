@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 8 - Cut the String</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header h2 { font-size: 28px; }
+
+        .game-area { position: relative; height: 260px; background: #fafafa; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; }
+        
+        .balloon-container { position: absolute; bottom: 0; display: flex; flex-direction: column; align-items: center; transition: transform 2s ease-in, opacity 2s; }
+        .balloon { width: 80px; height: 100px; background: #e74c3c; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; position: relative; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.1); }
+        .balloon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #e74c3c; }
+        .string { width: 2px; height: 100px; background: #999; margin-top: 8px; transition: opacity 0.3s; }
+        
+        .cut-zone { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; justify-content: center; align-items: center; cursor: crosshair; }
+        .hint { position: absolute; top: 20px; width: 100%; text-align: center; font-size: 16px; color: #aaa; pointer-events: none; opacity: 1; transition: opacity 0.3s; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
+        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <span class="level-badge">Level 8</span>
+            <h2>Release the balloon</h2>
+        </div>
+        <div class="game-area">
+            <div class="hint" id="hint">Swipe to cut the string ✂️</div>
+            <div class="balloon-container" id="balloon">
+                <div class="balloon"></div>
+                <div class="string" id="string"></div>
+            </div>
+            <div class="cut-zone" id="cutZone"></div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        const cutZone = document.getElementById('cutZone');
+        const balloon = document.getElementById('balloon');
+        const string = document.getElementById('string');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const hint = document.getElementById('hint');
+        
+        let startX = 0;
+        let isSwiping = false;
+        let isCut = false;
+
+        function startSwipe(e) {
+            if (isCut) return;
+            isSwiping = true;
+            startX = e.clientX || (e.touches && e.touches[0].clientX);
+        }
+
+        function moveSwipe(e) {
+            if (!isSwiping || isCut) return;
+            let currentX = e.clientX || (e.touches && e.touches[0].clientX);
+            
+            // Jeśli ruch (swipe) w poziomie jest większy niż 60px
+            if (Math.abs(currentX - startX) > 60) {
+                cutString();
+            }
+        }
+
+        function endSwipe() { isSwiping = false; }
+
+        function cutString() {
+            isCut = true;
+            string.style.opacity = '0';
+            hint.style.opacity = '0';
+            balloon.style.transform = 'translateY(-300px)';
+            balloon.style.opacity = '0';
+            verifyBtn.disabled = false;
+        }
+
+        cutZone.addEventListener('mousedown', startSwipe);
+        cutZone.addEventListener('mousemove', moveSwipe);
+        window.addEventListener('mouseup', endSwipe);
+
+        cutZone.addEventListener('touchstart', startSwipe);
+        cutZone.addEventListener('touchmove', moveSwipe);
+        window.addEventListener('touchend', endSwipe);
+
+        function goToNextLevel() { window.location.href = 'Poziom9.html'; }
+    </script>
+</body>
+</html>
