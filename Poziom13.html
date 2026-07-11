@@ -10,15 +10,12 @@
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* Zaktualizowany header, aby pomieścić przycisk restartu */
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; position: relative; }
-        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #d93025; }
         .header h2 { font-size: 28px; }
-
-        /* Przycisk Restartu */
-        .restart-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: background 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .restart-btn:hover { background: rgba(255, 255, 255, 0.4); }
 
         .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 280px; }
         
@@ -26,7 +23,7 @@
         
         .target-line { position: absolute; bottom: 80%; width: 100%; border-bottom: 3px dashed #2ecc71; z-index: 10; }
         
-        .water { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3498db; transition: background 0.3s; }
+        .water { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3498db; transition: height 0.1s linear, background 0.3s; }
         
         .pour-btn { background: #34495e; color: white; border: none; padding: 15px 0; width: 100%; border-radius: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 0 #2c3e50; transition: transform 0.1s, box-shadow 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; }
         .pour-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #2c3e50; }
@@ -39,96 +36,81 @@
 <body>
     <div class="captcha-box">
         <div class="header">
-            <span class="level-badge">Level 13</span>
-            <button class="restart-btn" onclick="resetGame()">↺ Restart</button>
-            <h2>Pour perfectly</h2>
+            <div class="header-top">
+                <span class="level-badge">Level 13</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Perfect Pour</h2>
         </div>
         <div class="game-area">
             <div class="glass">
                 <div class="target-line"></div>
                 <div class="water" id="water"></div>
             </div>
-            <button class="pour-btn" id="pourBtn">💧 HOLD TO POUR</button>
+            <button class="pour-btn" id="pourBtn">HOLD TO POUR</button>
         </div>
         <div class="footer">
-            <button class="btn-verify" id="verifyBtn" onclick="finishGame()" disabled>Zakończ grę</button>
+            <button class="btn-verify" id="verifyBtn" disabled>Verify</button>
         </div>
     </div>
 
     <script>
-        // ZAPIS POSTĘPU: Od razu po wejściu na ten poziom, zapisujemy go
         localStorage.setItem('aktualnyPoziom', '13');
 
-        // FUNKCJA RESTARTU
-        function resetGame() {
-            if(confirm("Czy na pewno chcesz zresetować cały postęp i zacząć od nowa?")) {
-                localStorage.setItem('aktualnyPoziom', '1');
-                window.location.href = 'index.html'; // Zmień na swój plik startowy
-            }
+        function resetAllProgress() {
+            localStorage.setItem('aktualnyPoziom', '1');
+            window.location.href = 'index.html';
         }
 
         const pourBtn = document.getElementById('pourBtn');
         const water = document.getElementById('water');
         const verifyBtn = document.getElementById('verifyBtn');
-        
         let fillLevel = 0;
-        let fillInterval;
-        let isPouring = false;
+        let pourInterval;
         let isDone = false;
 
-        function startPour(e) {
+        function startPouring(e) {
             if (e && e.cancelable) e.preventDefault();
-            if (isDone || isPouring) return;
-            isPouring = true;
-            
-            water.style.background = '#3498db'; 
-            
-            fillInterval = setInterval(() => {
-                fillLevel += 1; 
-                water.style.height = `${fillLevel}%`;
-                
-                if (fillLevel >= 100) {
-                    stopPour();
-                }
-            }, 15); 
+            if (isDone) return;
+            pourInterval = setInterval(() => {
+                fillLevel += 1;
+                if (fillLevel >= 100) fillLevel = 100;
+                water.style.height = fillLevel + '%';
+            }, 20);
         }
 
-        function stopPour(e) {
-            if (!isPouring || isDone) return;
-            isPouring = false;
-            clearInterval(fillInterval);
+        function stopPouring() {
+            if (isDone) return;
+            clearInterval(pourInterval);
+            checkLevel();
+        }
 
-            // Tolerancja: cel to 80%, zalicza w przedziale 77% - 83%
-            if (fillLevel >= 77 && fillLevel <= 83) {
-                water.style.background = '#2ecc71'; 
+        function checkLevel() {
+            if (fillLevel > 75 && fillLevel < 85) {
+                isDone = true;
+                water.style.background = '#2ecc71';
+                verifyBtn.disabled = false;
                 pourBtn.style.opacity = '0.5';
                 pourBtn.style.pointerEvents = 'none';
-                pourBtn.innerText = 'PERFECT!';
-                isDone = true;
-                verifyBtn.disabled = false;
-            } else if (fillLevel > 83) {
-                water.style.background = '#e74c3c'; 
+            } else if (fillLevel > 0) {
+                // Skucha - za mało lub za dużo - czyszczenie
+                water.style.background = '#e74c3c';
                 setTimeout(() => {
-                    fillLevel = 0;
-                    water.style.height = '0%';
+                    if (!isDone) {
+                        fillLevel = 0;
+                        water.style.height = '0%';
+                        water.style.background = '#3498db';
+                    }
                 }, 800);
-            } else {
-                fillLevel = 0;
-                water.style.height = '0%';
             }
         }
 
-        pourBtn.addEventListener('mousedown', startPour);
-        window.addEventListener('mouseup', stopPour); 
+        pourBtn.addEventListener('mousedown', startPouring);
+        pourBtn.addEventListener('mouseup', stopPouring);
+        pourBtn.addEventListener('mouseleave', stopPouring);
 
-        pourBtn.addEventListener('touchstart', startPour, {passive: false});
-        window.addEventListener('touchend', stopPour);
-
-        function finishGame() {
-            alert("GRATULACJE! Dotarłeś do końca! Masz świetny refleks. 🏆");
-            localStorage.setItem('aktualnyPoziom', '1'); // Automatyczny reset po przejściu gry
-            window.location.href = 'index.html'; // Powrót na stronę główną
-        }
+        pourBtn.addEventListener('touchstart', startPouring, {passive: false});
+        pourBtn.addEventListener('touchend', stopPouring);
     </script>
 </body>
 </html>
