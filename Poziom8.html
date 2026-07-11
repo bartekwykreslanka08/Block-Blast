@@ -67,9 +67,9 @@
 
         function moveSwipe(e) {
             if (!isSwiping || isCut) return;
-            let currentX = e.clientX || (e.touches && e.touches[0].clientX);
+            if (e.cancelable) e.preventDefault();
             
-            // Jeśli ruch (swipe) w poziomie jest większy niż 60px
+            let currentX = e.clientX || (e.touches && e.touches[0].clientX);
             if (Math.abs(currentX - startX) > 60) {
                 cutString();
             }
@@ -90,11 +90,14 @@
         cutZone.addEventListener('mousemove', moveSwipe);
         window.addEventListener('mouseup', endSwipe);
 
-        cutZone.addEventListener('touchstart', startSwipe);
-        cutZone.addEventListener('touchmove', moveSwipe);
+        cutZone.addEventListener('touchstart', startSwipe, {passive: false});
+        cutZone.addEventListener('touchmove', moveSwipe, {passive: false});
         window.addEventListener('touchend', endSwipe);
 
-        function goToNextLevel() { window.location.href = 'Poziom9.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '9');
+            window.location.href = 'Poziom9.html'; 
+        }
     </script>
 </body>
 </html>
