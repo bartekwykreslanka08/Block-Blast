@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poziom 1 - Wybierz Warszawę</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .captcha-box { background: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 400px; border: 1px solid #ccc; overflow: hidden;}
+        
+        .header { background-color: #4A90E2; color: white; padding: 20px; }
+        .header p { margin: 0; font-size: 0.9rem; }
+        .header h2 { margin: 5px 0 0; font-size: 1.6rem; font-weight: 600; }
+        
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: white; }
+        
+        .img-container { 
+            position: relative; 
+            aspect-ratio: 1; 
+            cursor: pointer; 
+            overflow: hidden;
+        }
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s;
+            display: block;
+        }
+        
+        /* Stylizacja po zaznaczeniu zdjęcia */
+        .img-container.selected img {
+            transform: scale(0.85);
+        }
+        .img-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent;
+            z-index: 1;
+            transition: 0.2s;
+        }
+        .img-container.selected::before {
+            border: 5px solid #4A90E2;
+            background: rgba(74, 144, 226, 0.2);
+        }
+        .img-container.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px; right: 8px;
+            background: #4A90E2; color: white;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 14px; font-weight: bold;
+            z-index: 2;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; background: #fafafa;}
+        
+        .btn-verify { background-color: #4A90E2; color: white; border: none; padding: 10px 30px; font-size: 1rem; border-radius: 4px; cursor: pointer; text-decoration: none; font-weight: 600; text-transform: uppercase;}
+        .btn-verify:hover { background-color: #357ABD; }
+        
+        .btn-refresh { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: 0.3s; }
+        .btn-refresh:hover { color: #333; transform: rotate(180deg); }
+    </style>
+</head>
+<body>
+
+    <div class="captcha-box">
+        <div class="header">
+            <p>Zaznacz wszystkie zdjęcia z</p>
+            <h2>Warszawą</h2>
+        </div>
+        <div class="grid">
+            <div class="img-container" data-id="1" onclick="toggleSelect(this)"><img src="Poziom1zdjecie1.jpg" alt="Zdjecie 1"></div>
+            <div class="img-container" data-id="2" onclick="toggleSelect(this)"><img src="Poziom1zdjecie2.jpg" alt="Zdjecie 2"></div>
+            <div class="img-container" data-id="3" onclick="toggleSelect(this)"><img src="Poziom1zdjecie3.jpg" alt="Zdjecie 3"></div>
+            <div class="img-container" data-id="4" onclick="toggleSelect(this)"><img src="Poziom1zdjecie4.jpg" alt="Zdjecie 4"></div>
+            <div class="img-container" data-id="5" onclick="toggleSelect(this)"><img src="Poziom1zdjecie5.jpg" alt="Zdjecie 5"></div>
+            <div class="img-container" data-id="6" onclick="toggleSelect(this)"><img src="Poziom1zdjecie6.jpg" alt="Zdjecie 6"></div>
+            <div class="img-container" data-id="7" onclick="toggleSelect(this)"><img src="Poziom1zdjecie7.jpg" alt="Zdjecie 7"></div>
+            <div class="img-container" data-id="8" onclick="toggleSelect(this)"><img src="Poziom1zdjecie8.jpg" alt="Zdjecie 8"></div>
+            <div class="img-container" data-id="9" onclick="toggleSelect(this)"><img src="Poziom1zdjecie9.jpg" alt="Zdjecie 9"></div>
+        </div>
+        <div class="footer">
+            <button class="btn-refresh" onclick="resetSelection()">↻</button>
+            <button class="btn-verify" onclick="verifyCaptcha()">Verify</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSelect(element) {
+            element.classList.toggle('selected');
+        }
+
+        function resetSelection() {
+            document.querySelectorAll('.img-container').forEach(el => el.classList.remove('selected'));
+        }
+
+        function verifyCaptcha() {
+            let selectedIds = [];
+            document.querySelectorAll('.img-container.selected').forEach(el => {
+                selectedIds.push(parseInt(el.getAttribute('data-id')));
+            });
+
+            // Sortujemy dla pewności
+            selectedIds.sort((a, b) => a - b);
+
+            // Definiujemy poprawne odpowiedzi (Zdjecia nr: 3, 7, 9)
+            const correctAnswers = [3, 7, 9];
+
+            // Porównujemy tablice
+            if (JSON.stringify(selectedIds) === JSON.stringify(correctAnswers)) {
+                // Jeśli poprawne, przenosi do Poziomu 2
+                window.location.href = 'Poziom2.html';
+            } else {
+                // Jeśli błędne
+                alert("Błąd weryfikacji! Spróbuj ponownie.");
+                resetSelection();
+            }
+        }
+    </script>
+</body>
+</html>
