@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 17 - Find the A</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 20px 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .btn-reset:hover { background: #e74c3c; }
+        
+        .game-area { padding: 25px; text-align: center; }
+        .letters-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 15px; }
+        .letter { font-size: 24px; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; background: #eee; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .letter:hover { transform: scale(1.1); background: #ddd; }
+        .letter.found { background: #2ecc71; color: white; pointer-events: none; transform: scale(0.9); }
+        .letter.wrong { background: #e74c3c; color: white; animation: shake 0.3s; }
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .progress { color: #7f8c8d; font-size: 18px; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; opacity: 0.5; }
+        .btn-verify.active { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 17</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Click on all the 'A's</h2>
+        </div>
+        <div class="game-area">
+            <div class="letters-grid" id="grid"></div>
+            <div class="progress" id="progressText">Found: 0 / 6</div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        localStorage.setItem('aktualnyPoziom', '17');
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        function goToNextLevel() { window.location.href = 'Poziom18.html'; }
+
+        const grid = document.getElementById('grid');
+        const progressText = document.getElementById('progressText');
+        const verifyBtn = document.getElementById('verifyBtn');
+        
+        const totalA = 6;
+        let found = 0;
+        let letters = "BCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+        let levelData = [];
+
+        // Fill with random letters
+        for(let i=0; i<30; i++) levelData.push(letters[Math.floor(Math.random() * letters.length)]);
+        // Inject exactly 6 'A's
+        for(let i=0; i<totalA; i++) levelData[i] = 'A';
+        // Shuffle
+        levelData.sort(() => Math.random() - 0.5);
+
+        levelData.forEach(char => {
+            let el = document.createElement('div');
+            el.className = 'letter';
+            el.innerText = char;
+            el.onclick = function() {
+                if(char === 'A') {
+                    if(!this.classList.contains('found')) {
+                        this.classList.add('found');
+                        found++;
+                        progressText.innerText = `Found: ${found} / ${totalA}`;
+                        if(found === totalA) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.classList.add('active');
+                            progressText.style.color = '#2ecc71';
+                            progressText.innerText = 'All found!';
+                        }
+                    }
+                } else {
+                    this.classList.add('wrong');
+                    setTimeout(() => this.classList.remove('wrong'), 300);
+                }
+            };
+            grid.appendChild(el);
+        });
+    </script>
+</body>
+</html>
