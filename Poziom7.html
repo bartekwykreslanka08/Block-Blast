@@ -6,128 +6,128 @@
     <title>Level 7 - Balance</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
-        .header h2 { font-size: 28px; letter-spacing: 1px; }
+        .header h2 { font-size: 28px; }
 
-        .game-area { position: relative; height: 220px; background: #fafafa; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 20px; }
+        .game-area { position: relative; height: 260px; background: #fafafa; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         
-        /* Kontrolki dotykowe (Podział na pół) */
-        .touch-zone { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 10; display: flex; justify-content: center; align-items: center; color: rgba(0,0,0,0.05); font-size: 40px; }
-        #leftZone { left: 0; }
-        #rightZone { right: 0; }
-        .touch-zone:active { background: rgba(0,0,0,0.02); }
+        .see-saw-container { position: relative; width: 100%; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin-bottom: 30px; }
+        
+        /* Deska i punkt podparcia */
+        .board { width: 80%; height: 12px; background: #8d6e63; border-radius: 6px; transform-origin: center; transition: transform 0.1s ease-out; position: relative; }
+        .triangle { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 35px solid #4A90E2; margin-top: -2px; z-index: 2; }
+        
+        /* Ciężarek na desce */
+        .weight { width: 30px; height: 30px; background: #e74c3c; border-radius: 6px; position: absolute; bottom: 12px; left: 10%; transform: translateX(-50%); transition: left 0.1s ease-out; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 2px solid #c0392b; }
 
-        .see-saw-container { position: relative; width: 80%; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 5; pointer-events: none; }
-        .board { width: 100%; height: 12px; background: #8d6e63; border-radius: 6px; transform-origin: center; transition: transform 0.1s linear; position: relative; }
-        .board::after { content: ''; position: absolute; left: 50%; top: -15px; transform: translateX(-50%); width: 16px; height: 16px; background: #0f9d58; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .triangle { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 35px solid #4A90E2; margin-top: -2px; }
-
-        .progress-container { width: 100%; height: 8px; background: #eee; margin-top: 20px; position: relative; z-index: 20; }
-        .progress-bar { height: 100%; width: 0%; background: #0f9d58; transition: width 0.1s; }
+        /* Suwak */
+        .slider-container { width: 80%; margin-bottom: 15px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #ddd; border-radius: 5px; }
+        input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #4A90E2; cursor: pointer; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* Pasek postępu */
+        .progress-container { width: 80%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: #0f9d58; transition: width 0.1s linear, background-color 0.3s; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; align-items: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; box-shadow: none; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); transition: opacity 0.3s; }
+        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
     </style>
 </head>
 <body>
     <div class="captcha-box">
         <div class="header">
             <span class="level-badge">Level 7</span>
-            <p>Hold the sides to balance</p>
-            <h2>Keep it steady</h2>
+            <h2>Find the balance</h2>
         </div>
         <div class="game-area">
-            <div class="touch-zone" id="leftZone" onmousedown="pressLeft()" onmouseup="release()" onmouseleave="release()" ontouchstart="pressLeft()" ontouchend="release()">◀</div>
-            <div class="touch-zone" id="rightZone" onmousedown="pressRight()" onmouseup="release()" onmouseleave="release()" ontouchstart="pressRight()" ontouchend="release()">▶</div>
-            
             <div class="see-saw-container">
-                <div class="board" id="board"></div>
+                <div class="board" id="board">
+                    <div class="weight" id="weight"></div>
+                </div>
                 <div class="triangle"></div>
             </div>
+            
+            <div class="slider-container">
+                <input type="range" id="balanceSlider" min="0" max="100" value="10">
+            </div>
+
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
         <div class="footer">
-            <button class="btn-verify" id="verifyBtn" onclick="finishGame()" disabled>Complete</button>
+            <button class="btn-verify" id="verifyBtn" onclick="finishGame()" disabled>Verify</button>
         </div>
     </div>
 
     <script>
         const board = document.getElementById('board');
+        const weight = document.getElementById('weight');
+        const slider = document.getElementById('balanceSlider');
         const progressBar = document.getElementById('progressBar');
         const verifyBtn = document.getElementById('verifyBtn');
-        const boardIndicator = document.querySelector('.board');
         
-        let angle = 0;
         let progress = 0;
-        let isLeftPressed = false;
-        let isRightPressed = false;
-        let gameLoop;
-        let windForce = 0;
         let gameActive = true;
 
-        function pressLeft() { if(gameActive) isLeftPressed = true; }
-        function pressRight() { if(gameActive) isRightPressed = true; }
-        function release() { isLeftPressed = false; isRightPressed = false; }
+        // Inicjalne ustawienie
+        updatePhysics();
 
-        function updateGame() {
+        slider.addEventListener('input', updatePhysics);
+
+        function updatePhysics() {
+            if (!gameActive) return;
+            
+            let val = parseInt(slider.value);
+            
+            // Przesuń ciężarek (val od 0 do 100%)
+            weight.style.left = `${val}%`;
+            
+            // Oblicz kąt deski (50 to środek, więc 0 stopni)
+            // Jeśli val = 0, kąt = -25 stopni. Jeśli val = 100, kąt = 25 stopni.
+            let angle = (val - 50) * 0.5;
+            board.style.transform = `rotate(${angle}deg)`;
+        }
+
+        // Pętla sprawdzająca, czy ciężarek jest na środku
+        setInterval(() => {
             if (!gameActive) return;
 
-            // Zmiana losowej siły wiatru/grawitacji co chwilę
-            if (Math.random() < 0.05) {
-                windForce = (Math.random() - 0.5) * 1.5;
-            }
-
-            // Aplikowanie sił
-            angle += windForce;
-            if (isLeftPressed) angle -= 2;
-            if (isRightPressed) angle += 2;
-
-            // Wizualizacja
-            board.style.transform = `rotate(${angle}deg)`;
-
-            // Logika balansu (jeśli kąt między -7 a 7 stopni, pasek rośnie)
-            if (Math.abs(angle) < 7) {
-                progress += 0.5;
-                boardIndicator.style.setProperty('--color', '#0f9d58'); // Można zmieniać kolor kropki 
+            let val = parseInt(slider.value);
+            
+            // Jeśli ciężarek jest blisko środka (między 43 a 57)
+            if (val > 43 && val < 57) {
+                progress += 5; // pasek rośnie
+                weight.style.background = "#2ecc71"; // zmienia kolor na zielony
+                weight.style.borderColor = "#27ae60";
             } else {
-                progress -= 0.8; // spada jeśli nierówno
+                progress -= 5; // pasek spada
+                weight.style.background = "#e74c3c";
+                weight.style.borderColor = "#c0392b";
             }
 
-            // Kary za ekstremalne przechylenie
-            if (Math.abs(angle) > 25) {
-                progress = 0; // reset
-            }
-
-            // Ograniczenia
+            // Limity postępu
             if (progress < 0) progress = 0;
-            if (angle > 45) angle = 45;
-            if (angle < -45) angle = -45;
+            if (progress > 100) progress = 100;
 
             progressBar.style.width = `${progress}%`;
 
-            if (progress >= 100) {
+            // Wygrana
+            if (progress === 100) {
                 gameActive = false;
-                progressBar.style.background = "#4A90E2";
+                slider.disabled = true;
                 verifyBtn.disabled = false;
-                angle = 0;
-                board.style.transform = `rotate(0deg)`;
-                return; // Stop the loop
+                progressBar.style.background = "#4A90E2";
             }
-
-            gameLoop = requestAnimationFrame(updateGame);
-        }
-
-        // Start gry
-        gameLoop = requestAnimationFrame(updateGame);
+        }, 100);
 
         function finishGame() {
             alert("SUCCESS! You passed all 7 levels. You are definitely a human! 🤖🚫");
