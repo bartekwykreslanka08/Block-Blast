@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 5 - Simon Says</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
+        .header h2 { font-size: 28px; letter-spacing: 1px; }
+
+        .game-area { padding: 24px; display: flex; justify-content: center; align-items: center; flex-direction: column; background: #fafafa; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 250px; aspect-ratio: 1; }
+        
+        .pad { border-radius: 12px; cursor: pointer; transition: transform 0.1s, filter 0.1s; opacity: 0.5; box-shadow: 0 6px 0 rgba(0,0,0,0.2); }
+        .pad:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        .pad.active { opacity: 1; filter: brightness(1.3); transform: scale(1.05); }
+        
+        #pad-0 { background-color: #ef5350; }
+        #pad-1 { background-color: #42a5f5; }
+        #pad-2 { background-color: #66bb6a; }
+        #pad-3 { background-color: #ffca28; }
+
+        .status-msg { margin-bottom: 16px; font-size: 16px; color: #555; text-align: center; height: 20px; }
+        .footer { padding: 16px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; align-items: center; background: #fff; }
+        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
+        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; box-shadow: none; }
+    </style>
+</head>
+<body>
+    <div class="captcha-box">
+        <div class="header">
+            <span class="level-badge">Level 5</span>
+            <p>Test your memory</p>
+            <h2>Simon Says</h2>
+        </div>
+        <div class="game-area">
+            <div class="status-msg" id="statusMsg">Watch the sequence...</div>
+            <div class="grid">
+                <div class="pad" id="pad-0" onclick="handleTap(0)"></div>
+                <div class="pad" id="pad-1" onclick="handleTap(1)"></div>
+                <div class="pad" id="pad-2" onclick="handleTap(2)"></div>
+                <div class="pad" id="pad-3" onclick="handleTap(3)"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        let sequence = [];
+        let playerSequence = [];
+        let round = 0;
+        const maxRounds = 3;
+        let isPlayerTurn = false;
+        const statusMsg = document.getElementById('statusMsg');
+        const verifyBtn = document.getElementById('verifyBtn');
+
+        function startRound() {
+            isPlayerTurn = false;
+            playerSequence = [];
+            statusMsg.innerText = "Watch the sequence...";
+            sequence.push(Math.floor(Math.random() * 4));
+            playSequence();
+        }
+
+        function playSequence() {
+            let delay = 0;
+            sequence.forEach((colorIndex, index) => {
+                setTimeout(() => { activatePad(colorIndex); }, delay += 600);
+            });
+            setTimeout(() => { 
+                isPlayerTurn = true; 
+                statusMsg.innerText = "Your turn!"; 
+            }, delay + 600);
+        }
+
+        function activatePad(index) {
+            const pad = document.getElementById(`pad-${index}`);
+            pad.classList.add('active');
+            setTimeout(() => pad.classList.remove('active'), 300);
+        }
+
+        function handleTap(index) {
+            if (!isPlayerTurn) return;
+            activatePad(index);
+            playerSequence.push(index);
+            
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                statusMsg.innerText = "Wrong! Restarting...";
+                statusMsg.style.color = "#d93025";
+                sequence = []; round = 0;
+                setTimeout(() => { statusMsg.style.color = "#555"; startRound(); }, 1500);
+                return;
+            }
+
+            if (playerSequence.length === sequence.length) {
+                round++;
+                if (round === maxRounds) {
+                    statusMsg.innerText = "Success!";
+                    statusMsg.style.color = "#0f9d58";
+                    isPlayerTurn = false;
+                    verifyBtn.disabled = false;
+                } else {
+                    statusMsg.innerText = "Good! Get ready...";
+                    isPlayerTurn = false;
+                    setTimeout(startRound, 1000);
+                }
+            }
+        }
+        
+        setTimeout(startRound, 1000);
+        function goToNextLevel() { window.location.href = 'Poziom6.html'; }
+    </script>
+</body>
+</html>
