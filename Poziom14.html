@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 14 - Focus Tuning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.3s; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.2); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.3s; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
+
+        .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; gap: 40px; align-items: center; }
+        
+        /* Focus Target Area */
+        .focus-container {
+            width: 100%;
+            height: 120px;
+            background: #e8effa;
+            border-radius: 8px;
+            border: 2px dashed #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .success .focus-container {
+            border-color: #2ecc71;
+            background: #eafaf1;
+            border-style: solid;
+        }
+        .focus-target {
+            font-size: 38px;
+            color: #2c3e50;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            filter: blur(15px); /* Initial blur state */
+            transition: filter 0.1s;
+        }
+
+        /* Slider */
+        .controls { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+        .controls label { font-size: 14px; color: #555; text-align: center; margin-bottom: 10px; }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #ddd; border-radius: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        input[type=range]::-webkit-slider-thumb { height: 28px; width: 28px; border-radius: 50%; background: #3498db; cursor: pointer; -webkit-appearance: none; margin-top: -9px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
+        input[type=range]:disabled::-webkit-slider-thumb { background: #2ecc71; cursor: default; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box" id="app">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 14</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Adjust Focus</h2>
+        </div>
+        <div class="game-area">
+            
+            <div class="focus-container">
+                <div class="focus-target" id="focusText">ACCESS</div>
+            </div>
+            
+            <div class="controls">
+                <label>Find the clear frequency</label>
+                <!-- Slider goes from 0 to 100. The target "perfect focus" will be exactly at 50 -->
+                <input type="range" id="focusSlider" min="0" max="100" value="0" step="1">
+            </div>
+
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        function resetAllProgress() {
+            localStorage.setItem('aktualnyPoziom', '1');
+            window.location.href = 'index.html';
+        }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '15');
+            window.location.href = 'Poziom15.html'; 
+        }
+
+        const slider = document.getElementById('focusSlider');
+        const focusText = document.getElementById('focusText');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const app = document.getElementById('app');
+        
+        let isDone = false;
+
+        // Function to calculate and apply the blur
+        function updateFocus() {
+            if (isDone) return;
+
+            let val = parseInt(slider.value);
+            // The ideal value is 50. The further away from 50, the higher the blur.
+            // Math.abs turns negative distances into positive ones.
+            let blurAmount = Math.abs(val - 50) / 2; // Divide by 2 to make the blur a bit gentler
+
+            // Magnetic snap mechanism - if player is very close to perfect (blur < 1.5)
+            if (blurAmount < 1.5) {
+                slider.value = 50;
+                blurAmount = 0;
+                isDone = true;
+                slider.disabled = true;
+                verifyBtn.disabled = false;
+                app.classList.add('success');
+            }
+
+            // Apply CSS filter
+            focusText.style.filter = `blur(${blurAmount}px)`;
+        }
+
+        slider.addEventListener('input', updateFocus);
+        
+        // Initialize the correct blur on page load
+        updateFocus();
+    </script>
+</body>
+</html>
