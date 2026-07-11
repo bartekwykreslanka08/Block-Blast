@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -19,7 +19,7 @@
 
         .game-area { background: #fafafa; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         
-        /* Ekran oscyloskopu */
+        /* Oscilloscope screen */
         .oscilloscope-container {
             width: 100%;
             height: 160px;
@@ -39,7 +39,7 @@
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* Suwaki i kontrolki */
+        /* Sliders and controls */
         .controls { display: flex; flex-direction: column; gap: 15px; }
         .control-group { display: flex; flex-direction: column; gap: 8px; }
         .control-group label { font-size: 14px; color: #555; display: flex; justify-content: space-between; }
@@ -82,11 +82,11 @@
             
             <div class="controls">
                 <div class="control-group">
-                    <label>Frequency (Częstotliwość) <span id="freqVal">--</span></label>
+                    <label>Frequency <span id="freqVal">--</span></label>
                     <input type="range" id="freqSlider" min="10" max="80" value="10" step="1">
                 </div>
                 <div class="control-group">
-                    <label>Amplitude (Amplituda) <span id="ampVal">--</span></label>
+                    <label>Amplitude <span id="ampVal">--</span></label>
                     <input type="range" id="ampSlider" min="10" max="60" value="10" step="1">
                 </div>
             </div>
@@ -114,13 +114,13 @@
         const app = document.getElementById('app');
         
         let isDone = false;
-        let phase = 0; // Odpowiada za płynne przesuwanie fal
+        let phase = 0; // Responsible for smooth wave scrolling
 
-        // Wylosowane parametry sygnału docelowego
+        // Random target signal parameters
         const targetFreq = 45; 
         const targetAmp = 40;  
 
-        // Kalibracja Canvasa pod ekrany o wysokiej rozdzielczości (Retina/Smartfony) - żeby linie były ostre
+        // Canvas calibration for high-res screens (Retina/Smartphones) - keeps lines sharp
         function resizeCanvas() {
             const rect = canvas.parentElement.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
@@ -142,7 +142,7 @@
             const cy = height / 2;
             
             for (let x = 0; x <= width; x++) {
-                // Skomplikowanie brzmiący, ale prosty wzór na falę (Sinusoida)
+                // Complex-sounding but simple wave formula (Sine wave)
                 const y = cy + Math.sin((x / width) * (freq / 10) * Math.PI * 2 + phaseOffset) * amp;
                 if (x === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
@@ -154,13 +154,13 @@
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            // Pionowe linie
+            // Vertical lines
             for (let x = 0; x < width; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
-            // Poziome linie
+            // Horizontal lines
             for (let y = 0; y < height; y += 20) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
             ctx.stroke();
             
-            // Główna oś środkowa
+            // Main central axis
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.beginPath();
             ctx.moveTo(0, height / 2);
@@ -173,7 +173,7 @@
             const w = rect.width;
             const h = rect.height;
 
-            // Czyszczenie ekranu
+            // Clear screen
             ctx.clearRect(0, 0, w, h);
             
             drawGrid(w, h);
@@ -181,7 +181,7 @@
             let currentFreq = parseFloat(freqSlider.value);
             let currentAmp = parseFloat(ampSlider.value);
 
-            // Mechanizm "Magnetyczny" - jeśli gracz jest bardzo blisko, gra dociąga wartości do ideału
+            // "Magnetic" mechanism - if player is very close, game snaps values to ideal
             if (!isDone) {
                 const freqDiff = Math.abs(currentFreq - targetFreq);
                 const ampDiff = Math.abs(currentAmp - targetAmp);
@@ -200,24 +200,24 @@
                 }
             }
 
-            // Aktualizacja etykiet tekstowych
+            // Update text labels
             document.getElementById('freqVal').innerText = currentFreq + " Hz";
             document.getElementById('ampVal').innerText = currentAmp + " dB";
 
-            // Rysowanie fali docelowej (słaba, w tle)
+            // Draw target wave (faint, in background)
             drawWave(ctx, targetFreq, targetAmp, 'rgba(255, 255, 255, 0.3)', phase, 2, w, h);
 
-            // Rysowanie fali gracza
+            // Draw player's wave
             const playerColor = isDone ? '#2ecc71' : '#3498db';
             drawWave(ctx, currentFreq, currentAmp, playerColor, phase, 3, w, h);
 
-            // Przesunięcie animacji
+            // Animation offset
             phase += 0.08;
 
             requestAnimationFrame(animate);
         }
 
-        // Start animacji
+        // Start animation
         animate();
     </script>
 </body>
