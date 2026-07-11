@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification</title>
+    <title>Weryfikacja</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
@@ -67,7 +67,6 @@
             display: none; 
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -92,10 +91,21 @@
             checkboxBox.style.border = 'none';
             checkboxBox.style.background = 'transparent';
             
+            // Sprawdzenie, czy użytkownik ma zapisany poziom
+            let poziom = localStorage.getItem('aktualnyPoziom');
+            
+            // Jeśli nie grał wcześniej, ustawiamy na poziom 1
+            if (!poziom) {
+                poziom = '1';
+                localStorage.setItem('aktualnyPoziom', poziom);
+            }
+            
+            // Przekierowanie po krótkiej animacji
             setTimeout(() => {
-                window.location.href = 'Poziom1.html';
+                window.location.href = `Poziom${poziom}.html`;
             }, 1200);
         });
     </script>
 </body>
 </html>
+
