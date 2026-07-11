@@ -6,7 +6,7 @@
     <title>Level 6 - Hold to Verify</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: manipulation; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; position: relative; }
@@ -16,7 +16,6 @@
 
         .game-area { position: relative; height: 220px; background: #fafafa; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
-        /* Styl przycisku trzymania */
         #holdBtn {
             width: 120px; height: 120px; border-radius: 50%;
             background: conic-gradient(#4A90E2 0deg, #e0e0e0 0deg);
@@ -33,7 +32,7 @@
         #verifyBtn { 
             background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; 
             text-transform: uppercase; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); 
-            display: none; /* Ukryty dopóki nie zostanie wypełnione */
+            display: none; 
         }
     </style>
 </head>
@@ -57,14 +56,13 @@
         let timer;
         let isDone = false;
 
-        function startLoading() {
+        function startLoading(e) {
+            if (e && e.cancelable) e.preventDefault();
             if (isDone) return;
             timer = setInterval(() => {
-                progress += 2; // Szybkość wypełniania
+                progress += 2;
                 updateUI();
-                if (progress >= 100) {
-                    complete();
-                }
+                if (progress >= 100) complete();
             }, 20);
         }
 
@@ -86,16 +84,17 @@
             verifyBtn.style.display = "block";
         }
 
-        // Eventy dla myszki
         holdBtn.addEventListener("mousedown", startLoading);
         holdBtn.addEventListener("mouseup", stopLoading);
         holdBtn.addEventListener("mouseleave", stopLoading);
 
-        // Eventy dla dotyku
-        holdBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startLoading(); });
+        holdBtn.addEventListener("touchstart", startLoading, {passive: false});
         holdBtn.addEventListener("touchend", stopLoading);
 
-        function goToNextLevel() { window.location.href = 'Poziom7.html'; }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '7');
+            window.location.href = 'Poziom7.html'; 
+        }
     </script>
 </body>
 </html>
