@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,16 +51,24 @@
             <button class="pour-btn" id="pourBtn">HOLD TO POUR</button>
         </div>
         <div class="footer">
-            <button class="btn-verify" id="verifyBtn" disabled>Verify</button>
+            <!-- Dodany atrybut onclick -->
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
         </div>
     </div>
 
     <script>
+        // Update current level in memory
         localStorage.setItem('aktualnyPoziom', '13');
 
         function resetAllProgress() {
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
+        }
+
+        // Added function to handle level progression
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '14');
+            window.location.href = 'Poziom14.html'; 
         }
 
         const pourBtn = document.getElementById('pourBtn');
@@ -86,6 +95,7 @@
         }
 
         function checkLevel() {
+            // Target line is at 80%, giving a margin of error (75 - 85)
             if (fillLevel > 75 && fillLevel < 85) {
                 isDone = true;
                 water.style.background = '#2ecc71';
@@ -93,7 +103,7 @@
                 pourBtn.style.opacity = '0.5';
                 pourBtn.style.pointerEvents = 'none';
             } else if (fillLevel > 0) {
-                // Skucha - za mało lub za dużo - czyszczenie
+                // Failed - too little or too much - resetting
                 water.style.background = '#e74c3c';
                 setTimeout(() => {
                     if (!isDone) {
@@ -105,10 +115,12 @@
             }
         }
 
+        // Mouse events
         pourBtn.addEventListener('mousedown', startPouring);
         pourBtn.addEventListener('mouseup', stopPouring);
         pourBtn.addEventListener('mouseleave', stopPouring);
 
+        // Touch events for mobile
         pourBtn.addEventListener('touchstart', startPouring, {passive: false});
         pourBtn.addEventListener('touchend', stopPouring);
     </script>
