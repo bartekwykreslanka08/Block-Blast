@@ -11,7 +11,11 @@
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
-        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #d93025; }
+
         .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
         .header h2 { font-size: 28px; letter-spacing: 1px; }
 
@@ -36,7 +40,10 @@
 <body>
     <div class="captcha-box">
         <div class="header">
-            <span class="level-badge">Level 5</span>
+            <div class="header-top">
+                <span class="level-badge">Level 5</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
             <p>Test your memory</p>
             <h2>Simon Says</h2>
         </div>
@@ -55,6 +62,14 @@
     </div>
 
     <script>
+        // Zapisanie aktualnego poziomu
+        localStorage.setItem('aktualnyPoziom', '5');
+
+        function resetAllProgress() {
+            localStorage.setItem('aktualnyPoziom', '1');
+            window.location.href = 'index.html';
+        }
+
         let sequence = [];
         let playerSequence = [];
         let round = 0;
