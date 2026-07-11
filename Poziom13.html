@@ -18,13 +18,10 @@
         
         .glass { width: 100px; height: 160px; border: 4px solid #bdc3c7; border-top: none; border-radius: 0 0 12px 12px; position: relative; overflow: hidden; background: white; margin-bottom: 20px; }
         
-        /* Linia docelowa */
         .target-line { position: absolute; bottom: 80%; width: 100%; border-bottom: 3px dashed #2ecc71; z-index: 10; }
         
-        /* Woda */
         .water { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: #3498db; transition: background 0.3s; }
         
-        /* Przycisk nalewania */
         .pour-btn { background: #34495e; color: white; border: none; padding: 15px 0; width: 100%; border-radius: 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 0 #2c3e50; transition: transform 0.1s, box-shadow 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .pour-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #2c3e50; }
 
@@ -44,7 +41,6 @@
                 <div class="target-line"></div>
                 <div class="water" id="water"></div>
             </div>
-            <!-- Przycisk dotykowy/myszkowy -->
             <button class="pour-btn" id="pourBtn">💧 HOLD TO POUR</button>
         </div>
         <div class="footer">
@@ -63,61 +59,55 @@
         let isDone = false;
 
         function startPour(e) {
-            if (e) e.preventDefault();
+            if (e && e.cancelable) e.preventDefault();
             if (isDone || isPouring) return;
             isPouring = true;
             
-            // Kolor powraca do niebieskiego (jeśli wcześniej był błąd)
             water.style.background = '#3498db'; 
             
             fillInterval = setInterval(() => {
                 fillLevel += 1; 
                 water.style.height = `${fillLevel}%`;
                 
-                // Zabezpieczenie przed rozlaniem (100%)
                 if (fillLevel >= 100) {
                     stopPour();
                 }
-            }, 15); // Zmiana co 15ms
+            }, 15); 
         }
 
-        function stopPour() {
+        function stopPour(e) {
             if (!isPouring || isDone) return;
             isPouring = false;
             clearInterval(fillInterval);
 
-            // Sprawdź czy poziom jest w granicach tolerancji (linia jest na 80%)
-            // Dopuszczamy margines od 77% do 83%
             if (fillLevel >= 77 && fillLevel <= 83) {
-                // Wygrana
-                water.style.background = '#2ecc71'; // Zielony
+                water.style.background = '#2ecc71'; 
                 pourBtn.style.opacity = '0.5';
                 pourBtn.style.pointerEvents = 'none';
                 isDone = true;
                 verifyBtn.disabled = false;
             } else if (fillLevel > 83) {
-                // Przelane
-                water.style.background = '#e74c3c'; // Czerwony (error)
+                water.style.background = '#e74c3c'; 
                 setTimeout(() => {
                     fillLevel = 0;
                     water.style.height = '0%';
                 }, 800);
             } else {
-                // Za mało (reset bez czerwonego koloru)
                 fillLevel = 0;
                 water.style.height = '0%';
             }
         }
 
-        // Obsługa myszy i dotyku dla przycisku
         pourBtn.addEventListener('mousedown', startPour);
-        window.addEventListener('mouseup', stopPour); // Nasłuch na window by uniknąć zawieszenia gdy kursor ucieknie
+        window.addEventListener('mouseup', stopPour); 
 
-        pourBtn.addEventListener('touchstart', startPour);
+        pourBtn.addEventListener('touchstart', startPour, {passive: false});
         window.addEventListener('touchend', stopPour);
 
         function finishGame() {
             alert("GRATULACJE! Dotarłeś do końca! Masz świetny refleks. 🏆");
+            localStorage.setItem('aktualnyPoziom', '1'); // Reset progresu
+            window.location.href = 'index.html'; // Powrót na stronę główną (zmień nazwę jeśli masz inną)
         }
     </script>
 </body>
