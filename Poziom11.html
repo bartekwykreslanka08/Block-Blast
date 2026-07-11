@@ -9,38 +9,55 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
 
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.4s ease; position: relative; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
-        .header h2 { font-size: 28px; }
-
-        .game-area { position: relative; height: 260px; background: #fafafa; overflow: hidden; cursor: crosshair; }
-        .background-pattern { position: absolute; width: 100%; height: 100%; background: radial-gradient(#ddd 2px, transparent 2px); background-size: 20px 20px; }
-        .hidden-key { position: absolute; font-size: 35px; transition: transform 0.2s; cursor: pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-        .hidden-key:active { transform: scale(0.9); }
-        .flashlight-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; pointer-events: none; transition: background 0.1s; }
+        
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #e74c3c; }
+        .btn-reset:active { transform: scale(0.95); }
+        
+        .header h2 { font-size: 24px; letter-spacing: 0.5px; }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
-        .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
-        .btn-verify:disabled { background: #b3cdef; cursor: not-allowed; opacity: 0.6; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); box-shadow: none; transform: none; }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn-verify:not(:disabled):active { transform: translateY(0); }
+
+        
+        .game-area { position: relative; height: 260px; background: #fafafa; overflow: hidden; cursor: crosshair; }
+        .background-pattern { position: absolute; width: 100%; height: 100%; background: radial-gradient(#bdc3c7 2px, transparent 2px); background-size: 20px 20px; transition: opacity 0.5s; }
+        .hidden-key { position: absolute; font-size: 38px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s; cursor: pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .hidden-key:active { transform: scale(0.9); }
+        .flashlight-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; pointer-events: none; transition: opacity 0.5s ease; }
+        
+        .success .hidden-key { transform: scale(1.4) rotate(10deg); filter: drop-shadow(0 8px 15px rgba(241, 196, 15, 0.6)); z-index: 10; pointer-events: none; }
+        .success .flashlight-overlay { opacity: 0; }
+
     </style>
 </head>
 <body>
-    <div class="captcha-box">
+    <div class="captcha-box" id="app">
         <div class="header">
             <div class="header-top">
                 <span class="level-badge">Level 11</span>
                 <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
             </div>
             <h2>Find the key</h2>
+            
         </div>
         <div class="game-area" id="gameArea">
+            
             <div class="background-pattern"></div>
             <div class="hidden-key" id="key" onclick="foundKey()">🗝️</div>
             <div class="flashlight-overlay" id="flashlight"></div>
+
         </div>
         <div class="footer">
             <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
@@ -52,19 +69,26 @@
             localStorage.setItem('aktualnyPoziom', '1');
             window.location.href = 'index.html';
         }
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '12');
+            window.location.href = 'Poziom12.html'; 
+        }
 
-        const gameArea = document.getElementById('gameArea');
-        const flashlight = document.getElementById('flashlight');
-        const key = document.getElementById('key');
+        const app = document.getElementById('app');
         const verifyBtn = document.getElementById('verifyBtn');
         let isDone = false;
 
+        
+        const gameArea = document.getElementById('gameArea');
+        const flashlight = document.getElementById('flashlight');
+        const key = document.getElementById('key');
+
         function initGame() {
-            let x = Math.floor(Math.random() * 80) + 10; 
-            let y = Math.floor(Math.random() * 70) + 15; 
+            let x = Math.floor(Math.random() * 70) + 15; 
+            let y = Math.floor(Math.random() * 60) + 20; 
             key.style.left = `${x}%`;
             key.style.top = `${y}%`;
-            flashlight.style.background = `radial-gradient(circle at -100px -100px, transparent 40px, rgba(10,10,10,0.98) 90px)`;
+            flashlight.style.background = `radial-gradient(circle at -100px -100px, transparent 40px, rgba(20,20,20,0.98) 100px)`;
         }
 
         function updateFlashlight(e) {
@@ -77,13 +101,13 @@
             x = x - rect.left;
             y = y - rect.top;
 
-            flashlight.style.background = `radial-gradient(circle at ${x}px ${y}px, transparent 40px, rgba(10,10,10,0.98) 90px)`;
+            flashlight.style.background = `radial-gradient(circle at ${x}px ${y}px, transparent 45px, rgba(20,20,20,0.98) 110px)`;
         }
 
         function foundKey() {
             if (isDone) return;
             isDone = true;
-            flashlight.style.background = `radial-gradient(circle at 50% 50%, transparent 100%, rgba(10,10,10,0) 100px)`;
+            app.classList.add('success');
             verifyBtn.disabled = false;
         }
 
@@ -92,10 +116,6 @@
 
         initGame();
 
-        function goToNextLevel() { 
-            localStorage.setItem('aktualnyPoziom', '12');
-            window.location.href = 'Poziom12.html'; 
-        }
     </script>
 </body>
 </html>
