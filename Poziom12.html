@@ -11,7 +11,10 @@
 
         .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
-        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #d93025; }
         .header h2 { font-size: 28px; }
 
         .game-area { background: #fafafa; padding: 30px 20px; display: flex; justify-content: center; align-items: center; position: relative; }
@@ -24,13 +27,14 @@
         .cell { width: 70px; height: 70px; background: white; cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center; }
         .cell:active { background: #f0f0f0; }
 
-        .pipe { position: absolute; background: #3498db; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pipe-straight .bar { width: 100%; height: 24px; background: inherit; position: absolute; top: 23px; left: 0; }
-        .pipe-corner .bar1 { width: 47px; height: 24px; background: inherit; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
-        .pipe-corner .bar2 { width: 24px; height: 47px; background: inherit; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
-        .pipe-corner::after { content: ''; position: absolute; width: 24px; height: 24px; background: #3498db; border-radius: 50%; top: 23px; left: 23px; }
+        /* Poprawione style rur */
+        .pipe { position: absolute; width: 100%; height: 100%; color: #3498db; background: transparent; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .pipe-straight .bar { width: 100%; height: 24px; background: currentColor; position: absolute; top: 23px; left: 0; }
+        .pipe-corner .bar1 { width: 47px; height: 24px; background: currentColor; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
+        .pipe-corner .bar2 { width: 24px; height: 47px; background: currentColor; position: absolute; top: 23px; left: 23px; border-radius: 12px 0 0 0; }
+        .pipe-corner::after { content: ''; position: absolute; width: 24px; height: 24px; background: currentColor; border-radius: 50%; top: 23px; left: 23px; }
 
-        .success .pipe { background: #2ecc71; } 
+        .success .pipe { color: #2ecc71; } 
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
         .btn-verify { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; transition: opacity 0.3s; }
@@ -40,7 +44,10 @@
 <body>
     <div class="captcha-box">
         <div class="header">
-            <span class="level-badge">Level 12</span>
+            <div class="header-top">
+                <span class="level-badge">Level 12</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
             <h2>Connect the flow</h2>
         </div>
         <div class="game-area">
@@ -54,6 +61,11 @@
     </div>
 
     <script>
+        function resetAllProgress() {
+            localStorage.setItem('aktualnyPoziom', '1');
+            window.location.href = 'index.html';
+        }
+
         const gridEl = document.getElementById('grid');
         const verifyBtn = document.getElementById('verifyBtn');
         let isDone = false;
@@ -75,8 +87,6 @@
             
             let pipeWrapper = document.createElement('div');
             pipeWrapper.className = data.type === 0 ? 'pipe pipe-straight' : 'pipe pipe-corner';
-            pipeWrapper.style.width = '100%';
-            pipeWrapper.style.height = '100%';
             
             if (data.type === 0) {
                 pipeWrapper.innerHTML = '<div class="bar"></div>';
