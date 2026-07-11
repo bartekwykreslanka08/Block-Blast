@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +14,11 @@
             height: 100vh; color: #333;
         }
 
+        @keyframes boxFadeIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         .captcha-box {
             background: #ffffff;
             width: 420px;
@@ -20,6 +26,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             overflow: hidden;
             display: flex; flex-direction: column;
+            animation: boxFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 24px 24px; }
@@ -31,46 +38,53 @@
         }
         .btn-reset {
             background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px;
-            border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px;
+            border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;
         }
-        .btn-reset:hover { background: #d93025; }
+        .btn-reset:hover { background: #d93025; transform: scale(1.05); }
+        .btn-reset:active { transform: scale(0.95); }
 
-        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; }
-        .header h2 { font-size: 32px; letter-spacing: 1px; }
+        .header p { font-size: 15px; margin-bottom: 6px; font-weight: normal; letter-spacing: 0.5px; opacity: 0.9; }
+        .header h2 { font-size: 32px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .grid-container { padding: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .grid-container { padding: 12px; background: #fafafa; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
         .img-item {
             position: relative; width: 100%; aspect-ratio: 1; 
-            cursor: pointer; overflow: hidden; background: #e0e0e0; border-radius: 4px;
+            cursor: pointer; overflow: hidden; background: #e0e0e0; border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;
         }
+        .img-item:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+        
         .img-item img {
             width: 100%; height: 100%; object-fit: cover; display: block;
-            transition: transform 0.2s ease-in-out, filter 0.2s ease;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.3s ease;
             animation: fadeIn 0.6s ease-in-out;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .img-item.selected img { transform: scale(0.85); filter: brightness(0.9); }
-        .img-item.selected { background-color: #4A90E2; }
+        .img-item.selected { background-color: #4A90E2; box-shadow: inset 0 0 0 3px #4A90E2; }
+        
         .img-item .checkmark {
             position: absolute; top: 6px; right: 6px; width: 26px; height: 26px;
             background-color: #4A90E2; color: white; border-radius: 50%;
             display: none; justify-content: center; align-items: center;
             font-size: 16px; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 10;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         .img-item.selected .checkmark { display: flex; }
 
         .footer {
             padding: 16px 20px; border-top: 1px solid #eee; display: flex;
-            justify-content: space-between; align-items: center; background: #fafafa;
+            justify-content: space-between; align-items: center; background: #fff;
         }
         .footer-icons button {
             background: none; border: none; cursor: pointer; font-size: 26px; 
-            color: #888; margin-right: 12px; transition: color 0.2s, transform 0.2s;
+            color: #888; margin-right: 12px; transition: color 0.2s, transform 0.3s;
         }
-        .footer-icons button:hover { color: #4A90E2; transform: rotate(45deg); }
+        .footer-icons button:hover { color: #4A90E2; transform: rotate(180deg); }
 
         .btn-verify {
             background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; border: none;
@@ -79,11 +93,14 @@
             box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
         }
         .btn-verify:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4); }
+        .btn-verify:active { transform: translateY(0); box-shadow: 0 2px 5px rgba(74, 144, 226, 0.3); }
         
         .error-msg {
             color: #d93025; font-size: 14px; padding: 0 16px 12px 16px; 
-            display: none; text-align: center;
+            display: none; text-align: center; background: #fafafa;
+            animation: shake 0.4s ease-in-out;
         }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
@@ -123,12 +140,11 @@
     </div>
 
     <script>
-        // Zapisanie aktualnego poziomu w pamięci przeglądarki
         localStorage.setItem('aktualnyPoziom', '1');
 
         function resetAllProgress() {
             localStorage.setItem('aktualnyPoziom', '1');
-            window.location.href = 'index.html'; // Zmień na plik startowy jeśli ma inną nazwę
+            window.location.href = 'index.html'; 
         }
 
         function toggleSelect(element) {
@@ -153,8 +169,11 @@
             if (JSON.stringify(selectedIds) === JSON.stringify(correctAnswers)) {
                 window.location.href = 'Poziom2.html';
             } else {
-                document.getElementById('errorMsg').style.display = 'block';
-                setTimeout(resetSelection, 800); 
+                const errorMsg = document.getElementById('errorMsg');
+                errorMsg.style.display = 'block';
+                errorMsg.style.animation = 'none';
+                setTimeout(() => errorMsg.style.animation = '', 10);
+                setTimeout(resetSelection, 1000); 
             }
         }
     </script>
