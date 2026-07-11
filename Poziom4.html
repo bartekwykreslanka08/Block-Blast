@@ -9,29 +9,42 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; }
         body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; overflow: hidden; }
         
-        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; }
+        @keyframes boxFadeIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; animation: boxFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .header { background: linear-gradient(135deg, #4A90E2, #357ABD); color: white; padding: 20px 24px; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
         .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; letter-spacing: 0.5px; }
-        .btn-reset:hover { background: #d93025; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+        .btn-reset:hover { background: #d93025; transform: scale(1.05); }
+        .btn-reset:active { transform: scale(0.95); }
 
-        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; }
-        .header h2 { font-size: 28px; letter-spacing: 1px; }
+        .header p { font-size: 14px; margin-bottom: 4px; font-weight: normal; opacity: 0.9; }
+        .header h2 { font-size: 28px; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .game-area { position: relative; height: 250px; background: #fafafa; overflow: hidden; border-bottom: 1px solid #eee; touch-action: none; }
-        .hint-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ccc; font-size: 20px; pointer-events: none; text-align: center; }
+        .game-area { position: relative; height: 260px; background: #fafafa; overflow: hidden; border-bottom: 1px solid #eee; touch-action: none; }
+        .hint-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #d0d0d0; font-size: 22px; pointer-events: none; text-align: center; }
 
         .btn-verify-catch {
             position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #4A90E2, #357ABD);
             color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase;
-            cursor: pointer; transition: box-shadow 0.2s; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); z-index: 10;
+            cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); z-index: 10;
+            animation: pulseBtn 1.5s infinite;
         }
-        .btn-verify-catch:hover { box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4); }
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 144, 226, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); }
+        }
+        .btn-verify-catch:hover { transform: scale(1.05); }
+        .btn-verify-catch:active { transform: scale(0.95); }
 
         .footer { padding: 16px 20px; display: flex; justify-content: center; align-items: center; background: #fff; height: 60px; }
-        .success-msg { color: #0f9d58; font-size: 16px; display: none; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .success-msg { color: #0f9d58; font-size: 16px; display: none; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -53,7 +66,6 @@
         </div>
     </div>
     <script>
-        // Zapisanie aktualnego poziomu
         localStorage.setItem('aktualnyPoziom', '4');
 
         function resetAllProgress() {
@@ -65,7 +77,7 @@
         const gameArea = document.getElementById('gameArea');
         const successMsg = document.getElementById('successMsg');
         
-        let x = 10, y = 10, speedX = 2.5, speedY = 2.5, animationId;
+        let x = 10, y = 10, speedX = 2.8, speedY = 2.8, animationId;
 
         function animateButton() {
             const areaWidth = gameArea.clientWidth, areaHeight = gameArea.clientHeight;
@@ -84,12 +96,13 @@
 
         function finishLevel() {
             cancelAnimationFrame(animationId);
-            catchBtn.style.display = 'none'; 
+            catchBtn.style.transform = 'scale(0)';
+            setTimeout(() => catchBtn.style.display = 'none', 150); 
             successMsg.style.display = 'block';
             
             setTimeout(() => { 
                 window.location.href = 'Poziom5.html'; 
-            }, 1000);
+            }, 1200);
         }
     </script>
 </body>
