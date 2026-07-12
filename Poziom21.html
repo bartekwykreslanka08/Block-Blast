@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 21 - Stick the Stamp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.3s; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.2); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.3s; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+        .btn-reset:hover { background: #e74c3c; }
+        
+        .game-area { background: #fafafa; padding: 30px 20px; position: relative; display: flex; flex-direction: column; align-items: center; height: 320px; }
+        .instructions { font-size: 14px; color: #7f8c8d; text-align: center; margin-bottom: 20px; }
+
+        .envelope { width: 260px; height: 160px; background: #ecf0f1; border: 2px solid #bdc3c7; border-radius: 4px; position: relative; margin-top: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
+        .envelope::before { content: ''; position: absolute; top: 0; left: 0; border-left: 130px solid transparent; border-right: 130px solid transparent; border-top: 80px solid #dde4e6; }
+        
+        .stamp-target { position: absolute; top: 10px; right: 10px; width: 50px; height: 60px; border: 2px dashed #bdc3c7; border-radius: 4px; transition: border-color 0.3s; }
+        .success .stamp-target { border-color: transparent; }
+
+        .stamp { width: 50px; height: 60px; background: #e74c3c; border: 3px dashed white; border-radius: 4px; position: absolute; bottom: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.1s, filter 0.3s; z-index: 10; }
+        .stamp.licked { filter: brightness(0.8) contrast(1.2); cursor: grab; }
+        .stamp.dragging { cursor: grabbing; transform: scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: none; }
+        .stamp.snapped { transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: default; transform: scale(1) rotate(5deg); }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box" id="app">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 21</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Postage Time</h2>
+        </div>
+        <div class="game-area" id="gameArea">
+            <p class="instructions" id="instText">Tap the stamp to lick it, then stick it!</p>
+            
+            <div class="envelope" id="envelope">
+                <div class="stamp-target" id="target"></div>
+            </div>
+
+            <div class="stamp" id="stamp">✉️</div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        function goToNextLevel() { localStorage.setItem('aktualnyPoziom', '22'); window.location.href = 'Poziom22.html'; }
+
+        const stamp = document.getElementById('stamp');
+        const target = document.getElementById('target');
+        const gameArea = document.getElementById('gameArea');
+        const app = document.getElementById('app');
+        const instText = document.getElementById('instText');
+        const verifyBtn = document.getElementById('verifyBtn');
+
+        let isDone = false;
+        let isLicked = false;
+        let isDragging = false;
+
+        let offsetX = 0, offsetY = 0;
+
+        stamp.addEventListener('mousedown', startDrag);
+        stamp.addEventListener('touchstart', startDrag);
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag);
+        window.addEventListener('mouseup', stopDrag);
+        window.addEventListener('touchend', stopDrag);
+
+        function startDrag(e) {
+            if (isDone) return;
+            if (!isLicked) {
+                isLicked = true;
+                stamp.classList.add('licked');
+                instText.innerText = "Now drag it to the top right corner.";
+                return;
+            }
+
+            isDragging = true;
+            stamp.classList.add('dragging');
+            const rect = stamp.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+        }
+
+        function drag(e) {
+            if (!isDragging || isDone) return;
+            
+            const areaRect = gameArea.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            let newLeft = clientX - areaRect.left - offsetX;
+            let newTop = clientY - areaRect.top - offsetY;
+
+            stamp.style.left = `${newLeft}px`;
+            stamp.style.top = `${newTop}px`;
+            stamp.style.bottom = 'auto'; // override initial css
+        }
+
+        function stopDrag() {
+            if (!isDragging || isDone) return;
+            isDragging = false;
+            stamp.classList.remove('dragging');
+
+            const stampRect = stamp.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+
+            // Calculate distance between centers
+            const stampCenterX = stampRect.left + stampRect.width / 2;
+            const stampCenterY = stampRect.top + stampRect.height / 2;
+            const targetCenterX = targetRect.left + targetRect.width / 2;
+            const targetCenterY = targetRect.top + targetRect.height / 2;
+
+            const dist = Math.hypot(stampCenterX - targetCenterX, stampCenterY - targetCenterY);
+
+            if (dist < 40) {
+                // Snap to target
+                isDone = true;
+                stamp.classList.add('snapped');
+                
+                const areaRect = gameArea.getBoundingClientRect();
+                stamp.style.left = `${targetRect.left - areaRect.left}px`;
+                stamp.style.top = `${targetRect.top - areaRect.top}px`;
+                
+                instText.innerText = "Perfectly placed!";
+                app.classList.add('success');
+                verifyBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
