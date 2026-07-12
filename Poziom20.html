@@ -57,11 +57,15 @@
     </div>
 
     <script>
-        localStorage.setItem('aktualnyPoziom', '20');
-        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        function resetAllProgress() { 
+            localStorage.setItem('aktualnyPoziom', '1'); 
+            window.location.href = 'index.html'; 
+        }
         
-        // Zmień to na poziom 21, lub ekran końcowy gry jeśli to finałowy poziom!
-        function goToNextLevel() { alert("You won the whole game!"); } 
+        function goToNextLevel() { 
+            localStorage.setItem('aktualnyPoziom', '21'); 
+            window.location.href = 'Poziom21.html'; 
+        }
 
         const gameArea = document.getElementById('gameArea');
         const counterText = document.getElementById('counterText');
@@ -84,7 +88,7 @@
             bubble.style.animationDuration = duration + 's';
 
             bubble.onmousedown = bubble.ontouchstart = function(e) {
-                if(e) e.preventDefault(); // prevents double-tap zoom
+                if(e) e.preventDefault(); 
                 if(!gameActive) return;
                 
                 this.remove();
@@ -95,17 +99,13 @@
                     gameActive = false;
                     verifyBtn.disabled = false;
                     counterText.style.color = '#2ecc71';
-                    gameArea.innerHTML = ''; // Wyczyść planszę
+                    gameArea.innerHTML = ''; 
                 }
             };
 
             gameArea.appendChild(bubble);
-
-            // Clean up off-screen bubbles
             setTimeout(() => { if(bubble.parentNode) bubble.remove(); }, duration * 1000);
-
-            // Spawn next bubble
-            setTimeout(spawnBubble, Math.random() * 600 + 400); // Co 0.4s - 1.0s
+            setTimeout(spawnBubble, Math.random() * 600 + 400); 
         }
 
         spawnBubble();
