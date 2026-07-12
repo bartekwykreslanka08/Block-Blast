@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level 23 - Clean the Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka One', cursive; touch-action: none; user-select: none; }
+        body { background: linear-gradient(135deg, #e8effa 0%, #f2f2f2 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+
+        .captcha-box { background: #ffffff; width: 92%; max-width: 420px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.3s; }
+        .success.captcha-box { box-shadow: 0 15px 35px rgba(46, 204, 113, 0.2); }
+        
+        .header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 20px 24px; transition: background 0.3s; }
+        .success .header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .level-badge { display: inline-block; background: rgba(255, 255, 255, 0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; }
+        .btn-reset { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+        
+        .game-area { background: #fafafa; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .instructions { font-size: 14px; color: #7f8c8d; text-align: center; }
+
+        .monitor-case { width: 280px; height: 180px; background: #2c3e50; border-radius: 10px; padding: 10px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .monitor-stand { width: 60px; height: 30px; background: #7f8c8d; margin: 0 auto; border-radius: 0 0 5px 5px; }
+        
+        .screen { width: 100%; height: 100%; background: #3498db; border-radius: 4px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px; letter-spacing: 1px; }
+        
+        .dirt-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(40,40,40,0.9) 0%, rgba(10,10,10,1) 100%); cursor: crosshair; z-index: 10; transition: opacity 0.5s ease-out; display: flex; justify-content: center; align-items: center; }
+        .dirt-layer::after { content: 'Scrub me!'; color: rgba(255,255,255,0.3); font-size: 14px; }
+
+        .progress-container { width: 100%; max-width: 280px; background: #eee; border-radius: 10px; overflow: hidden; height: 16px; margin-top: 10px; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #f1c40f, #2ecc71); width: 0%; transition: width 0.1s; }
+
+        .footer { padding: 16px 20px; display: flex; justify-content: center; background: #fff; border-top: 1px solid #eee; }
+        .btn-verify { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 14px 36px; font-size: 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .btn-verify:disabled { background: #b5e8c9; cursor: not-allowed; color: rgba(255,255,255,0.7); }
+        .btn-verify:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="captcha-box" id="app">
+        <div class="header">
+            <div class="header-top">
+                <span class="level-badge">Level 23</span>
+                <button class="btn-reset" onclick="resetAllProgress()">Reset Game</button>
+            </div>
+            <h2>Wipe the Screen</h2>
+        </div>
+        <div class="game-area">
+            <p class="instructions">Rub the monitor until it's 100% clean.</p>
+            
+            <div>
+                <div class="monitor-case">
+                    <div class="screen" id="screenContent">
+                        SYSTEM OK
+                        <div class="dirt-layer" id="dirt"></div>
+                    </div>
+                </div>
+                <div class="monitor-stand"></div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="btn-verify" id="verifyBtn" onclick="goToNextLevel()" disabled>Verify</button>
+        </div>
+    </div>
+
+    <script>
+        function resetAllProgress() { localStorage.setItem('aktualnyPoziom', '1'); window.location.href = 'index.html'; }
+        // Podmień na np. Poziom24.html, jeśli będziesz dodawał kolejne.
+        function goToNextLevel() { alert("Congratulations, you finished the updates!"); }
+
+        const dirt = document.getElementById('dirt');
+        const progressBar = document.getElementById('progressBar');
+        const app = document.getElementById('app');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const instructions = document.querySelector('.instructions');
+
+        let cleanProgress = 0;
+        const targetClean = 150; // Ilość eventów "ruchu" potrzebna do wygranej
+        let isDone = false;
+        let lastMove = 0;
+
+        function scrub(e) {
+            if(isDone) return;
+            
+            // Limit event firing slightly for performance
+            const now = Date.now();
+            if(now - lastMove < 20) return; 
+            lastMove = now;
+
+            cleanProgress++;
+            let percentage = (cleanProgress / targetClean) * 100;
+            if(percentage > 100) percentage = 100;
+            
+            progressBar.style.width = percentage + '%';
+            
+            // Rozjaśniaj brud stopniowo
+            dirt.style.opacity = 1 - (percentage / 100);
+
+            if(cleanProgress >= targetClean) {
+                isDone = true;
+                dirt.style.display = 'none';
+                app.classList.add('success');
+                verifyBtn.disabled = false;
+                instructions.innerText = "Screen is sparkling clean!";
+            }
+        }
+
+        // Mouse events
+        dirt.addEventListener('mousemove', scrub);
+        // Touch events
+        dirt.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Zatrzymuje scrollowanie strony przy wycieraniu
+            scrub(e);
+        });
+    </script>
+</body>
+</html>
